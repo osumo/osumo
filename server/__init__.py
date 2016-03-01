@@ -10,7 +10,7 @@ from girder.api.describe import Description, describeRoute
 from girder.api.rest import filtermodel, loadmodel, Resource
 from girder.constants import AccessType
 
-from girder.plugins.romanesco import utils as romanescoUtils
+from girder.plugins.worker import utils as workerUtils
 
 from . import yaml_importer
 
@@ -50,18 +50,18 @@ class Osumo(Resource):
         user = self.getCurrentUser()
         apiUrl = os.path.dirname(cherrypy.url())
 
-        job = self.model("job", "jobs").createJob(
-            title="sumo kmeans test",
-            type="romanesco",
+        job = self.model('job', 'jobs').createJob(
+            title='sumo kmeans test',
+            type='sumo',
             user=user,
-            handler="romanesco_handler")
+            handler='worker_handler')
 
         item = self.model("item").load(itemId, user=user)
         targetFolder = self.model("folder").load(targetId, user=user)
 
         jobToken = self.model("job", "jobs").createJobToken(job)
 
-        job["kwargs"]["jobInfo"] = romanescoUtils.jobInfoSpec(
+        job['kwargs']['jobInfo'] = workerUtils.jobInfoSpec(
             job=job,
             token=jobToken,
             logPrint=True)
@@ -69,7 +69,7 @@ class Osumo(Resource):
         from .job_specs.kmeans import doc as kmeans
         inputs = deepcopy(kmeans["inputs"])
 
-        inputs["input_path"] = romanescoUtils.girderInputSpec(
+        inputs['input_path'] = workerUtils.girderInputSpec(
             item,
             resourceType="item",
             token=self.getCurrentToken())
@@ -78,7 +78,7 @@ class Osumo(Resource):
         inputs["num_clusters"]["data"] = int(numClusters)
 
         outputs = {}
-        outputs["centers"] = romanescoUtils.girderOutputSpec(
+        outputs['centers'] = workerUtils.girderOutputSpec(
             parent=targetFolder,
             # TODO(opadron): make a special-purpose token just for this job in
             # case the user logs out before it finishes.
@@ -88,7 +88,7 @@ class Osumo(Resource):
             dataType="table",
             dataFormat="csv")
 
-        outputs["clusters"] = romanescoUtils.girderOutputSpec(
+        outputs['clusters'] = workerUtils.girderOutputSpec(
             parent=targetFolder,
             # TODO(opadron): make a special-purpose token just for this job in
             # case the user logs out before it finishes.
