@@ -1,0 +1,13 @@
+*.py[cod]
+node_modules
+docs/_build
+docs/_output
+web-external/lib
+.coverage*
+.DS_Store
+.*.swp
+.*.swo
+.vagrant
+__pycache__
+### PyCharm ###
+.idea/
