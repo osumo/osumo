@@ -1,0 +1,40 @@
+
+<html>
+<head>
+    <link rel="stylesheet" href="/static/lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/built/app.min.css">
+    <script src="/static/built/libs.min.js"></script>
+    <script src="/static/built/app.min.js"></script>
+
+    <script src="lib/bundle.js"></script>
+
+    <style>
+      button#add {
+        position: relative;
+        margin: 0px;
+        margin-right: -45px;
+        width: 40px;
+        display: block;
+        left: -45px;
+        float: left;
+      }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">SUMO</a>
+            </div>
+            <div class="navbar-form navbar-right">
+                <button class="btn btn-link" id="login">Login</button>
+                <button class="btn btn-link" id="register">Register</button>
+                <label class="hidden" id="name"></label>
+                <button class="btn btn-link hidden" id="logout">Logout</button>
+            </div>
+        </div>
+    </nav>
+    <div class="modal fade" id="dialog-container"></div>
+</body>
+</html>
+
