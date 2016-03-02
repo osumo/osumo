@@ -1,0 +1,14 @@
+
+name: OSUMO
+version: 0.0.1
+description: "**M**ulti-**O**mics Data Analytics @ **OSU**"
+grunt:
+    autoconf: false
+    dependencies:
+        "webpack": ^1.12.11
+        "webpack-dev-server": ^1.14.1
+    file: Gruntfile.js
+dependencies:
+    - romanesco
+    - jobs
+
