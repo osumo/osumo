@@ -6,12 +6,15 @@ var webpack = require("webpack");
 module.exports = {
     cache: true,
 
-    entry: "./main",
+    entry: {
+        main: "./main"
+    },
+
     context: path.resolve(__dirname, "web-external", "src"),
 
     output: {
         path: path.resolve(__dirname, "web-external", "lib"),
-        filename: "bundle.js"
+        filename: "[name].js"
     },
 
 
@@ -48,6 +51,12 @@ module.exports = {
             // This is required by many jquery plugins
             jQuery: "jquery",
             $: "jquery"
+        }),
+
+        new webpack.DefinePlugin({
+            "process.env": {
+                "NODE_ENV": JSON.stringify("production")
+            }
         })
     ]
 };
