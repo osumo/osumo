@@ -16,7 +16,7 @@ export default class MainApp extends React.Component {
     static defaultProps = {
         apiRoot: "api/v1",
         staticRoot: "static",
-        user: null,
+        currentUser: null,
         navItems: [],
         navMap: {},
         /* TODO(opadron): replace with a warning message */
@@ -36,7 +36,7 @@ export default class MainApp extends React.Component {
                            apiRoot={ this.props.apiRoot }
                            staticRoot={ this.props.staticRoot }
                            navigationCallback={ this.props.navigationCallback }
-                           user={ this.props.user }/>);
+                           currentUser={ this.props.currentUser }/>);
 
         /*
          * NOTE(opadron): We can probably do away with the other views/revisit
@@ -44,7 +44,7 @@ export default class MainApp extends React.Component {
          */
         return (
             <div>
-              <Header user={ this.props.user }
+              <Header currentUser={ this.props.currentUser }
                       navigationCallback={ this.props.navigationCallback }/>
               <GlobalNav navItems={ this.props.navItems }
                       navigationCallback={ this.props.navigationCallback }/>

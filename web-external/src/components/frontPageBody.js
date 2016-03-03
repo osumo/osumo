@@ -32,10 +32,10 @@ export default class FrontPageBody extends React.Component {
                 .
               </p>
               {(
-                  this.props.user
+                  this.props.currentUser
                 ? <p className="g-frontpage-paragraph">
                     You are currently logged in as
-                    <b> { this.props.user }</b>.  You can view your
+                    <b> { this.props.currentUser }</b>.  You can view your
                     <a className="g-my-folders-link">
                       { S }personal data space
                     </a>

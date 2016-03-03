@@ -5,8 +5,7 @@ import { default as ReactDOM } from "react-dom";
 
 import { default as FrontPage } from "./components/frontPage";
 import { default as App } from "./components/mainApp";
-
-import "./components/fullViewPort";
+import styles from "./components/fullViewPort";
 
 class TestBodyComponent extends React.Component {
     render() {
@@ -62,7 +61,7 @@ function createMainApp(element, navItems, navMap, navCB) {
     var reference;
     var component = (<App apiRoot="api/v1"
                           staticRoot="static"
-                          user={ null || "girder" }
+                          currentUser={ null || "girder" }
                           navigationCallback={ navCB }
                           navItems={ navItems }
                           navMap={ navMap }

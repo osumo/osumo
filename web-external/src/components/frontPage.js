@@ -10,19 +10,19 @@ export default class FrontPage extends React.Component {
             <div id="g-app-body-container" className="g-default-layout">
               <Header staticRoot={ this.props.staticRoot }/>
               <Body apiRoot={ this.props.apiRoot }
-                    user={ this.props.user }/>
+                    currentUser={ this.props.currentUser }/>
               <Body apiRoot={ this.props.apiRoot }
-                    user={ this.props.user }/>
+                    currentUser={ this.props.currentUser }/>
               <Body apiRoot={ this.props.apiRoot }
-                    user={ this.props.user }/>
+                    currentUser={ this.props.currentUser }/>
               <Body apiRoot={ this.props.apiRoot }
-                    user={ this.props.user }/>
+                    currentUser={ this.props.currentUser }/>
               <Body apiRoot={ this.props.apiRoot }
-                    user={ this.props.user }/>
+                    currentUser={ this.props.currentUser }/>
               <Body apiRoot={ this.props.apiRoot }
-                    user={ this.props.user }/>
+                    currentUser={ this.props.currentUser }/>
               <Body apiRoot={ this.props.apiRoot }
-                    user={ this.props.user }/>
+                    currentUser={ this.props.currentUser }/>
             </div>
         );
     }
