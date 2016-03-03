@@ -1,7 +1,7 @@
 
 import { default as React } from "react";
 
-const COPYRIGHT = String.fromCharCode(169);
+import { COPYRIGHT } from "../constants";
 
 export default class FooterInfo extends React.Component {
     render() {
