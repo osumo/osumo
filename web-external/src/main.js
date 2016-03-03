@@ -7,6 +7,8 @@ import { default as FrontPage } from "./components/frontPage";
 import { default as App } from "./components/mainApp";
 import styles from "./components/fullViewPort";
 
+import { default as router } from "./router";
+
 class TestBodyComponent extends React.Component {
     render() {
         return (
@@ -80,6 +82,8 @@ $(() => {
     var $div;
     $(document.body).append($div = $("<div>"));
 
+    let route = router();
+
     var app = createMainApp(
         $div[0],
         [{name: 'Collections', icon: 'icon-sitemap', target: 'collections'},
@@ -95,9 +99,31 @@ $(() => {
             users: UsersTestBodyComponent,
             groups: GroupsTestBodyComponent
         },
-        path => path
+        path => route(path)
     );
 
+    function setNavKey(context, next) {
+        var navKey = context.params.navKey || "";
+        app.reference.setState({ navKey: navKey });
+        next();
+    }
+
+    route("", setNavKey, () => {
+        console.log("INIT");
+    });
+
+    route(":navKey", setNavKey, () => {
+        console.log("INIT");
+    });
+
+    route(":navKey/:extra/*nested", setNavKey, (context) => {
+        console.log("NESTED ROUTE:")
+        console.log(context.params);
+    });
+
+    route.base();
+    route.pushState(false);
+    route.start();
     // girder.apiRoot = "/girder/api/v1";
     // girder.router.enabled(false);
 
