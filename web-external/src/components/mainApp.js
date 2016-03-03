@@ -2,8 +2,8 @@
 import { default as React } from "react";
 
 import { default as Header } from "./headerContainer";
-import { default as Footer } from "./footerContainer";
 import { default as GlobalNav } from "./globalNavContainer";
+import { default as Footer } from "./footerContainer";
 
 class DummyBodyComponent extends React.Component {
     render() {
@@ -12,18 +12,31 @@ class DummyBodyComponent extends React.Component {
 }
 
 export default class MainApp extends React.Component {
-    constructor(...args) {
-        super(...args);
-        this.state = { bodyKey: false };
-    }
 
-    navigateTo(key) {
-        this.setState({ bodyKey: key });
-    }
+    static defaultProps = {
+        apiRoot: "api/v1",
+        staticRoot: "static",
+        user: null,
+        navItems: [],
+        navMap: {},
+        /* TODO(opadron): replace with a warning message */
+        navigationCallback: (route) => console.log("ROUTE: " + route)
+    };
+
+    state = {};
 
     render() {
         var BodyComponent = (
-            this.props.bodyMap[this.state.bodyKey] || DummyBodyComponent);
+            this.props.navMap[this.state.navKey] || DummyBodyComponent);
+
+        var body = (
+            BodyComponent === DummyBodyComponent
+          ? <BodyComponent/>
+          : <BodyComponent key={ this.state.navKey }
+                           apiRoot={ this.props.apiRoot }
+                           staticRoot={ this.props.staticRoot }
+                           navigationCallback={ this.props.navigationCallback }
+                           user={ this.props.user }/>);
 
         /*
          * NOTE(opadron): We can probably do away with the other views/revisit
@@ -31,9 +44,11 @@ export default class MainApp extends React.Component {
          */
         return (
             <div>
-              <Header user={ this.props.user }/>
-              <GlobalNav navItems={ this.props.navItems }/>
-              <BodyComponent/>
+              <Header user={ this.props.user }
+                      navigationCallback={ this.props.navigationCallback }/>
+              <GlobalNav navItems={ this.props.navItems }
+                      navigationCallback={ this.props.navigationCallback }/>
+              { body }
               <Footer apiRoot="api/v1"/>
               <div id="g-app-progress-container"/>
               <div id="g-dialog-container" className="modal fade"/>
