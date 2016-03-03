@@ -34,7 +34,10 @@ module.exports = {
                 test: /\.jsx?$/,
                 exclude: /(node_modules|bower_components)/,
                 loader: "babel-loader",
-                query: { presets: ["react", "es2015"] }
+                query: {
+                    plugins: ["transform-runtime"],
+                    presets: ["es2015", "stage-0", "react"]
+                }
             }
         ]
     },
