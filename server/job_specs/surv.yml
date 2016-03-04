@@ -1,0 +1,50 @@
+---
+
+name: Survival Plot
+
+description: "Calculate a survival plot."
+
+task:
+    name: surv
+    mode: r
+
+    script: >
+        @include(surv.r)
+
+    inputs:
+      - name: input_path
+        type: string
+        format: text
+      - name: num_clusters
+        type: number
+        format: number
+
+    outputs:
+      - name: fitoutput
+        type: table
+        format: r.dataframe
+        target: memory
+      - name: sdfoutput
+        type: table
+        format: r.dataframe
+        target: memory
+
+inputs:
+    - key: input_path
+      name: "Input Data"
+      description: "A set of rdata."
+      type: item
+      subtype: rdata
+    - key: num_clusters
+      name: "Num. Clusters"
+      description: "The number (k) of clusters used in calculations"
+      type: integer
+      default: 5
+      format: number
+
+parameters:
+  - key: targetFolderId
+    name: "Target Folder"
+    type: folder
+
+# outputs: ...

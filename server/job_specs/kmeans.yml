@@ -1,5 +1,9 @@
 ---
 
+name: kmeans
+
+description: "Calculate k mean values for a set of n-dimensional data points."
+
 task:
     name: kmeans
     mode: r
@@ -28,14 +32,44 @@ task:
         format: r.dataframe
         target: memory
 
+# Inputs are requested from the user
 inputs:
-    # input_path: ...
-    has_header:
-        format: json
-        # data: ...
-    num_clusters:
-        format: number
-        # data: ...
+  # Note: if there is no default, the parameter is required
+  - key: input_path
+    name: "Input Data"
+    description: "A list of points, all with the same number of dimensions."
+    type: item
+    subtype: csv
+  - key: has_header
+    name: "Header in Data"
+    description: "If set, skip the first line of the input file."
+    type: boolean
+    default: true
+    format: json
+  - key: num_clusters
+    name: "Num. Clusters"
+    description: "The number (k) of clusters to calculate means for"
+    type: integer
+    default: 5
+    format: number
 
-# outputs: ...
+# Parameters are required by the rest endpoint, but not by the task inputs
+parameters:
+  - key: targetFolderId
+    name: "Target Folder"
+    type: folder
 
+# See girderOutputSpec for details.
+outputs: 
+  - key: centers
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "centers.csv"
+    dataType: "table"
+    dataFormat: "csv"
+  - key: clusters
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "clusters.csv"
+    dataType: "table"
+    dataFormat: "csv"

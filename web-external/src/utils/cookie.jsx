@@ -26,10 +26,10 @@ const reducer = (partial, cookie, query) => {
 const search = (query, cookieString=null) => {
     cookieString = cookieString || document.cookie;
 
-    let isString = isString(query);
-    let isObject = isObject(query);
+    let isStr = isString(query);
+    let isObj = isObject(query);
 
-    let queryAll = !(isString || isObject);
+    let queryAll = !(isStr || isObj);
 
     let result;
 
@@ -42,7 +42,7 @@ const search = (query, cookieString=null) => {
             .value());
     } else {
         let queryString;
-        if(isString) {
+        if(isStr) {
             queryString = query;
             query = {};
             query[queryString] = true;
@@ -68,7 +68,7 @@ const search = (query, cookieString=null) => {
                     {})
             .value());
 
-        if(isString) {
+        if(isStr) {
             result = result[queryString];
         }
     }
