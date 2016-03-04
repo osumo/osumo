@@ -1,46 +1,47 @@
 
-import { default as _ } from "underscore";
+import { chain, isObject, isString } from "underscore";
 
-function cookieMapper(cookie) {
+const mapper = (cookie) => {
     cookie = cookie.trim();
-    var index = cookie.indexOf("=");
-    var key = cookie;
-    var value = "";
+    let index = cookie.indexOf("=");
+    let key = cookie;
+    let value = "";
 
     if(index >= 0) {
         [key, value] = [cookie.substr(0, index), cookie.substr(index+1)];
     }
 
     return [key, value];
-}
+};
 
-function cookieReducer(partial, cookie, query) {
-    var [key, value] = cookie;
+
+const reducer = (partial, cookie, query) => {
+    let [key, value] = cookie;
     if(!query || key in query) {
         partial[key] = value;
     }
     return partial;
-}
+};
 
-export function searchCookies(query, cookieString=null) {
+const search = (query, cookieString=null) => {
     cookieString = cookieString || document.cookie;
 
-    var isString = _.isString(query);
-    var isObject = _.isObject(query);
+    let isString = isString(query);
+    let isObject = isObject(query);
 
-    var queryAll = !(isString || isObject);
+    let queryAll = !(isString || isObject);
 
-    var result;
+    let result;
 
     if(queryAll) {
         result = (
-           _.chain(cookieString.split(";"))
-            .map(cookieMapper)
-            .reduce((partial, cookie) => cookieReducer(partial, cookie, null),
+            chain(cookieString.split(";"))
+            .map(mapper)
+            .reduce((partial, cookie) => reducer(partial, cookie, null),
                     {})
             .value());
     } else {
-        var queryString;
+        let queryString;
         if(isString) {
             queryString = query;
             query = {};
@@ -48,7 +49,7 @@ export function searchCookies(query, cookieString=null) {
         }
 
         query = (
-           _.chain(query || {})
+            chain(query || {})
             .map((value, key) => [key, value])
             .filter((x) => x[1])
             .map((x) => x[0])
@@ -59,11 +60,11 @@ export function searchCookies(query, cookieString=null) {
             .value());
 
         result = (
-           _.chain(cookieString.split(";"))
+            chain(cookieString.split(";"))
             .reverse()
-            .map(cookieMapper)
+            .map(mapper)
             .uniq(false, (x) => x[0])
-            .reduce((partial, cookie) => cookieReducer(partial, cookie, query),
+            .reduce((partial, cookie) => reducer(partial, cookie, query),
                     {})
             .value());
 
@@ -74,4 +75,6 @@ export function searchCookies(query, cookieString=null) {
 
     return result;
 };
+
+export { mapper, reducer, search };
 

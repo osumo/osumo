@@ -9,10 +9,10 @@ import { Provider } from "react-redux";
 
 import { partial, isArray } from "underscore";
 
-import MainApp from "./components/mainApp";
-import FrontPage from "./components/frontPage";
+import MainApp from "./components/main-app";
+import FrontPage from "./components/front-page";
 
-import styles from "./style/fullViewPort";
+import style from "./style/full-viewport";
 
 const DummyComponent = ({ msg }) => (
     <div id="g-app-body-container" className="g-default-layout">
@@ -27,24 +27,29 @@ $(() => {
 
     /* create store and populate it with initial state */
     let { default: rootReducer } = require("./reducer");
+
     const store = createStore(rootReducer);
 
     const dummy = (msg) => partial(DummyComponent, { msg });
 
     store.dispatch({
-        type: "ADD_GLOBAL_NAV",
-        items: [
-            { name: "Collections", icon: "sitemap", target: "collections" },
-            { name: "Users"      , icon: "user"   , target: "users"       },
-            { name: "INDEX"      , icon: "user"   , target: ""            },
-            { name: "Groups"     , icon: "users"  , target: "groups"      },
-            { name: "INDEX"      , icon: "user"   , target: ""            }
-        ]
+        type: rootReducer().globalNav.list.extend,
+        entries: [
+            /* id  name           icon       target */
+            [0, "Collections", "sitemap", "collections"],
+            [1, "Users"      , "user"   , "users"      ],
+            [2, "INDEX"      , "user"   , ""           ],
+            [3, "Groups"     , "users"  , "groups"     ],
+            [4, "INDEX"      , "user"   , ""           ]
+        ].map(([id, name, icon, target]) => ({
+            id,
+            value: { name, icon, target }
+        }))
     });
 
     store.dispatch({
-        type: "SET_GLOBAL_NAV_TARGET",
-        mappings: {
+        type: rootReducer().globalNav.table.set,
+        entries: {
             /* [target]: [component] */
             ""         : FrontPage,
             collections: dummy("Collections Test"),
@@ -55,7 +60,7 @@ $(() => {
 
     /* initialize rest API */
     let { default: events } = require("./utils/events");
-    let { default: restRequests } = require("./utils/restRequests");
+    let { default: restRequests } = require("./utils/rest-requests");
 
     const rest = restRequests({ events, apiRoot });
 
@@ -64,8 +69,8 @@ $(() => {
     /* :target/a/b/c/etc... -> sets global nav target */
     const setGlobalNavTarget = ({ params: { target } }, next) => {
         store.dispatch({
-            type: "SET_CURRENT_GLOBAL_NAV_TARGET",
-            target
+            type: rootReducer().globalNav.currentTarget.set,
+            value: target
         });
         next();
     };
@@ -145,5 +150,8 @@ $(() => {
     );
 
     ReactDOM.render(<App/>, $div[0]);
+
+    /* expose some variables for debugging */
+    Object.assign(window, { store, rootReducer });
 });
 

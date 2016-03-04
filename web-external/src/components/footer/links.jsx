@@ -1,5 +1,5 @@
 
-import { default as React } from "react";
+import React from "react";
 
 import { ABOUT_URL, BUG_URL, CONTACT_URL } from "../../constants";
 

@@ -6,6 +6,10 @@ var process = require("process");
 
 var webpack = require("webpack");
 
+var srcDir         = path.resolve(__dirname, "web-external", "src");
+var libDir         = path.resolve(__dirname, "web-external", "lib");
+var nodeModulesDir = path.resolve(__dirname, "node_modules");
+
 var production = process.env.NODE_ENV === "production";
 var plugins = [];
 
@@ -79,10 +83,10 @@ module.exports = {
         main: "./main"
     },
 
-    context: path.resolve(__dirname, "web-external", "src"),
+    context: srcDir,
 
     output: {
-        path: path.resolve(__dirname, "web-external", "lib"),
+        path: libDir,
         filename: "[name].js"
     },
 
@@ -111,8 +115,8 @@ module.exports = {
     },
 
     resolve: {
-        extensions: [".js", ".styl", ".css", ".jade", ""],
-        modulesDirectories: ["./web-external/src", "./node_modules"]
+        extensions: [".js", ".jsx", ".styl", ".css", ".jade", ""],
+        modulesDirectories: [srcDir, nodeModulesDir]
     },
 
     plugins: plugins

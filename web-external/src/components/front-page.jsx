@@ -1,8 +1,8 @@
 
 import React from "react";
 
-import Header from "./frontPage/header";
-import Body from "./frontPage/body";
+import Header from "./front-page/header";
+import Body from "./front-page/body";
 
 export default class FrontPage extends React.Component {
     render() {

@@ -1,6 +1,6 @@
 
-import { searchCookies } from "./cookie";
-import { default as ajax } from "./ajax";
+import { search as searchCookies } from "./cookie";
+import ajax from "./ajax";
 
 const restRequests = ({
     events,

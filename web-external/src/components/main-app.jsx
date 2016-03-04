@@ -2,7 +2,7 @@
 import React from "react";
 
 import Header from "./header";
-import GlobalNav from "./globalNav";
+import GlobalNav from "./global-nav";
 import Footer from "./footer";
 
 const DummyBodyComponent = () => (

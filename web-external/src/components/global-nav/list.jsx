@@ -10,7 +10,7 @@ export default class List extends React.Component {
             onNavigate
         } = this.props;
 
-        let navItems = navList.map(({ id, icon, name, target }) => {
+        let navItems = navList.map(({ id, value: { icon, name, target } }) => {
             let className = (
                 currentTarget === target
               ? "g-global-nav-li g-active"

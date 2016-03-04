@@ -1,7 +1,7 @@
 
 import React from "react";
 
-import List from "./globalNav/list";
+import List from "./global-nav/list";
 
 export default class GlobalNav extends React.Component {
     render() {
