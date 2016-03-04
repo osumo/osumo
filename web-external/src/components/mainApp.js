@@ -20,7 +20,7 @@ export default class MainApp extends React.Component {
         navItems: [],
         navMap: {},
         /* TODO(opadron): replace with a warning message */
-        navigationCallback: (route) => console.log("ROUTE: " + route)
+        onNavigate: (route) => console.log("ROUTE: " + route)
     };
 
     state = {};
@@ -35,7 +35,7 @@ export default class MainApp extends React.Component {
           : <BodyComponent key={ this.state.navKey }
                            apiRoot={ this.props.apiRoot }
                            staticRoot={ this.props.staticRoot }
-                           navigationCallback={ this.props.navigationCallback }
+                           onNavigate={ this.props.onNavigate }
                            currentUser={ this.props.currentUser }/>);
 
         /*
@@ -44,10 +44,11 @@ export default class MainApp extends React.Component {
          */
         return (
             <div>
-              <Header currentUser={ this.props.currentUser }
-                      navigationCallback={ this.props.navigationCallback }/>
+              <Header currentUser={ this.props.user }
+                      onNavigate={ this.props.onNavigate }/>
               <GlobalNav navItems={ this.props.navItems }
-                      navigationCallback={ this.props.navigationCallback }/>
+                      onNavigate={ this.props.onNavigate }
+                      activeItem={ this.state.navKey }/>
               { body }
               <Footer apiRoot="api/v1"/>
               <div id="g-app-progress-container"/>

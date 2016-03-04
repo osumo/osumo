@@ -10,7 +10,7 @@ export default class GlobalNavList extends React.Component {
               ? "g-global-nav-li g-active"
               : "g-global-nav-li");
 
-            var clickHandler = partial(this.props.navigationCallback,
+            var clickHandler = partial(this.props.onNavigate,
                                        item.target);
 
             console.log(item);

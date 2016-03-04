@@ -29,6 +29,7 @@ module.exports = function (grunt) {
         shell: {
             "osumo-webpack": {
                 command: ["./node_modules/webpack/bin/webpack.js",
+                          "--bail",
                           "--display-error-details"].join(" "),
                 options: {
                     execOptions: {
