@@ -8,6 +8,8 @@ import { default as App } from "./components/mainApp";
 import styles from "./components/fullViewPort";
 
 import { default as router } from "./router";
+import { default as restRequests } from "./utils/restRequests";
+import { default as events } from "./utils/events";
 
 class TestBodyComponent extends React.Component {
     render() {
@@ -101,6 +103,11 @@ $(() => {
         },
         path => route(path)
     );
+
+    const REST = restRequests({
+        events,
+        apiRoot: "api/v1"
+    });
 
     function setNavKey(context, next) {
         var navKey = context.params.navKey || "";
