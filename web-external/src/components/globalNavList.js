@@ -1,5 +1,5 @@
 
-import { default as React } from "react";
+import React from "react";
 import { partial } from "underscore";
 
 export default class GlobalNavList extends React.Component {

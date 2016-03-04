@@ -1,65 +1,21 @@
 
-import { default as $ } from "jquery";
-import { default as React } from "react";
-import { default as ReactDOM } from "react-dom";
+import $ from "jquery";
+import React from "react";
+import ReactDOM from "react-dom";
+import _ from "underscore";
 
-import { default as FrontPage } from "./components/frontPage";
-import { default as App } from "./components/mainApp";
+import FrontPage from "./components/frontPage";
+import App from "./components/mainApp";
 import styles from "./components/fullViewPort";
 
-import { default as router } from "./router";
-import { default as restRequests } from "./utils/restRequests";
-import { default as events } from "./utils/events";
+import router from "./router";
+import restRequests from "./utils/restRequests";
+import events from "./utils/events";
 
-class TestBodyComponent extends React.Component {
-    render() {
-        return (
-            <div id="g-app-body-container" className="g-default-layout">
-              Hello, SUMO!
-            </div>
-        );
-    }
-}
-
-class IndexTestBodyComponent extends React.Component {
-    render() {
-        return (
-            <div id="g-app-body-container" className="g-default-layout">
-              INDEX TEST
-            </div>
-        );
-    }
-}
-
-class CollectionsTestBodyComponent extends React.Component {
-    render() {
-        return (
-            <div id="g-app-body-container" className="g-default-layout">
-              COLLECTIONS TEST
-            </div>
-        );
-    }
-}
-
-class UsersTestBodyComponent extends React.Component {
-    render() {
-        return (
-            <div id="g-app-body-container" className="g-default-layout">
-              USERS TEST
-            </div>
-        );
-    }
-}
-
-class GroupsTestBodyComponent extends React.Component {
-    render() {
-        return (
-            <div id="g-app-body-container" className="g-default-layout">
-              GROUPS TEST
-            </div>
-        );
-    }
-}
+const DummyComponent = ({ msg }) => (
+    <div id="g-app-body-container" className="g-default-layout">
+      { msg }
+    </div>);
 
 function createMainApp(element, navItems, navMap, navCB) {
     var reference;
@@ -95,11 +51,12 @@ $(() => {
          {name: 'INDEX'      , icon: 'icon-user'   , target: ''           }
          ],
         {
-            test: TestBodyComponent,
-            "": FrontPage,
-            collections: CollectionsTestBodyComponent,
-            users: UsersTestBodyComponent,
-            groups: GroupsTestBodyComponent
+
+            test       : dummy("TEST"),
+            ""         : FrontPage,
+            collections: dummy("Collections Test"),
+            users      : dummy("Users Test"      ),
+            groups     : dummy("Groups Test"     )
         },
         path => route(path)
     );

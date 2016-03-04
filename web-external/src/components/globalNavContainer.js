@@ -1,7 +1,7 @@
 
-import { default as React } from "react";
+import React from "react";
 
-import { default as List } from "./globalNavList";
+import List from "./globalNavList";
 
 export default class GlobalNavContainer extends React.Component {
     render() {

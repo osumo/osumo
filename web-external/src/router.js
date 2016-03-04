@@ -5,7 +5,7 @@ import { zip, isFunction } from "underscore";
 const PARSE_PARAM = 0;
 const PARSE_IDENTIFIER = 1;
 
-function parseFilter(filter) {
+const parseFilter = (filter) => {
     let result = [];
     let parseMode = PARSE_PARAM;
     let parseIndex;
@@ -63,11 +63,11 @@ function parseFilter(filter) {
     }
 
     return result;
-}
+};
 
 let historyStarted = false;
 
-export default function router() {
+let router = () => {
     let router = new Router();
     let counter = 0;
 
@@ -150,5 +150,8 @@ export default function router() {
     });
 
     return result;
-}
+};
+
+export { parseFilter, router };
+export default router;
 

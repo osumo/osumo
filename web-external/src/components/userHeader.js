@@ -1,10 +1,10 @@
 
-import { default as React } from "react";
+import React from "react";
 
 export default class UserHeader extends React.Component {
     render() {
-        var result;
-        var user = this.props.user;
+        let result;
+        let { user } = this.props;
         if(user) {
             result = (
                 <div className="g-current-user-wrapper">

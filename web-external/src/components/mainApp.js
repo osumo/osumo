@@ -1,9 +1,9 @@
 
-import { default as React } from "react";
+import React from "react";
 
-import { default as Header } from "./headerContainer";
-import { default as GlobalNav } from "./globalNavContainer";
-import { default as Footer } from "./footerContainer";
+import Header from "./headerContainer";
+import GlobalNav from "./globalNavContainer";
+import Footer from "./footerContainer";
 
 class DummyBodyComponent extends React.Component {
     render() {
