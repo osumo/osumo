@@ -1,13 +1,17 @@
 
-import { default as React } from "react";
+import React from "react";
 
-export default class FrontPageHeader extends React.Component {
+export default class Header extends React.Component {
     render() {
+        let {
+            staticRoot
+        } = this.props;
+
         /*
          * TODO(opadron): Maybe we can import the image directly?
          *                It *is* the webpack way... :)
          */
-        var logoUrl = [this.props.staticRoot, "img/Girder_Mark.png"].join("/");
+        var logoUrl = [staticRoot, "img/Girder_Mark.png"].join("/");
         var logoWidth = 82;
 
         return (

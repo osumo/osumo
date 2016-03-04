@@ -2,20 +2,25 @@
 import React from "react";
 import { partial } from "underscore";
 
-export default class UserHeader extends React.Component {
+export default class User extends React.Component {
     render() {
         let result;
-        let { currentUser, onNavigate } = this.props;
-
-        const go = (path) => partial(onNavigate, path);
+        let {
+            currentUser,
+            onFolders,
+            onInfo,
+            onLogout,
+            onLogin,
+            onRegister
+        } = this.props;
 
         /* TODO(opadron): this should be broken down into further components. */
         if(currentUser) {
             let id = currentUser._id;
 
-            let gotoFolders  = go(`user/${ id }`);
-            let gotoSettings = go(`useraccount/${ id }/info`);
-            let gotoLogout   = go(`useraccount/${ id }/logout`);
+            onFolders = partial(onFolders, id);
+            onInfo = partial(onInfo, id);
+            onLogout = partial(onLogout, id);
 
             result = (
                 <div className="g-current-user-wrapper">
@@ -27,20 +32,20 @@ export default class UserHeader extends React.Component {
                     <div id="g-user-action-menu" className="dropdown">
                       <ul className="dropdown-menu" role="menu">
                         <li role="presentation">
-                          <a className="g-my-folders" onClick={ gotoFolders }>
+                          <a className="g-my-folders" onClick={ onFolders }>
                             <i className="icon-folder">My folders</i>
                           </a>
                         </li>
                         <li role="presentation">
                           <a className="g-my-settings"
-                             onClick={ gotoSettings }>
+                             onClick={ onInfo }>
                             <i className="icon-cog">My account</i>
                           </a>
                         </li>
                         <li className="divider" role="presentation"/>
                         <li role="presentation">
                           <a className="g-logout"
-                             onClick={ gotoLogout }>
+                             onClick={ onLogout }>
                             <i className="icon-logout">Log out</i>
                           </a>
                         </li>
@@ -49,21 +54,17 @@ export default class UserHeader extends React.Component {
                   </div>
                 </div>
             );
-
         } else {
-            let gotoLogin    = go("login");
-            let gotoRegister = go("register");
-
             result = (
                 <div className="g-current-user-wrapper">
                   <div className="g-user-text">
                     <a className="g-register"
-                       onClick={ gotoRegister }>
+                       onClick={ onRegister }>
                        Register
                     </a>
                     <span> or </span>
                     <a className="g-login"
-                       onClick={ gotoLogin }>
+                       onClick={ onLogin }>
                       Log In
                       <i className="icon-login"/>
                     </a>

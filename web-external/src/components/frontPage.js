@@ -1,28 +1,35 @@
 
-import { default as React } from "react";
+import React from "react";
 
-import { default as Header } from "./frontPageHeader";
-import { default as Body } from "./frontPageBody";
+import Header from "./frontPage/header";
+import Body from "./frontPage/body";
 
 export default class FrontPage extends React.Component {
     render() {
+        let {
+            apiRoot,
+            staticRoot,
+            currentUser,
+            onCollections,
+            onQuickSearch,
+            onFolders,
+            onInfo,
+            onRegister,
+            onLogin
+        } = this.props;
+
+
         return (
             <div id="g-app-body-container" className="g-default-layout">
-              <Header staticRoot={ this.props.staticRoot }/>
-              <Body apiRoot={ this.props.apiRoot }
-                    currentUser={ this.props.currentUser }/>
-              <Body apiRoot={ this.props.apiRoot }
-                    currentUser={ this.props.currentUser }/>
-              <Body apiRoot={ this.props.apiRoot }
-                    currentUser={ this.props.currentUser }/>
-              <Body apiRoot={ this.props.apiRoot }
-                    currentUser={ this.props.currentUser }/>
-              <Body apiRoot={ this.props.apiRoot }
-                    currentUser={ this.props.currentUser }/>
-              <Body apiRoot={ this.props.apiRoot }
-                    currentUser={ this.props.currentUser }/>
-              <Body apiRoot={ this.props.apiRoot }
-                    currentUser={ this.props.currentUser }/>
+              <Header staticRoot={ staticRoot }/>
+              <Body apiRoot={ apiRoot }
+                    currentUser={ currentUser }
+                    onCollections={ onCollections }
+                    onQuickSearch={ onQuickSearch }
+                    onFolders={ onFolders }
+                    onInfo={ onInfo }
+                    onRegister={ onRegister }
+                    onLogin={ onLogin }/>
             </div>
         );
     }

@@ -1,9 +1,9 @@
 
 import { default as React } from "react";
 
-import { ABOUT_URL, BUG_URL, CONTACT_URL } from "../constants";
+import { ABOUT_URL, BUG_URL, CONTACT_URL } from "../../constants";
 
-export default class FooterLinks extends React.Component {
+export default class Links extends React.Component {
     render() {
         return (
             <div className="g-footer-links">
