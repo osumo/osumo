@@ -3,7 +3,8 @@
 
 module.exports = function (grunt) {
 
-    var path = require('path');
+    var path = require("path");
+    var fs = require("fs");
 
     // This gruntfile is only designed to be used with girder's build system.
     // Fail if grunt is executed here.
@@ -12,16 +13,40 @@ module.exports = function (grunt) {
             "To build Osumo, run grunt from Girder's root directory");
     }
 
-    var fs = require('fs');
+    pluginPath = path.resolve(grunt.config.get("pluginDir"), "osumo"),
+    packageJson = path.resolve(pluginPath, "package.json"),
+
+    grunt.config.merge({
+        shell: {
+            "osumo-npm": {
+                command: "npm install",
+                options: {
+                    execOptions: { cwd: pluginPath }
+                },
+                src: [packageJson]
+            }
+        },
+
+        watch: {
+            "plugin-osumo-npm": {
+                files: [packageJson],
+                tasks: ["shell:osumo-npm"]
+            }
+        },
+
+        init: {
+            "shell:osumo-npm": { dependencies: [] }
+        }
+    });
+
     var webpack = null;
     try { webpack = require("webpack"); } catch (e) { }
 
     if(webpack === null) {
-        grunt.log.writeln('webpack unavailable.'.yellow);
+        grunt.log.writeln("webpack unavailable.".yellow);
         grunt.log.writeln([
-            'grunt configuration'.yellow.underline,
-            'will not be set this run.'.yellow].join(" "));
-
+            "grunt configuration".yellow.underline,
+            "will not be set this run.".yellow].join(" "));
         return;
     }
 
@@ -32,25 +57,19 @@ module.exports = function (grunt) {
                           "--bail",
                           "--display-error-details"].join(" "),
                 options: {
-                    execOptions: {
-                        cwd: path.join("plugins", "osumo"),
-                    }
+                    execOptions: { cwd: pluginPath }
                 }
             }
         },
 
         watch: {
             "plugin-osumo-webpack": {
-                files: [path.join(__dirname, "web-external", "src", "**", "*"),
-                        path.join(__dirname, "Gruntfile.js"),
-                        path.join(__dirname, "webpack.config.js")],
+                files: [path.join(pluginPath, "web-external", "src", "**", "*"),
+                        path.join(pluginPath, "Gruntfile.js"),
+                        path.join(pluginPath, "webpack.config.js")],
                 tasks: ["shell:osumo-webpack"],
                 options: { spawn: false }
             }
-        },
-
-        init: {
-            "shell:osumo-webpack": { dependencies: [] }
         },
 
         default: {
