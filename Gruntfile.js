@@ -19,7 +19,11 @@ module.exports = function (grunt) {
     grunt.config.merge({
         shell: {
             "osumo-npm": {
-                command: "npm install",
+                /*
+                 * TODO(opadron): remove the true part once webpack 2 finally
+                 *                comes out of beta
+                 */
+                command: "npm install || true",
                 options: {
                     execOptions: { cwd: pluginPath }
                 },

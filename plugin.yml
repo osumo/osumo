@@ -5,8 +5,7 @@ description: "**M**ulti-**O**mics Data Analytics @ **OSU**"
 grunt:
     autobuild: false
     dependencies:
-        "webpack": ^1.12.11
-        "webpack-dev-server": ^1.14.1
+        "webpack": 2.0.6-beta
     file: Gruntfile.js
 dependencies:
     - romanesco
