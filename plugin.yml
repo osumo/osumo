@@ -8,6 +8,6 @@ grunt:
         "webpack": 2.0.6-beta
     file: Gruntfile.js
 dependencies:
-    - romanesco
+    - worker
     - jobs
 
