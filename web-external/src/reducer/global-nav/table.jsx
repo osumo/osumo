@@ -1,9 +1,7 @@
-
-import { compose } from "../../utils/reducer";
-import { setInMapping, unsetInMapping } from "../../utils/common-reducers";
+import { compose } from '../../utils/reducer';
+import { setInMapping, unsetInMapping } from '../../utils/common-reducers';
 
 export default compose({
-    set: setInMapping,
-    unset: unsetInMapping
+  set: setInMapping,
+  unset: unsetInMapping
 }).defaultState({});
-
