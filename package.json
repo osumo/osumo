@@ -28,5 +28,8 @@
     "stylus-loader": "^1.5.1",
     "underscore": "^1.8.3",
     "webpack": "2.0.6-beta"
+  },
+  "scripts": {
+    "build": "webpack"
   }
 }
