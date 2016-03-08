@@ -1,4 +1,5 @@
 import React from 'react';
+import { partial } from 'underscore';
 
 import { ABOUT_URL as GIRDER_RTD, NBSP as S } from '../../constants';
 
