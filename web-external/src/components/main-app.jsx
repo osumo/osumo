@@ -9,23 +9,25 @@ const DummyBodyComponent = () => (
 );
 
 export default class MainApp extends React.Component {
-  static defaultProps = {
-    apiRoot: 'api/v1',
-    currentTarget: '',
-    currentUser: null,
-    navList: [],
-    navTable: {},
-    staticRoot: 'static',
+  static get defaultProps () {
+    return {
+      apiRoot: 'api/v1',
+      currentTarget: '',
+      currentUser: null,
+      navList: [],
+      navTable: {},
+      staticRoot: 'static',
 
-    /* TODO(opadron): replace with a warning message */
-    onCollections () { console.log('ON COLLECTIONS'); },
-    onQuickSearch () { console.log('ON QUICK SEARCH'); },
-    onFolders () { console.log('ON FOLDERS'); },
-    onInfo () { console.log('ON INFO'); },
-    onRegister () { console.log('ON REGISTER'); },
-    onLogin () { console.log('ON LOGIN'); },
-    onNavigate () { console.log('ON NAVIGATE'); },
-    onTitle () { console.log('ON TITLE'); }
+      /* TODO(opadron): replace with a warning message */
+      onCollections () { console.log('ON COLLECTIONS'); },
+      onQuickSearch () { console.log('ON QUICK SEARCH'); },
+      onFolders () { console.log('ON FOLDERS'); },
+      onInfo () { console.log('ON INFO'); },
+      onRegister () { console.log('ON REGISTER'); },
+      onLogin () { console.log('ON LOGIN'); },
+      onNavigate () { console.log('ON NAVIGATE'); },
+      onTitle () { console.log('ON TITLE'); }
+    };
   }
 
   render () {
