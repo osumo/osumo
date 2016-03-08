@@ -115,7 +115,8 @@ let router = () => {
       if (!historyStarted) {
         history.start();
       }
-      return historyStarted = true;
+      historyStarted = true;
+      return historyStarted;
     },
 
     base (value = null) {
