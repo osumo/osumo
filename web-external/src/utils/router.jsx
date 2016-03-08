@@ -30,9 +30,9 @@ const parseFilter = (filter) => {
         break;
       case PARSE_IDENTIFIER:
         let firstCharacter = (i === parseIndex);
-        let isLower = ('a' <= chr && chr <= 'z');
-        let isUpper = ('A' <= chr && chr <= 'Z');
-        let isNumeric = ('0' <= chr && chr <= '9');
+        let isLower = (chr >= 'a' && chr <= 'z');
+        let isUpper = (chr >= 'A' && chr <= 'Z');
+        let isNumeric = (chr >= '0' && chr <= '9');
         let isUnderline = (chr === '_');
 
         isValid = isLower || isUpper || isUnderline ||
