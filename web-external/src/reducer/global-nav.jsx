@@ -11,6 +11,8 @@ export default compose({
    * This extra logic is implemented using a complex type mapping.
    */
   'currentTarget.set': (state = {}, action) => {
+    // TODO(opadron): cTarget is not used anywhere in this function. Are the
+    // references to currentTarget below meant to be cTarget instead?
     let { currentTarget: cTarget, table } = state;
     let { value } = action;
 
