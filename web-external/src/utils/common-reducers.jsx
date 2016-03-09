@@ -40,15 +40,17 @@ export const removeFromList = (state = [], { id, ids }) => {
   return state.filter(({ id }) => !idSet.has(id));
 };
 
-// TODO(opadron): the parser dislikes the "...rest" parameter within the object
-// here. Is this correct? It may simply be a bug in the parser (e.g.,
-// https://github.com/eslint/eslint/issues/4102) in which case we should figure
-// out what to do about the persistent but incorrect warning.
-export const setInMapping = (state={}, { type, entries, ...rest }) => ({
-  ...state,
-  ...rest,
-  ...entries
-});
+export function setInMapping (state = {}, rest) {
+  let entries = rest.entries;
+  delete rest.entries;
+  delete rest.type;
+
+  return {
+    ...state,
+    ...rest,
+    ...entries
+  };
+}
 
 export const unsetInMapping = (state = {}, { keys, key }) => {
   keys = keys || [];
