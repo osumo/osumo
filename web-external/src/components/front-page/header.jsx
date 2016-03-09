@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default class Header extends React.Component {
+class Header extends React.Component {
   render () {
     let {
       staticRoot
@@ -30,3 +30,9 @@ export default class Header extends React.Component {
     );
   }
 }
+
+Header.propTypes = {
+  staticRoot: React.PropTypes.string.isRequired
+};
+
+export default Header;

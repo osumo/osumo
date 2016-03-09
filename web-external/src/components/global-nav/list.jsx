@@ -1,7 +1,7 @@
 import React from 'react';
 import { partial } from 'underscore';
 
-export default class List extends React.Component {
+class List extends React.Component {
   render () {
     let {
       currentTarget,
@@ -38,3 +38,11 @@ export default class List extends React.Component {
     );
   }
 }
+
+List.propTypes = {
+  currentTarget: React.PropTypes.string.isRequired,
+  navList: React.PropTypes.string.isRequired,
+  onNavigate: React.PropTypes.string.isRequired
+};
+
+export default List;

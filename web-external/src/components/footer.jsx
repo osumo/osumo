@@ -3,7 +3,7 @@ import React from 'react';
 import Links from './footer/links';
 import Info from './footer/info';
 
-export default class Footer extends React.Component {
+class Footer extends React.Component {
   render () {
     let { apiRoot } = this.props;
 
@@ -15,3 +15,9 @@ export default class Footer extends React.Component {
     );
   }
 }
+
+Footer.propTypes = {
+  apiRoot: React.PropTypes.string.isRequired
+};
+
+export default Footer;

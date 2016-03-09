@@ -2,7 +2,7 @@ import React from 'react';
 
 import List from './global-nav/list';
 
-export default class GlobalNav extends React.Component {
+class GlobalNav extends React.Component {
   render () {
     let {
       navList,
@@ -20,3 +20,11 @@ export default class GlobalNav extends React.Component {
     );
   }
 }
+
+GlobalNav.propTypes = {
+  navList: React.PropTypes.string.isRequired,
+  currentTarget: React.PropTypes.string.isRequired,
+  onNavigate: React.PropTypes.string.isRequired
+};
+
+export default GlobalNav;

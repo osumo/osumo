@@ -4,7 +4,7 @@ import React from 'react';
 import Header from './front-page/header';
 import Body from './front-page/body';
 
-export default class FrontPage extends React.Component {
+class FrontPage extends React.Component {
   render () {
     let {
       apiRoot,
@@ -34,3 +34,16 @@ export default class FrontPage extends React.Component {
   }
 }
 
+FrontPage.propTypes = {
+  apiRoot: React.PropTypes.string.isRequired,
+  staticRoot: React.PropTypes.string.isRequired,
+  currentUser: React.PropTypes.string.isRequired,
+  onCollections: React.PropTypes.string.isRequired,
+  onQuickSearch: React.PropTypes.string.isRequired,
+  onFolders: React.PropTypes.string.isRequired,
+  onInfo: React.PropTypes.string.isRequired,
+  onRegister: React.PropTypes.string.isRequired,
+  onLogin: React.PropTypes.string.isRequired
+};
+
+export default FrontPage;

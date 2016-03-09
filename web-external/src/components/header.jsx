@@ -4,7 +4,7 @@ import React from 'react';
 
 import User from './header/user';
 
-export default class Header extends React.Component {
+class Header extends React.Component {
   // <SearchWidget attr={ this.props.attr }/>
   render () {
     let {
@@ -37,3 +37,14 @@ export default class Header extends React.Component {
   }
 }
 
+Header.propTypes = {
+  currentUser: React.PropTypes.string.isRequired,
+  onFolders: React.PropTypes.string.isRequired,
+  onInfo: React.PropTypes.string.isRequired,
+  onLogout: React.PropTypes.string.isRequired,
+  onLogin: React.PropTypes.string.isRequired,
+  onRegister: React.PropTypes.string.isRequired,
+  onTitle: React.PropTypes.string.isRequired
+};
+
+export default Header;

@@ -8,7 +8,7 @@ const DummyBodyComponent = () => (
   <div id='g-app-body-container' className='g-default-layout'/>
 );
 
-export default class MainApp extends React.Component {
+class MainApp extends React.Component {
   static get defaultProps () {
     return {
       apiRoot: 'api/v1',
@@ -92,3 +92,23 @@ export default class MainApp extends React.Component {
     // <div id='g-alerts-container'/>
   }
 }
+
+MainApp.propTypes = {
+  apiRoot: React.PropTypes.string.isRequired,
+  currentTarget: React.PropTypes.string.isRequired,
+  currentUser: React.PropTypes.string.isRequired,
+  navList: React.PropTypes.string.isRequired,
+  navTable: React.PropTypes.string.isRequired,
+  staticRoot: React.PropTypes.string.isRequired,
+  onCollections: React.PropTypes.string.isRequired,
+  onFolders: React.PropTypes.string.isRequired,
+  onInfo: React.PropTypes.string.isRequired,
+  onLogin: React.PropTypes.string.isRequired,
+  onLogout: React.PropTypes.string.isRequired,
+  onNavigate: React.PropTypes.string.isRequired,
+  onQuickSearch: React.PropTypes.string.isRequired,
+  onRegister: React.PropTypes.string.isRequired,
+  onTitle: React.PropTypes.string.isRequired
+};
+
+export default MainApp;

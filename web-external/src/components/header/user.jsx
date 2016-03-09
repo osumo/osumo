@@ -1,7 +1,7 @@
 import React from 'react';
 import { partial } from 'underscore';
 
-export default class User extends React.Component {
+class User extends React.Component {
   render () {
     let result;
     let {
@@ -75,3 +75,14 @@ export default class User extends React.Component {
     return result;
   }
 }
+
+User.propTypes = {
+  currentUser: React.PropTypes.string.isRequired,
+  onFolders: React.PropTypes.string.isRequired,
+  onInfo: React.PropTypes.string.isRequired,
+  onLogout: React.PropTypes.string.isRequired,
+  onLogin: React.PropTypes.string.isRequired,
+  onRegister: React.PropTypes.string.isRequired
+};
+
+export default User;

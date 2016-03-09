@@ -3,7 +3,7 @@ import { partial } from 'underscore';
 
 import { ABOUT_URL as GIRDER_RTD, NBSP as S } from '../../constants';
 
-export default class Body extends React.Component {
+class Body extends React.Component {
   render () {
     let {
       apiRoot,
@@ -94,3 +94,16 @@ export default class Body extends React.Component {
     );
   }
 }
+
+Body.propTypes = {
+  apiRoot: React.PropTypes.string.isRequired,
+  currentUser: React.PropTypes.string.isRequired,
+  onCollections: React.PropTypes.string.isRequired,
+  onQuickSearch: React.PropTypes.string.isRequired,
+  onFolders: React.PropTypes.string.isRequired,
+  onInfo: React.PropTypes.string.isRequired,
+  onRegister: React.PropTypes.string.isRequired,
+  onLogin: React.PropTypes.string.isRequired
+};
+
+export default Body;

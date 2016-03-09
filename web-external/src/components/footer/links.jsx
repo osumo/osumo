@@ -2,7 +2,7 @@ import React from 'react';
 
 import { ABOUT_URL, BUG_URL, CONTACT_URL } from '../../constants';
 
-export default class Links extends React.Component {
+class Links extends React.Component {
   render () {
     return (
       <div className='g-footer-links'>
@@ -14,3 +14,9 @@ export default class Links extends React.Component {
     );
   }
 }
+
+Links.propTypes = {
+  apiRoot: React.PropTypes.string.isRequired
+};
+
+export default Links;
