@@ -20,14 +20,14 @@ task:
         format: number
 
     outputs:
-      - name: fitoutput
-        type: table
-        format: r.dataframe
+      - name: fit
+        type: r
         target: memory
-      - name: sdfoutput
-        type: table
-        format: r.dataframe
+        format: object
+      - name: sdf
+        type: r
         target: memory
+        format: object
 
 inputs:
     - key: input_path
@@ -47,4 +47,16 @@ parameters:
     name: "Target Folder"
     type: folder
 
-# outputs: ...
+outputs: 
+  - key: fit
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "fitoutput.txt"
+    dataType: "r"
+    dataFormat: "serialized"
+  - key: sdf
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "sdfoutput.txt"
+    dataType: "r"
+    dataFormat: "serialized"

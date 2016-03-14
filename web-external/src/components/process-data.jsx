@@ -166,7 +166,7 @@ export default class ProcessDataComponent extends React.Component {
     this.showResultsItem = function (key, details) {
       let results = this.state.resultMessage;
       let pos = results.length;
-      results.push([<div key={'key_' + pos}>{key}</div>]);
+      results.push([<div key={'key_' + pos}>{details.name}</div>]);
       this.setState({resultMessage: results});
       let ajax = this.request({
         path: 'file/' + details.fileId + '/download',
