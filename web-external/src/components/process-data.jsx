@@ -147,9 +147,19 @@ export default class ProcessDataComponent extends React.Component {
       if (job.status !== m_this.JobStatus.SUCCESS) {
         return;
       }
+      job.processedFiles.sort(function (a, b) {
+        let apng = a.name.endsWith('.png');
+        let bpng = a.name.endsWith('.png');
+        if (apng !== bpng) {
+          return apng ? 1 : -1;
+        }
+        return a.name > b.name ? 1 : -1;
+      });
       for (var key in job.processedFiles) {
-        m_this.progressRequest.push(m_this.showResultsItem(
-            key, job.processedFiles[key]));
+        let ajax = m_this.showResultsItem(key, job.processedFiles[key]);
+        if (ajax) {
+          m_this.progressRequest.push(ajax);
+        }
       }
       /* If we don't return null, a warning about promises is shown.  We take
        * care of that elsewhere. */
@@ -167,17 +177,27 @@ export default class ProcessDataComponent extends React.Component {
       let results = this.state.resultMessage;
       let pos = results.length;
       results.push([<div key={'key_' + pos}>{details.name}</div>]);
+      let download = true;
+      if (details.name.endsWith('.png')) {
+        results[pos].push(<img key={'data_' + pos} src={
+            this.props.apiRoot + '/file/' + details.fileId +
+            '/download?image=.png'}></img>);
+        download = false;
+      }
       this.setState({resultMessage: results});
-      let ajax = this.request({
-        path: 'file/' + details.fileId + '/download',
-        dataType: 'text'
-      });
-      ajax.done(function (resp) {
-        let results = m_this.state.resultMessage;
-        results[pos].push(<div key={'data_' + pos}>{resp.response}</div>);
-        m_this.setState({resultMessage: results});
-      });
-      return ajax;
+      if (download) {
+        let ajax = this.request({
+          path: 'file/' + details.fileId + '/download',
+          dataType: 'text'
+        });
+        ajax.done(function (resp) {
+          let results = m_this.state.resultMessage;
+          results[pos].push(<div key={'data_' + pos}>{resp.response}</div>);
+          m_this.setState({resultMessage: results});
+        });
+        return ajax;
+      }
+      return;
     };
 
     /* Perform intitial data load */

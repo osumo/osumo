@@ -58,6 +58,7 @@ parameters:
   - key: targetFolderId
     name: "Target Folder"
     type: folder
+    input: false
 
 # See girderOutputSpec for details.
 outputs: 

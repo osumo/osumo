@@ -1,6 +1,7 @@
 
 import copy
 import os.path
+import tempfile
 
 from girder import events
 from girder.api import access
@@ -76,6 +77,13 @@ class Osumo(Resource):
                 value = int(value)
             elif type == 'boolean':
                 value = 'true' if value in (True, 'true') else 'false'
+            elif type == 'temppath':
+                file = tempfile.NamedTemporaryFile(
+                    suffix=value if value is not None else '')
+                value = file.name
+                file.close()
+                data[key]['format'] = 'text'
+                data[key]['type'] = 'string'
             else:
                 raise NotImplementedError('No input data type %s' % type)
             data[key]['data'] = value
@@ -94,12 +102,13 @@ class Osumo(Resource):
             logPrint=True)
 
         inputs = {}
-        for input in task.get('inputs', {}):
-            key = input['key']
+        for key in data:
+            if data[key].get('input') is False:
+                continue
             spec = data.get(key, {}).copy()
-            if input.get('type') in ('item', 'folder'):
+            if data[key].get('type') in ('item', 'folder'):
                 spec = workerUtils.girderInputSpec(
-                    spec['data'], resourceType=input['type'],
+                    spec['data'], resourceType=data[key]['type'],
                     token=self.getCurrentToken())
             inputs[key] = spec
 

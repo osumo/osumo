@@ -18,6 +18,9 @@ task:
       - name: num_clusters
         type: number
         format: number
+      - name: png_output_path
+        type: string
+        format: text
 
     outputs:
       - name: fit
@@ -28,6 +31,10 @@ task:
         type: r
         target: memory
         format: object
+      - name: dataplot
+        type: image
+        target: filepath
+        format: png
 
 inputs:
     - key: input_path
@@ -46,6 +53,10 @@ parameters:
   - key: targetFolderId
     name: "Target Folder"
     type: folder
+    input: false
+  - key: png_output_path
+    default: "plot.png"
+    type: temppath
 
 outputs: 
   - key: fit
@@ -60,3 +71,9 @@ outputs:
     name: "sdfoutput.txt"
     dataType: "r"
     dataFormat: "serialized"
+  - key: dataplot
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "Survival Plot.png"
+    dataType: "image"
+    dataFormat: "png"
