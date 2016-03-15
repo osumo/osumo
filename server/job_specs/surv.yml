@@ -18,9 +18,6 @@ task:
       - name: num_clusters
         type: number
         format: number
-      - name: png_output_path
-        type: string
-        format: text
 
     outputs:
       - name: fit
@@ -54,9 +51,6 @@ parameters:
     name: "Target Folder"
     type: folder
     input: false
-  - key: png_output_path
-    default: "plot.png"
-    type: temppath
 
 outputs: 
   - key: fit
