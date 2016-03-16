@@ -1,5 +1,5 @@
 import { compose } from '../utils/reducer';
-import currentTarget from './global-nav/current-target';
+import currentTargetReducer from './global-nav/current-target';
 import list from './global-nav/list';
 import table from './global-nav/table';
 
@@ -11,9 +11,7 @@ export default compose({
    * This extra logic is implemented using a complex type mapping.
    */
   'currentTarget.set': (state = {}, action) => {
-    // TODO(opadron): cTarget is not used anywhere in this function. Are the
-    // references to currentTarget below meant to be cTarget instead?
-    let { currentTarget: cTarget, table } = state;
+    let { currentTarget, table } = state;
     let { value } = action;
 
     let skip = !(value in table);
@@ -21,17 +19,17 @@ export default compose({
 
     return {
       ...state,
-      currentTarget: currentTarget(
+      currentTarget: currentTargetReducer(
         currentTarget,
         {
           ...action,
-          type: currentTarget().set
+          type: currentTargetReducer().set
         }
       )
     };
   }
 }).children({
-  currentTarget,
+  currentTargetReducer,
   list,
   table
 });
