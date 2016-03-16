@@ -29,7 +29,7 @@ export default compose({
     };
   }
 }).children({
-  currentTargetReducer,
+  currentTarget: currentTargetReducer,
   list,
   table
 });
