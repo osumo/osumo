@@ -62,9 +62,7 @@ export const unsetInMapping = (state = {}, { keys, key }) => {
   }
 
   if (keys.length === 0) { return state; }
-
-  // TODO(opadron): should this be "new Set(keys);"?
-  let keySet = newSet(keys);
+  let keySet = new Set(keys);
 
   return (
     Object
