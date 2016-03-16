@@ -40,9 +40,12 @@ export const removeFromList = (state = [], { id, ids }) => {
   return state.filter(({ id }) => !idSet.has(id));
 };
 
-export function setInMapping (state = {}, rest) {
-  let entries = rest.entries;
-  delete rest.entries;
+export const setInMapping = (
+    state = {},
+    args /* es7: { type, entries, ...rest } */
+) => {
+  /* must pick the attributes out in this manner to keep eslint happy */
+  let { entries, ...rest } = args;
   delete rest.type;
 
   return {
@@ -50,7 +53,7 @@ export function setInMapping (state = {}, rest) {
     ...rest,
     ...entries
   };
-}
+};
 
 export const unsetInMapping = (state = {}, { keys, key }) => {
   keys = keys || [];
