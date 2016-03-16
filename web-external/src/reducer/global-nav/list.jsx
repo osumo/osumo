@@ -5,8 +5,10 @@ import {
   removeFromList
 } from '../../utils/common-reducers';
 
-export default compose({
+const globalNavListReducer = compose({
   append: appendToList,
   extend: extendList,
   remove: removeFromList
 }).defaultState([]);
+
+export default globalNavListReducer;

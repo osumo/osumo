@@ -1,5 +1,6 @@
 import React from 'react';
 
+import propTypes from '../../prop-types';
 import { ABOUT_URL, BUG_URL, CONTACT_URL } from '../../constants';
 
 class Links extends React.Component {
@@ -13,10 +14,10 @@ class Links extends React.Component {
       </div>
     );
   }
-}
 
-Links.propTypes = {
-  apiRoot: React.PropTypes.string.isRequired
-};
+  static get propTypes () {
+    return { apiRoot: propTypes.apiRoot };
+  }
+}
 
 export default Links;

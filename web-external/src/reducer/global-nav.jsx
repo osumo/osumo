@@ -3,7 +3,7 @@ import currentTargetReducer from './global-nav/current-target';
 import list from './global-nav/list';
 import table from './global-nav/table';
 
-export default compose({
+const globalNavReducer = compose({
   /*
    * Instead of blindly setting the current target, make sure that it
    * actually has a matching component.
@@ -11,7 +11,7 @@ export default compose({
    * This extra logic is implemented using a complex type mapping.
    */
   'currentTarget.set': (state = {}, action) => {
-    let { currentTarget, table } = state;
+    let { currentTarget: currentTargetState, table } = state;
     let { value } = action;
 
     let skip = !(value in table);
@@ -20,7 +20,7 @@ export default compose({
     return {
       ...state,
       currentTarget: currentTargetReducer(
-        currentTarget,
+        currentTargetState,
         {
           ...action,
           type: currentTargetReducer().set
@@ -34,3 +34,4 @@ export default compose({
   table
 });
 
+export default globalNavReducer;

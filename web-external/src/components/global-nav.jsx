@@ -2,6 +2,8 @@ import React from 'react';
 
 import List from './global-nav/list';
 
+import propTypes from '../prop-types';
+
 class GlobalNav extends React.Component {
   render () {
     let {
@@ -19,12 +21,14 @@ class GlobalNav extends React.Component {
       </div>
     );
   }
-}
 
-GlobalNav.propTypes = {
-  navList: React.PropTypes.string.isRequired,
-  currentTarget: React.PropTypes.string.isRequired,
-  onNavigate: React.PropTypes.string.isRequired
-};
+  static get propTypes () {
+    return {
+      currentTarget: propTypes.currentTarget,
+      navList: propTypes.navList,
+      onNavigate: propTypes.onNavigate
+    };
+  }
+}
 
 export default GlobalNav;

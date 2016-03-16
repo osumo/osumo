@@ -4,32 +4,13 @@ import Header from './header';
 import GlobalNav from './global-nav';
 import Footer from './footer';
 
+import propTypes from '../prop-types';
+
 const DummyBodyComponent = () => (
   <div id='g-app-body-container' className='g-default-layout'/>
 );
 
 class MainApp extends React.Component {
-  static get defaultProps () {
-    return {
-      apiRoot: 'api/v1',
-      currentTarget: '',
-      currentUser: null,
-      navList: [],
-      navTable: {},
-      staticRoot: 'static',
-
-      /* TODO(opadron): replace with a warning message */
-      onCollections () { console.log('ON COLLECTIONS'); },
-      onQuickSearch () { console.log('ON QUICK SEARCH'); },
-      onFolders () { console.log('ON FOLDERS'); },
-      onInfo () { console.log('ON INFO'); },
-      onRegister () { console.log('ON REGISTER'); },
-      onLogin () { console.log('ON LOGIN'); },
-      onNavigate () { console.log('ON NAVIGATE'); },
-      onTitle () { console.log('ON TITLE'); }
-    };
-  }
-
   render () {
     let {
       apiRoot,
@@ -46,7 +27,6 @@ class MainApp extends React.Component {
       onLogout,
       onNavigate,
 
-      onQuickSearch,
       onRegister,
       onTitle
     } = this.props;
@@ -76,7 +56,6 @@ class MainApp extends React.Component {
               onInfo={ onInfo }
               onLogin={ onLogin }
               onNavigate={ onNavigate }
-              onQuickSearch={ onQuickSearch }
               onRegister={ onRegister }/>
 
         <Footer apiRoot={ apiRoot }/>
@@ -91,24 +70,45 @@ class MainApp extends React.Component {
     // <div id='g-dialog-container' className='modal fade'/>
     // <div id='g-alerts-container'/>
   }
-}
 
-MainApp.propTypes = {
-  apiRoot: React.PropTypes.string.isRequired,
-  currentTarget: React.PropTypes.string.isRequired,
-  currentUser: React.PropTypes.string.isRequired,
-  navList: React.PropTypes.string.isRequired,
-  navTable: React.PropTypes.string.isRequired,
-  staticRoot: React.PropTypes.string.isRequired,
-  onCollections: React.PropTypes.string.isRequired,
-  onFolders: React.PropTypes.string.isRequired,
-  onInfo: React.PropTypes.string.isRequired,
-  onLogin: React.PropTypes.string.isRequired,
-  onLogout: React.PropTypes.string.isRequired,
-  onNavigate: React.PropTypes.string.isRequired,
-  onQuickSearch: React.PropTypes.string.isRequired,
-  onRegister: React.PropTypes.string.isRequired,
-  onTitle: React.PropTypes.string.isRequired
-};
+  static get defaultProps () {
+    return {
+      apiRoot: 'api/v1',
+      currentTarget: '',
+      currentUser: null,
+      navList: [],
+      navTable: {},
+      staticRoot: 'static',
+
+      /* TODO(opadron): replace with a warning message */
+      onCollections () { console.log('ON COLLECTIONS'); },
+      onFolders () { console.log('ON FOLDERS'); },
+      onInfo () { console.log('ON INFO'); },
+      onRegister () { console.log('ON REGISTER'); },
+      onLogin () { console.log('ON LOGIN'); },
+      onNavigate () { console.log('ON NAVIGATE'); },
+      onTitle () { console.log('ON TITLE'); }
+    };
+  }
+
+  static get propTypes () {
+    return {
+      apiRoot: propTypes.apiRoot,
+      currentTarget: propTypes.currentTarget,
+      currentUser: propTypes.currentUser,
+      navList: propTypes.navList,
+      navTable: propTypes.navTable,
+      onCollections: propTypes.onCollections,
+      onFolders: propTypes.onFolders,
+      onInfo: propTypes.onInfo,
+      onLogin: propTypes.onLogin,
+      onLogout: propTypes.onLogout,
+      onNavigate: propTypes.onNavigate,
+      onRegister: propTypes.onRegister,
+      onTitle: propTypes.onTitle,
+      staticRoot: propTypes.staticRoot
+    };
+  }
+}
 
 export default MainApp;

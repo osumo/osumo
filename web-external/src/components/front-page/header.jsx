@@ -1,5 +1,7 @@
 import React from 'react';
 
+import propTypes from '../../prop-types';
+
 class Header extends React.Component {
   render () {
     let {
@@ -29,10 +31,10 @@ class Header extends React.Component {
       </div>
     );
   }
-}
 
-Header.propTypes = {
-  staticRoot: React.PropTypes.string.isRequired
-};
+  static get propTypes () {
+    return { staticRoot: propTypes.staticRoot };
+  }
+}
 
 export default Header;

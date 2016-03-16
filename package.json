@@ -31,6 +31,7 @@
     "webpack": "2.0.6-beta"
   },
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "watch-build": "webpack --watch --progress"
   }
 }

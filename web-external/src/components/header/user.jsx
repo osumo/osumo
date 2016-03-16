@@ -1,6 +1,8 @@
 import React from 'react';
 import { partial } from 'underscore';
 
+import propTypes from '../../prop-types';
+
 class User extends React.Component {
   render () {
     let result;
@@ -74,15 +76,17 @@ class User extends React.Component {
 
     return result;
   }
-}
 
-User.propTypes = {
-  currentUser: React.PropTypes.string.isRequired,
-  onFolders: React.PropTypes.string.isRequired,
-  onInfo: React.PropTypes.string.isRequired,
-  onLogout: React.PropTypes.string.isRequired,
-  onLogin: React.PropTypes.string.isRequired,
-  onRegister: React.PropTypes.string.isRequired
-};
+  static get propTypes () {
+    return {
+      currentUser: propTypes.currentUser,
+      onFolders: propTypes.onFolders,
+      onInfo: propTypes.onInfo,
+      onLogout: propTypes.onLogout,
+      onLogin: propTypes.onLogin,
+      onRegister: propTypes.onRegister
+    };
+  }
+}
 
 export default User;

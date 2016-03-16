@@ -1,6 +1,8 @@
 import React from 'react';
 import { partial } from 'underscore';
 
+import propTypes from '../../prop-types';
+
 class List extends React.Component {
   render () {
     let {
@@ -37,12 +39,14 @@ class List extends React.Component {
       </div>
     );
   }
-}
 
-List.propTypes = {
-  currentTarget: React.PropTypes.string.isRequired,
-  navList: React.PropTypes.string.isRequired,
-  onNavigate: React.PropTypes.string.isRequired
-};
+  static get propTypes () {
+    return {
+      currentTarget: propTypes.currentTarget,
+      navList: propTypes.navList,
+      onNavigate: propTypes.onNavigate
+    };
+  }
+}
 
 export default List;

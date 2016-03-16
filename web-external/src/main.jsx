@@ -5,15 +5,17 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore } from 'redux';
-// import { Provider } from 'react-redux';
-
-// import { partial, isArray } from 'underscore';
 import { partial } from 'underscore';
 
 import MainApp from './components/main-app';
 import FrontPage from './components/front-page';
 
-// import style from './style/full-viewport';
+import rootReducer from './reducer';
+import events from './utils/events';
+import restRequests from './utils/rest-requests';
+import router from './utils/router';
+import reduxComponent from './utils/redux-component';
+
 import './style/full-viewport';
 
 const DummyComponent = ({ msg }) => (
@@ -29,8 +31,6 @@ $(() => {
   // const staticRoot = 'static';
 
   /* create store and populate it with initial state */
-  let { default: rootReducer } = require('./reducer');
-
   const store = createStore(rootReducer);
 
   const dummy = (msg) => partial(DummyComponent, { msg });
@@ -62,12 +62,9 @@ $(() => {
   });
 
   /* initialize rest API */
-  let { default: events } = require('./utils/events');
-  let { default: restRequests } = require('./utils/rest-requests');
-
   const rest = restRequests({ events, apiRoot });
 
-  /* define some function to be used for routing */
+  /* define some functions to be used for routing */
 
   /* :target/a/b/c/etc... -> sets global nav target */
   const setGlobalNavTarget = ({ params: { target } }, next) => {
@@ -103,7 +100,6 @@ $(() => {
   ];
 
   /* create the router, mount middleware, and start routing */
-  let { default: router } = require('./utils/router');
   let route = router();
 
   route('', setGlobalNavTargetToIndex);
@@ -117,7 +113,6 @@ $(() => {
   $(document.body).append($div = $('<div>').attr('id', 'root'));
 
   /* create main application component and render */
-  let { default: reduxComponent } = require('./utils/redux-component');
   let App = reduxComponent(
     store,
     (
@@ -131,30 +126,29 @@ $(() => {
       },
       dispatch
     ) => (
-    <MainApp apiRoot='api/v1'
-    currentTarget={ currentTarget }
-    currentUser={ currentUser }
-    navList={ navList }
-    navTable={ navTable }
-    staticRoot='static'
+      <MainApp
+        apiRoot='api/v1'
+        currentTarget={ currentTarget }
+        currentUser={ currentUser }
+        navList={ navList }
+        navTable={ navTable }
+        staticRoot='static'
 
-    onCollections={ () => route('collections') }
-    onFolders={ (id) => route(`user/${ id }`) }
-    onInfo={ (id) => route(`useraccount/${ id }/info`) }
-    /* TODO(opadron): add a login handler */
-    /* onLogin={ ... } */
-    onLogout={ (id) => route(`useraccount/${ id }/logout`) }
-    onNavigate={ (target) => route(target) }
-    /* TODO(opadron): what to do about the search bar? */
-    /* onQuickSearch={ ... } */
-    onRegister={ () => route('register') }
-    onTitle={ () => route('') }/>
+        onCollections={ () => route('collections') }
+        onFolders={ (id) => route(`user/${ id }`) }
+        onInfo={ (id) => route(`useraccount/${ id }/info`) }
+        onLogin={ () => null }
+        onLogout={ (id) => route(`useraccount/${ id }/logout`) }
+        onNavigate={ (target) => route(target) }
+        onRegister={ () => route('register') }
+        onTitle={ () => route('') }
+      />
     )
   );
 
   ReactDOM.render(<App/>, $div[0]);
 
   /* expose some variables for debugging */
-  Object.assign(window, { store, rootReducer });
+  Object.assign(window, { store, rootReducer, react: require('react') });
 });
 

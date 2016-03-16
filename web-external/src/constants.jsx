@@ -1,10 +1,18 @@
-export const ABOUT_URL = (
+const ABOUT_URL = (
     'http://girder.readthedocs.org/en/latest/user-guide.html');
 
-export const BUG_URL = 'https://github.com/girder/girder/issues/new';
+const BUG_URL = 'https://github.com/girder/girder/issues/new';
 
-export const CONTACT_URL = 'mailto:kitware@kitware.com';
+const CONTACT_URL = 'mailto:kitware@kitware.com';
 
-export const COPYRIGHT = String.fromCharCode(169);
+const COPYRIGHT = String.fromCharCode(169);
 
-export const NBSP = String.fromCharCode(160);
+const NBSP = String.fromCharCode(160);
+
+export {
+  ABOUT_URL,
+  BUG_URL,
+  CONTACT_URL,
+  COPYRIGHT,
+  NBSP
+};

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const reduxComponent = (store, renderCallback) => {
+const reduxComponent = (store, renderCallback, pTypes = {}) => {
   const dispatch = (...args) => store.dispatch(...args);
 
   return class ReduxComponent extends React.Component {
@@ -14,6 +14,10 @@ const reduxComponent = (store, renderCallback) => {
 
     render () {
       return renderCallback(store.getState(), dispatch);
+    }
+
+    static get propTypes () {
+      return pTypes;
     }
   };
 };

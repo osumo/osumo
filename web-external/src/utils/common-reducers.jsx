@@ -6,7 +6,7 @@ import {
 
 import objectReduce from './object-reduce';
 
-export const setScalar = (state = null, { value }) => (
+const setScalar = (state = null, { value }) => (
   (
     isArray(value) ||
       isObject(value) ||
@@ -14,14 +14,14 @@ export const setScalar = (state = null, { value }) => (
   ) ? state : value
 );
 
-export const appendToList = (state = [], { entry }) => {
+const appendToList = (state = [], { entry }) => {
   let { id, value } = entry;
   id = id || 0;
 
   return [...state, { id, value }];
 };
 
-export const extendList = (state = [], { entries }) => ([
+const extendList = (state = [], { entries }) => ([
   ...state,
 
   ...entries.map(({ id, value }) => ({
@@ -30,7 +30,7 @@ export const extendList = (state = [], { entries }) => ([
   }))
 ]);
 
-export const removeFromList = (state = [], { id, ids }) => {
+const removeFromList = (state = [], { id, ids }) => {
   ids = ids || [];
   if (!isUndefined(id)) {
     ids = [...ids, id];
@@ -40,7 +40,7 @@ export const removeFromList = (state = [], { id, ids }) => {
   return state.filter(({ id }) => !idSet.has(id));
 };
 
-export const setInMapping = (
+const setInMapping = (
     state = {},
     args /* es7: { type, entries, ...rest } */
 ) => {
@@ -55,7 +55,7 @@ export const setInMapping = (
   };
 };
 
-export const unsetInMapping = (state = {}, { keys, key }) => {
+const unsetInMapping = (state = {}, { keys, key }) => {
   keys = keys || [];
   if (!isUndefined(key)) {
     keys = [...keys, key];
@@ -70,4 +70,13 @@ export const unsetInMapping = (state = {}, { keys, key }) => {
     .filter(([key, value]) => !keySet.has(key))
     .reduce(objectReduce)
   );
+};
+
+export {
+  appendToList,
+  extendList,
+  removeFromList,
+  setInMapping,
+  setScalar,
+  unsetInMapping
 };

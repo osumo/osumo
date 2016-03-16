@@ -1,6 +1,7 @@
 import React from 'react';
 import { partial } from 'underscore';
 
+import propTypes from '../../prop-types';
 import { ABOUT_URL as GIRDER_RTD, NBSP as S } from '../../constants';
 
 class Body extends React.Component {
@@ -9,7 +10,6 @@ class Body extends React.Component {
       apiRoot,
       currentUser,
       onCollections,
-      onQuickSearch,
       onFolders,
       onInfo,
       onRegister,
@@ -76,14 +76,8 @@ class Body extends React.Component {
              onClick={ onCollections }>
             { S }Collections
           </a>
-          { S }page.  If you want to search for specific data on this
-          server, use the
-          <a className='g-quicksearch-link'
-             onClick={ onQuickSearch }>
-            { S }Quick Search
-          </a>
-          { S }box at the top of the screen.  Developers who want to use
-          the Girder REST API should check out the
+          { S }page.  Developers who want to use the Girder REST API should
+          check out the
           <a href={ apiRoot }>
             { S }interactive web API docs
           </a>
@@ -93,17 +87,18 @@ class Body extends React.Component {
       </div>
     );
   }
-}
 
-Body.propTypes = {
-  apiRoot: React.PropTypes.string.isRequired,
-  currentUser: React.PropTypes.string.isRequired,
-  onCollections: React.PropTypes.string.isRequired,
-  onQuickSearch: React.PropTypes.string.isRequired,
-  onFolders: React.PropTypes.string.isRequired,
-  onInfo: React.PropTypes.string.isRequired,
-  onRegister: React.PropTypes.string.isRequired,
-  onLogin: React.PropTypes.string.isRequired
-};
+  static get propTypes () {
+    return {
+      apiRoot: propTypes.apiRoot,
+      currentUser: propTypes.currentUser,
+      onCollections: propTypes.onCollections,
+      onFolders: propTypes.onFolders,
+      onInfo: propTypes.onInfo,
+      onRegister: propTypes.onRegister,
+      onLogin: propTypes.onLogin
+    };
+  }
+}
 
 export default Body;

@@ -3,10 +3,10 @@ import { isString, isUndefined } from 'underscore';
 import objectReduce from './object-reduce';
 import isArraySubstring from './is-array-substring';
 
-export const createIdentityReducer =
+const createIdentityReducer =
   (defaultState = null) => (state = defaultState, action) => state;
 
-export const fromSubMapping = (mapping, defaults = {}) => {
+const fromSubMapping = (mapping, defaults = {}) => {
   let { state: defaultState } = defaults;
 
   return (state = defaultState, action) => {
@@ -22,7 +22,7 @@ export const fromSubMapping = (mapping, defaults = {}) => {
   };
 };
 
-export const fromTypeMapping = (mapping, defaults = {}) => {
+const fromTypeMapping = (mapping, defaults = {}) => {
   let {
     state: defaultState,
     reducer: defaultReducer
@@ -46,7 +46,7 @@ const amendPrefix = (value, prefix) => (
     )
 );
 
-export const compose = (typeMapping = {}) => {
+const compose = (typeMapping = {}) => {
   /*
    * Separate the 'complex' type mappings from the others.
    *
@@ -203,4 +203,11 @@ export const compose = (typeMapping = {}) => {
   });
 
   return wrappingReducer.children({});
+};
+
+export {
+  compose,
+  createIdentityReducer,
+  fromSubMapping,
+  fromTypeMapping
 };

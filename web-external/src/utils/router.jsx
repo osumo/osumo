@@ -150,5 +150,4 @@ let router = () => {
   return result;
 };
 
-export { parseFilter, router };
 export default router;

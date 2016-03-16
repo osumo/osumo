@@ -1,7 +1,9 @@
 import { compose } from '../../utils/reducer';
 import { setInMapping, unsetInMapping } from '../../utils/common-reducers';
 
-export default compose({
+const globalNavTableReducer = compose({
   set: setInMapping,
   unset: unsetInMapping
 }).defaultState({});
+
+export default globalNavTableReducer;
