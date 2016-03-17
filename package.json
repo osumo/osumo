@@ -32,6 +32,6 @@
   },
   "scripts": {
     "build": "webpack",
-    "watch-build": "webpack --watch --progress"
+    "build:watch": "webpack --watch --progress"
   }
 }
