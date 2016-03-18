@@ -1,43 +1,52 @@
+import React from 'react';
+import { partial } from 'underscore';
 
-import React from "react";
-import { partial } from "underscore";
+import propTypes from '../../prop-types';
 
-export default class List extends React.Component {
-    render() {
-        let {
-            currentTarget,
-            navList,
-            onNavigate
-        } = this.props;
+class List extends React.Component {
+  render () {
+    let {
+      currentTarget,
+      navList,
+      onNavigate
+    } = this.props;
 
-        let navItems = navList.map(({ id, value: { icon, name, target } }) => {
-            let className = (
-                currentTarget === target
-              ? "g-global-nav-li g-active"
-              : "g-global-nav-li");
+    let navItems = navList.map(({ id, value: { icon, name, target } }) => {
+      let className = currentTarget === target
+        ? 'g-global-nav-li g-active'
+        : 'g-global-nav-li';
 
-            let clickHandler = partial(onNavigate, target);
+      let clickHandler = partial(onNavigate, target);
 
-            return (
-                <li className={ className } key={ id }>
-                  <a className="g-nav-link"
-                     g-target={ target }
-                     g-name={ name }
-                     onClick={ clickHandler } >
-                    <i className={ icon }></i>
-                    <span>{ name }</span>
-                  </a>
-                </li>
-            );
-        });
+      return (
+        <li className={ className } key={ id }>
+          <a className='g-nav-link'
+             g-target={ target }
+             g-name={ name }
+             onClick={ clickHandler } >
+            <i className={ icon }></i>
+            <span>{ name }</span>
+          </a>
+        </li>
+      );
+    });
 
-        return (
-            <div className="g-global-nav-main">
-              <ul className="g-global-nav">
-                { navItems }
-              </ul>
-            </div>
-        );
-    }
+    return (
+      <div className='g-global-nav-main'>
+        <ul className='g-global-nav'>
+          { navItems }
+        </ul>
+      </div>
+    );
+  }
+
+  static get propTypes () {
+    return {
+      currentTarget: propTypes.currentTarget,
+      navList: propTypes.navList,
+      onNavigate: propTypes.onNavigate
+    };
+  }
 }
 
+export default List;

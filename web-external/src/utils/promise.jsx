@@ -1,6 +1,2 @@
-
-import { Promise } from "bluebird";
-
-export { Promise };
+import { Promise } from 'bluebird';
 export default Promise;
-

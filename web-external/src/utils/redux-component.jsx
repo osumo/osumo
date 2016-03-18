@@ -1,26 +1,25 @@
+import React from 'react';
 
-import React from "react";
+const reduxComponent = (store, renderCallback, pTypes = {}) => {
+  const dispatch = (...args) => store.dispatch(...args);
 
-const reduxComponent = (store, renderCallback) => {
-    const dispatch = (...args) => store.dispatch(...args);
+  return class ReduxComponent extends React.Component {
+    componentDidMount () {
+      this.unsubscribe = store.subscribe(() => this.forceUpdate());
+    }
 
-    return class ReduxComponent extends React.Component {
-        componentDidMount() {
-            this.unsubscribe = store.subscribe(() =>
-                this.forceUpdate()
-            );
-        }
+    componentWillUnmount () {
+      this.unsubscribe();
+    }
 
-        componentWillUnmount() {
-            this.unsubscribe();
-        }
+    render () {
+      return renderCallback(store.getState(), dispatch);
+    }
 
-        render() {
-            return renderCallback(store.getState(), dispatch);
-        }
-    };
+    static get propTypes () {
+      return pTypes;
+    }
+  };
 };
 
 export default reduxComponent;
-
-
