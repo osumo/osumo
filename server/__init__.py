@@ -139,6 +139,9 @@ class Osumo(Resource):
         """
         Called when a file is uploaded.
         """
+        if self.jobUsers.get(event.info['reference']) is None:
+            # Not our job
+            return
         jobsModel = self.model('job', 'jobs')
         jobsModel.exposeFields(level=AccessType.READ, fields=('processedFiles'))
         job = jobsModel.load(
