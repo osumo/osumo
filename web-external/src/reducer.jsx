@@ -1,8 +1,10 @@
+import { compose } from './utils/reducer';
+import currentUser from './reducer/current-user';
+import globalNav from './reducer/global-nav';
 
-import { compose } from "./utils/reducer";
-import globalNav from "./reducer/global-nav";
+const rootReducer = compose().children({
+  currentUser,
+  globalNav
+});
 
-const root = compose().children({ globalNav });
-
-export default root;
-
+export default rootReducer;
