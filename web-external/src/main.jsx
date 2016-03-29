@@ -41,7 +41,10 @@ $(() => {
 
   const dummy = (msg) => partial(DummyComponent, { msg });
 
-  const process_tab = () => partial(ProcessDataComponent, { rest: rest });
+  const process_tab = () => partial(ProcessDataComponent, {
+    rest: rest,
+    apiRoot: apiRoot
+  });
 
   store.dispatch({
     type: rootReducer().globalNav.list.extend,

@@ -5,13 +5,14 @@ import React from 'react';
 export default class ProcessDataComponent extends React.Component {
   constructor (props) {
     super(props);
-    this.request = props.rest;
+    this.request = this.props.rest;
   }
 
   componentWillMount () {
     let initialState = {
-      dataFolderId: '56afab5f0640fd22d383c02e',
-      targetFolderId: '56b0d1890640fd0e3f8ff3d4',
+      /* The folder names are used to look up where to load and store data */
+      dataFolderName: 'OSUMO Inputs',
+      targetFolderName: 'OSUMO Results',
       inputs: {}
     };
     this.setState(initialState);
@@ -44,15 +45,50 @@ export default class ProcessDataComponent extends React.Component {
       return {};
     };
 
+    /* Get the input and output folder ids, if they haven't been set yet.
+     *
+     * @param {function} callback function to call when both IDs are present.
+     */
+    this.getInputAndOutputFolders = function (callback) {
+      if (this.foldersRequest) {
+        this.foldersRequest.abort();
+      }
+      let folders = [
+        {id: 'dataFolderId', name: 'dataFolderName'},
+        {id: 'targetFolderId', name: 'targetFolderName'}
+      ];
+      let state = this.state || initialState;
+      for (let folder of folders) {
+        if (state && !this[folder.id]) {
+          let folderName = state[folder.name];
+          this.foldersRequest = this.request({path: 'folder', data: {
+            text: '"' + folderName + '"',
+            sort: 'created',
+            sortdir: -1
+          }});
+          this.foldersRequest.done(function (resp) {
+            m_this[folder.id] = resp.response[0]._id;
+            m_this.getInputAndOutputFolders(callback);
+            return null;
+          });
+          return;
+        }
+      }
+      callback.call(this);
+    };
+
     /* Fetch the list of items based on the current state's data folder.
      */
     this.fetchItems = function () {
       if (this.itemsRequest) {
         this.itemsRequest.abort();
       }
+      if (!this.dataFolderId || !this.targetFolderId) {
+        this.getInputAndOutputFolders(this.fetchItems);
+        return;
+      }
       this.itemsRequest = this.request({path: 'item', data: {
-        folderId: ((this.state && this.state.dataFolderId)
-            ? this.state.dataFolderId : initialState.dataFolderId),
+        folderId: this.dataFolderId,
         sort: 'updated',
         sortdir: -1
       }});
@@ -94,6 +130,10 @@ export default class ProcessDataComponent extends React.Component {
         if (params[par.key] === undefined &&
             m_this.state[par.key] !== undefined) {
           params[par.key] = m_this.state[par.key];
+        }
+        if (params[par.key] === undefined &&
+            m_this[par.key] !== undefined) {
+          params[par.key] = m_this[par.key];
         }
       }
       m_this.setState({resultMessage: []});
