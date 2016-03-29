@@ -8,6 +8,7 @@ from girder.api import access
 from girder.api.describe import Description, describeRoute
 from girder.api.rest import Resource
 from girder.constants import AccessType
+from girder.utility.model_importer import ModelImporter
 
 from girder.plugins.worker import utils as workerUtils
 
@@ -26,7 +27,7 @@ class Osumo(Resource):
         self.route('GET', ('tasks', ), self.getTasks)
         self.route('POST', (), self.processTask)
         # This should change if we add a custom token per job.
-        self.jobUsers = {}
+        self.jobInfo = {}
 
     @describeRoute(
         Description('List available tasks')
@@ -134,33 +135,55 @@ class Osumo(Resource):
 
         job = self.model('job', 'jobs').save(job)
         self.model('job', 'jobs').scheduleJob(job)
-        self.jobUsers[str(job['_id'])] = user
+        self.jobInfo[str(job['_id'])] = {'user': user}
 
         return self.model('job', 'jobs').filter(job, user)
 
-    def processJob(self, event):
+    def dataProcess(self, event):
         """
-        Called when a file is uploaded.
+        Called when a file is uploaded.  If it is from one of our jobs, record
+        the details.
+
+        :param event: the event with the file information.
         """
-        if self.jobUsers.get(event.info['reference']) is None:
+        if self.jobInfo.get(event.info['reference']) is None:
             # Not our job
             return
-        jobsModel = self.model('job', 'jobs')
-        jobsModel.exposeFields(level=AccessType.READ, fields=('processedFiles'))
-        job = jobsModel.load(
-            event.info['reference'], level=AccessType.WRITE,
-            user=self.jobUsers.get(event.info['reference']), exc=True)
-        if 'processedFiles' not in job:
-            job['processedFiles'] = []
-        job['processedFiles'].append({
+        self.jobInfo[event.info['reference']].setdefault('processedFiles', [])
+        self.jobInfo[event.info['reference']]['processedFiles'].append({
             'fileId': event.info['file']['_id'],
             'itemId': event.info['file']['itemId'],
             'name': event.info['file']['name']
         })
-        jobsModel.save(job)
+
+    def modelJobSave(self, event):
+        """
+        Just before a job is saved, see if it is one of ours.  If so, add our
+        processedFiles information.
+
+        :param event: the event with the job.
+        """
+        job = event.info
+        jobId = str(job.get('_id', ''))
+        if jobId not in self.jobInfo:
+            # Not our job
+            return
+        if 'processedFiles' not in self.jobInfo[jobId]:
+            # No files
+            return
+        # Get the list of distinct files
+        files = (job.get('processedFiles', []) +
+                 self.jobInfo[jobId]['processedFiles'])
+        job['processedFiles'] = files
+        del self.jobInfo[jobId]['processedFiles']
 
 
 def load(info):
+    ModelImporter.model('job', 'jobs').exposeFields(
+        level=AccessType.ADMIN, fields='processedFiles')
+    ModelImporter.model('job', 'jobs').exposeFields(
+        level=AccessType.SITE_ADMIN, fields='processedFiles')
+
     Osumo._cp_config['tools.staticdir.dir'] = os.path.join(
         os.path.relpath(info['pluginRootDir'],
                         info['config']['/']['tools.staticdir.root']),
@@ -180,4 +203,5 @@ def load(info):
     info['serverRoot'].api = info['serverRoot'].girder.api
     info['serverRoot'].girder.api
 
-    events.bind('data.process', 'osumo', info['apiRoot'].osumo.processJob)
+    events.bind('data.process', 'osumo', info['apiRoot'].osumo.dataProcess)
+    events.bind('model.job.save', 'osumo', info['apiRoot'].osumo.modelJobSave)

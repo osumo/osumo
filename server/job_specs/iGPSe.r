@@ -4,10 +4,6 @@ require(pheatmap)
 require(survival)
 
 
-# miRNA.m <- NULL
-# mRNA.m <- NULL
-# clinical.m <- NULL
-  
 mRNA.m <- read.csv(mrna_input_path)
 output_mrna_dim = dim(mRNA.m)
 
