@@ -1,13 +1,14 @@
+/* globals $ */
+
 import React from 'react';
 
 export default class ProcessDataComponent extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props);
-    let { default: restRequests } = require('../utils/rest-requests');
-    this.request = restRequests({apiRoot: props.apiRoot});
+    this.request = props.rest;
   }
 
-  componentWillMount() {
+  componentWillMount () {
     let initialState = {
       dataFolderId: '56afab5f0640fd22d383c02e',
       targetFolderId: '56b0d1890640fd0e3f8ff3d4',
@@ -214,12 +215,12 @@ export default class ProcessDataComponent extends React.Component {
     this.fetchItems();
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.tasksRequest.abort();
     this.itemsRequest.abort();
   }
 
-  render() {
+  render () {
     let idx;
 
     if (!this.state || !this.state.tasks || !this.state.items) {
@@ -240,11 +241,13 @@ export default class ProcessDataComponent extends React.Component {
         }</select>
       </div>
     );
-    let functionControls = [], task = this.getTaskSpec();
+    let functionControls = [];
+    let task = this.getTaskSpec();
     /* create task-specific controls */
     for (idx in task.inputs || []) {
-      let inpspec = task.inputs[idx], ctl, defaultValue = inpspec.default;
-      ctl = [<label className='control-label' key='label'>{inpspec.name} </label>];
+      let inpspec = task.inputs[idx];
+      let defaultValue = inpspec.default;
+      let ctl = [<label className='control-label' key='label'>{inpspec.name} </label>];
       switch (inpspec.type) {
         case 'item':
           let items = this.state.items;

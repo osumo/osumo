@@ -33,12 +33,15 @@ $(() => {
   const apiRoot = 'api/v1';
   // const staticRoot = 'static';
 
+  /* initialize rest API */
+  const rest = restRequests({ events, apiRoot });
+
   /* create store and populate it with initial state */
   const store = createStore(rootReducer);
 
   const dummy = (msg) => partial(DummyComponent, { msg });
 
-  const process_tab = () => partial(ProcessDataComponent, { apiRoot: apiRoot });
+  const process_tab = () => partial(ProcessDataComponent, { rest: rest });
 
   store.dispatch({
     type: rootReducer().globalNav.list.extend,
@@ -67,9 +70,6 @@ $(() => {
       process: process_tab()
     }
   });
-
-  /* initialize rest API */
-  const rest = restRequests({ events, apiRoot });
 
   /* define some functions to be used for routing */
 
