@@ -190,9 +190,9 @@ export default class ProcessDataComponent extends React.Component {
       }
       job.processedFiles.sort(function (a, b) {
         let apng = a.name.endsWith('.png');
-        let bpng = a.name.endsWith('.png');
+        let bpng = b.name.endsWith('.png');
         if (apng !== bpng) {
-          return apng ? 1 : -1;
+          return apng ? -1 : 1;
         }
         return a.name > b.name ? 1 : -1;
       });
@@ -279,6 +279,7 @@ export default class ProcessDataComponent extends React.Component {
                     title={task.description}>{task.name}</option>;
           })
         }</select>
+        <div className='task-desc g-item-info-header'>{this.getTaskSpec().description || ''}</div>
       </div>
     );
     let functionControls = [];
@@ -316,6 +317,20 @@ export default class ProcessDataComponent extends React.Component {
               defaultValue={inpspec.default}
               value={this.state.inputs[inpspec.key]}
               data-reference={inpspec.key} key={inpspec.key}></input>);
+          break;
+        case 'enum':
+          ctl.push(<select className='form-control'
+              onChange={this.changeTaskInput}
+              value={this.state.inputs[inpspec.key]}
+              data-reference={inpspec.key} key={inpspec.key}>{
+            inpspec.enum.map(function (entry) {
+              if (!entry.id && !entry.name) {
+                entry = {id: entry, name: entry};
+              }
+              return <option key={entry.id} value={entry.id}>{entry.name}</option>;
+            })
+          }</select>);
+          defaultValue = inpspec.default || inpspec.enum[0].id || inpspec.enum[0];
           break;
         default:
           console.log('control type ' + inpspec.type + ' not implemented');

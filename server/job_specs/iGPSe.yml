@@ -1,0 +1,166 @@
+---
+
+name: iGPSe
+
+description: "iGPSe: Interactive Genomics Patient Stratification explorer"
+
+task:
+  name: iGPSe
+  mode: r
+
+  script: >
+      @include(iGPSe.r)
+
+  inputs:
+    - name: mrna_input_path
+      type: string
+      format: text
+    - name: mrna_metric
+      type: string
+      format: text
+    - name: mrna_algorithm
+      type: string
+      format: text
+    - name: mrna_clusters
+      type: number
+      format: number
+    
+    - name: mirna_input_path
+      type: string
+      format: text
+    - name: mirna_metric
+      type: string
+      format: text
+    - name: mirna_algorithm
+      type: string
+      format: text
+    - name: mirna_clusters
+      type: number
+      format: number
+    
+    - name: clinical_input_path
+      type: string
+      format: text
+
+  outputs:
+    - name: output_mrna_dim
+      type: r
+      target: memory
+      format: object
+    - name: output_mirna_dim
+      type: r
+      target: memory
+      format: object
+    - name: output_clinical_dim
+      type: r
+      target: memory
+      format: object
+    - name: output_mrna_heatplot
+      type: image
+      target: filepath
+      format: png
+    - name: output_mirna_heatplot
+      type: image
+      target: filepath
+      format: png
+
+inputs:
+  - key: mrna_input_path
+    name: "Gene Expression Profile"
+    description: "mRNA data."
+    type: item
+    subtype: rdata
+  - key: mrna_metric
+    name: "mRNA Clustering Metric"
+    type: enum
+    enum:
+      - 'Euclidean Distance'
+      - 'Correlation'
+    default: 'Euclidean Distance'
+    format: string
+  - key: mrna_algorithm
+    name: "mRNA Clustering Algorithm"
+    type: enum
+    enum:
+      - 'Kmeans'
+      - 'Spectral Clustering'
+    default: 'Kmeans'
+    format: string
+  - key: mrna_clusters
+    name: "mRNA Number of Clusters (k)"
+    description: "The number (k) of clusters used in calculations"
+    type: integer
+    default: 5
+    format: number
+  
+  - key: mirna_input_path
+    name: "MicroRNA Expression Profile"
+    description: "miRNA data."
+    type: item
+    subtype: rdata
+  - key: mirna_metric
+    name: "miRNA Clustering Metric"
+    type: enum
+    enum:
+      - 'Euclidean Distance'
+      - 'Correlation'
+    default: 'Euclidean Distance'
+    format: string
+  - key: mirna_algorithm
+    name: "miRNA Clustering Algorithm"
+    type: enum
+    enum:
+      - 'Kmeans'
+      - 'Spectral Clustering'
+    default: 'Kmeans'
+    format: string
+  - key: mirna_clusters
+    name: "miRNA Number of Clusters (k)"
+    description: "The number (k) of clusters used in calculations"
+    type: integer
+    default: 5
+    format: number
+
+  - key: clinical_input_path
+    name: "Clinical Profile"
+    type: item
+    subtype: rdata
+
+parameters:
+  - key: targetFolderId
+    name: "Target Folder"
+    type: folder
+    input: false
+
+outputs: 
+  - key: output_mrna_dim
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "mrna_dim.txt"
+    dataType: "r"
+    dataFormat: "serialized"
+  - key: output_mirna_dim
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "mirna_dim.txt"
+    dataType: "r"
+    dataFormat: "serialized"
+  - key: output_clinical_dim
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "clinical_dim.txt"
+    dataType: "r"
+    dataFormat: "serialized"
+  - key: output_mrna_heatplot
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "mRNA Heatplot.png"
+    dataType: "image"
+    dataFormat: "png"
+  - key: output_mirna_heatplot
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "miRNA Heatplot.png"
+    dataType: "image"
+    dataFormat: "png"
+

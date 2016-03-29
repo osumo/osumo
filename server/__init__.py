@@ -84,6 +84,9 @@ class Osumo(Resource):
                 file.close()
                 data[key]['format'] = 'text'
                 data[key]['type'] = 'string'
+            elif type in ('enum', 'string', 'text'):
+                data[key]['format'] = 'text'
+                data[key]['type'] = 'string'
             else:
                 raise NotImplementedError('No input data type %s' % type)
             data[key]['data'] = value
