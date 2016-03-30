@@ -52,10 +52,8 @@ $(() => {
       /* id, name, icon, target */
       [0, 'Collections', 'sitemap', 'collections'],
       [1, 'Users', 'user', 'users'],
-      [2, 'INDEX', 'user', ''],
-      [3, 'Groups', 'users', 'groups'],
-      [4, 'INDEX', 'user', ''],
-      [5, 'Process Data', 'user', 'process']
+      [2, 'Groups', 'users', 'groups'],
+      [3, 'Process Data', 'user', 'process']
     ].map(([id, name, icon, target]) => ({
       id,
       value: { name, icon, target }
@@ -158,7 +156,8 @@ $(() => {
 
   ReactDOM.render(<App/>, $div[0]);
 
-  /* expose some variables for debugging */
+  /* expose some variables for debugging.  This also exposes d3 in a way the
+   * parallel sets javascript expects. */
   Object.assign(window, { store, rootReducer, react: require('react') });
 });
 

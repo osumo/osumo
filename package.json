@@ -17,6 +17,7 @@
     "bluebird": "^3.2.2",
     "bootstrap": "^3.3.6",
     "css-loader": "^0.23.1",
+    "d3": "~3.5",
     "jade": "^1.11.0",
     "jade-loader": "^0.8.0",
     "jquery": "^2.2.0",

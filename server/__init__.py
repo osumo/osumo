@@ -1,6 +1,7 @@
 
 import copy
-import os.path
+import inspect
+import os
 import tempfile
 
 from girder import events
@@ -123,7 +124,8 @@ class Osumo(Resource):
             key = output['key']
             spec = {'token': self.getCurrentToken()}
             for subkey in output:
-                if subkey != 'key':
+                if (subkey in inspect.getargspec(
+                        workerUtils.girderOutputSpec).args):
                     value = output[subkey]
                     if value.startswith('parameter:'):
                         valuekey = value.split(':', 1)[1]

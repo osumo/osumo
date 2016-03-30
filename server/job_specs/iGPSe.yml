@@ -44,25 +44,37 @@ task:
 
   outputs:
     - name: output_mrna_dim
-      type: r
       target: memory
+      type: r
       format: object
     - name: output_mirna_dim
-      type: r
       target: memory
+      type: r
       format: object
     - name: output_clinical_dim
-      type: r
       target: memory
+      type: r
       format: object
     - name: output_mrna_heatplot
-      type: image
       target: filepath
+      type: image
       format: png
     - name: output_mirna_heatplot
-      type: image
       target: filepath
+      type: image
       format: png
+    - name: clustersJSON
+      target: memory
+      type: string
+      format: text
+    - name: mRNACluster_cl
+      target: memory
+      type: r
+      format: object
+    - name: miRNACluster_cl
+      target: memory
+      type: r
+      format: object
 
 inputs:
   - key: mrna_input_path
@@ -152,15 +164,38 @@ outputs:
     dataType: "r"
     dataFormat: "serialized"
   - key: output_mrna_heatplot
+    show: image
     parentType: "folder"
     parent: "parameter:targetFolderId"
     name: "mRNA Heatplot.png"
     dataType: "image"
     dataFormat: "png"
   - key: output_mirna_heatplot
+    show: image
     parentType: "folder"
     parent: "parameter:targetFolderId"
     name: "miRNA Heatplot.png"
     dataType: "image"
     dataFormat: "png"
+  - key: clustersJSON
+    show: parallelSets
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "clusters.json"
+    dataType: "string"
+    dataFormat: "text"
+  - key: mRNACluster_cl
+    show: false
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "mRNACluster.txt"
+    dataType: "r"
+    dataFormat: "serialized"
+  - key: miRNACluster_cl
+    show: false
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "miRNACluster.txt"
+    dataType: "r"
+    dataFormat: "serialized"
 

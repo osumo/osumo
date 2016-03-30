@@ -2,6 +2,8 @@
 
 import React from 'react';
 
+import ParallelSetsComponent from './parallelsets';
+
 export default class ProcessDataComponent extends React.Component {
   constructor (props) {
     super(props);
@@ -33,12 +35,15 @@ export default class ProcessDataComponent extends React.Component {
 
     /* Get the current taskspec.
      *
+     * @param {string} taskkey optional task key to match.  If not specified,
+     *      use the current state's taskkey.
      * @return {object} the select task specification.
      */
-    this.getTaskSpec = function () {
+    this.getTaskSpec = function (taskkey) {
+      taskkey = taskkey === undefined ? this.state.taskkey : taskkey;
       for (var idx in this.state.tasks) {
         let taskspec = this.state.tasks[idx];
-        if (this.state.taskkey === taskspec.key) {
+        if (taskkey === taskspec.key) {
           return taskspec;
         }
       }
@@ -136,7 +141,10 @@ export default class ProcessDataComponent extends React.Component {
           params[par.key] = m_this[par.key];
         }
       }
-      m_this.setState({resultMessage: []});
+      m_this.setState({
+        resultMessage: [],
+        processTaskKey: m_this.state.taskkey
+      });
       if (m_this.progressRequest) {
         for (let idx in m_this.progressRequest) {
           m_this.progressRequest[idx].abort();
@@ -188,18 +196,36 @@ export default class ProcessDataComponent extends React.Component {
       if (job.status !== m_this.JobStatus.SUCCESS) {
         return;
       }
+      let task = m_this.getTaskSpec(m_this.state.processTaskKey);
+      for (let key in job.processedFiles) {
+        job.processedFiles[key].output = {};
+        for (let outkey in task.outputs) {
+          if (job.processedFiles[key].name !== undefined &&
+                job.processedFiles[key].name === task.outputs[outkey].name) {
+            job.processedFiles[key].output = task.outputs[outkey];
+          }
+        }
+      }
       job.processedFiles.sort(function (a, b) {
-        let apng = a.name.endsWith('.png');
-        let bpng = b.name.endsWith('.png');
-        if (apng !== bpng) {
-          return apng ? -1 : 1;
+        let ashow = a.output.show;
+        let bshow = b.output.show;
+        if (ashow !== bshow) {
+          if (ashow === undefined || ashow === false) {
+            return 1;
+          }
+          if (bshow === undefined || bshow === false) {
+            return -1;
+          }
+          return ashow > bshow ? 1 : -1;
         }
         return a.name > b.name ? 1 : -1;
       });
-      for (var key in job.processedFiles) {
-        let ajax = m_this.showResultsItem(key, job.processedFiles[key]);
-        if (ajax) {
-          m_this.progressRequest.push(ajax);
+      for (let key in job.processedFiles) {
+        if (job.processedFiles[key].output.show !== false) {
+          let ajax = m_this.showResultsItem(key, job.processedFiles[key], job);
+          if (ajax) {
+            m_this.progressRequest.push(ajax);
+          }
         }
       }
       /* If we don't return null, a warning about promises is shown.  We take
@@ -213,32 +239,50 @@ export default class ProcessDataComponent extends React.Component {
      *
      * @param {string} key the name of result.
      * @param {object} details the processed file details for the result
+     * @param {object} job the job object with information about this item.
+     * @returns {object} ajax object if a further call is being made.
      */
-    this.showResultsItem = function (key, details) {
+    this.showResultsItem = function (key, details, job) {
       let results = this.state.resultMessage;
       let pos = results.length;
       results.push([<div key={'key_' + pos}>{details.name}</div>]);
-      let download = true;
-      if (details.name.endsWith('.png')) {
-        results[pos].push(<img key={'data_' + pos} src={
-            this.props.apiRoot + '/file/' + details.fileId +
-            '/download?image=.png'}></img>);
-        download = false;
-      }
       this.setState({resultMessage: results});
-      if (download) {
-        let ajax = this.request({
-          path: 'file/' + details.fileId + '/download',
-          dataType: 'text'
-        });
-        ajax.done(function (resp) {
-          let results = m_this.state.resultMessage;
-          results[pos].push(<div key={'data_' + pos}>{resp.response}</div>);
-          m_this.setState({resultMessage: results});
-        });
-        return ajax;
+      let ajax = null;
+      switch (details.output.show) {
+        case 'image':
+          results[pos].push(<img key={'data_' + pos} src={
+              this.props.apiRoot + '/file/' + details.fileId +
+              '/download?image=.png'}></img>);
+          this.setState({resultMessage: results});
+          break;
+        case 'parallelSets':
+          ajax = this.request({
+            path: 'file/' + details.fileId + '/download'
+          });
+          ajax.done(function (resp) {
+            let results = m_this.state.resultMessage;
+            results[pos].push(<ParallelSetsComponent
+              key={'data_' + pos}
+              data={resp.response}
+              task={m_this.getTaskSpec(m_this.state.processTaskKey)}
+              job={job}
+            />);
+            m_this.setState({resultMessage: results});
+          });
+          break;
+        default:
+          ajax = this.request({
+            path: 'file/' + details.fileId + '/download',
+            dataType: 'text'
+          });
+          ajax.done(function (resp) {
+            let results = m_this.state.resultMessage;
+            results[pos].push(<div key={'data_' + pos}>{resp.response}</div>);
+            m_this.setState({resultMessage: results});
+          });
+          break;
       }
-      return;
+      return ajax;
     };
 
     /* Perform intitial data load */
