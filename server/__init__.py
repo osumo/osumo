@@ -30,6 +30,28 @@ class Osumo(Resource):
         # This should change if we add a custom token per job.
         self.jobInfo = {}
 
+    def _getResource(self, type, id, user):
+        """
+        Get a Girder resource.  If a file is requested and the id is from an
+        item, and that item has a single file, use the file.
+
+        :param type: the girder resource type.
+        :param id: id of the resource.
+        :param used: the user used for permissions.
+        :returns: a girder resource or None.
+        """
+        value = self.model(type).load(id, user=user, exc=(type != 'file'))
+        if type == 'file' and value is None:
+            # If we want a file, allow a one-file item to be used
+            # instead
+            item = self.model('item').load(id, user=user)
+            if item:
+                files = list(self.model('item').childFiles(item))
+                if len(files) == 1:
+                    value = self.model('file').load(
+                        files[0]['_id'], user=user)
+        return value
+
     @describeRoute(
         Description('List available tasks')
     )
@@ -73,8 +95,8 @@ class Osumo(Resource):
             value = params.get(key, data[key].get('default', None))
 
             type = data[key].get('type')
-            if type in ('item', 'folder'):
-                value = self.model(type).load(value, user=user)
+            if type in ('file', 'item', 'folder'):
+                value = self._getResource(type, value, user)
             elif type == 'integer':
                 value = int(value)
             elif type == 'boolean':
@@ -111,10 +133,13 @@ class Osumo(Resource):
             if data[key].get('input') is False:
                 continue
             spec = data.get(key, {}).copy()
-            if data[key].get('type') in ('item', 'folder'):
+            if data[key].get('type') in ('file', 'item', 'folder'):
                 spec = workerUtils.girderInputSpec(
                     spec['data'], resourceType=data[key]['type'],
-                    token=self.getCurrentToken())
+                    token=self.getCurrentToken(),
+                    dataType=data[key].get('dataType', 'string'),
+                    dataFormat=data[key].get('dataFormat', 'text'),
+                    )
             inputs[key] = spec
 
         # TODO(opadron): make a special-purpose token just for this job in case

@@ -67,11 +67,7 @@ task:
       target: memory
       type: string
       format: text
-    - name: mRNACluster_cl
-      target: memory
-      type: r
-      format: object
-    - name: miRNACluster_cl
+    - name: transferData
       target: memory
       type: r
       format: object
@@ -80,7 +76,7 @@ inputs:
   - key: mrna_input_path
     name: "Gene Expression Profile"
     description: "mRNA data."
-    type: item
+    type: file
     subtype: rdata
   - key: mrna_metric
     name: "mRNA Clustering Metric"
@@ -108,7 +104,7 @@ inputs:
   - key: mirna_input_path
     name: "MicroRNA Expression Profile"
     description: "miRNA data."
-    type: item
+    type: file
     subtype: rdata
   - key: mirna_metric
     name: "miRNA Clustering Metric"
@@ -135,7 +131,7 @@ inputs:
 
   - key: clinical_input_path
     name: "Clinical Profile"
-    type: item
+    type: file
     subtype: rdata
 
 parameters:
@@ -179,23 +175,19 @@ outputs:
     dataFormat: "png"
   - key: clustersJSON
     show: parallelSets
+    nextjob: 
+      - task: iGPSePart2
+      - inputs:
+          - transferData
     parentType: "folder"
     parent: "parameter:targetFolderId"
     name: "clusters.json"
     dataType: "string"
     dataFormat: "text"
-  - key: mRNACluster_cl
+  - key: transferData
     show: false
     parentType: "folder"
     parent: "parameter:targetFolderId"
-    name: "mRNACluster.txt"
+    name: "transferData.txt"
     dataType: "r"
     dataFormat: "serialized"
-  - key: miRNACluster_cl
-    show: false
-    parentType: "folder"
-    parent: "parameter:targetFolderId"
-    name: "miRNACluster.txt"
-    dataType: "r"
-    dataFormat: "serialized"
-

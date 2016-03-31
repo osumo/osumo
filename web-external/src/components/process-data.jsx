@@ -334,7 +334,7 @@ export default class ProcessDataComponent extends React.Component {
       let defaultValue = inpspec.default;
       let ctl = [<label className='control-label' key='label'>{inpspec.name} </label>];
       switch (inpspec.type) {
-        case 'item':
+        case 'item': case 'file':
           let items = this.state.items;
           // we should filter items based on the subtype
           ctl.push(<select className='form-control'

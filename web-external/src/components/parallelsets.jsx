@@ -54,7 +54,9 @@ export default class ParallelSetsComponent extends React.Component {
         $('#subgroup1').removeClass('active');
         $('#subgroup2').addClass('active');
       },
-      onProcess () { console.log('process', this); },  // DWM::
+      onProcess () {
+        console.log(JSON.stringify(this.groups));  // DWM::
+      },
       onReset () {
         this.groups.group_f = 0;
         this.groups.GROUP1 = {node: [], link: []};
