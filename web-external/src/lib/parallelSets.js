@@ -20,7 +20,7 @@ var parallelSets = (function () {
 
   var returnObject = function (i, flag) {
     for (var m = 0; m < _data[flag].length; m++) {
-      if (_data[flag][m].key === i) {
+      if (parseInt(_data[flag][m].key, 10) === i) {
         return _data[flag][m];
       }
     }
