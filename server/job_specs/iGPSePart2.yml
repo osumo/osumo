@@ -4,8 +4,9 @@ name: iGPSePart2
 
 description: "iGPSe: Interactive Genomics Patient Stratification explorer, second processing step"
 
+show: false
+
 task:
-  show: false
   name: iGPSePart2
   mode: r
 

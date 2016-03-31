@@ -175,10 +175,6 @@ outputs:
     dataFormat: "png"
   - key: clustersJSON
     show: parallelSets
-    nextjob: 
-      - task: iGPSePart2
-      - inputs:
-          - transferData
     parentType: "folder"
     parent: "parameter:targetFolderId"
     name: "clusters.json"
@@ -191,3 +187,11 @@ outputs:
     name: "transferData.txt"
     dataType: "r"
     dataFormat: "serialized"
+
+# We probably want o generalize this so that different routes could lead to
+# different next tasks.  Also, the transfer currently transfers a Girder file
+# object.  If we want to transfer other resources, we'll need to change this.
+nexttask: 
+  task: iGPSePart2
+  transfers:
+    - transferData

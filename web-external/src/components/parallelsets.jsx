@@ -55,7 +55,8 @@ export default class ParallelSetsComponent extends React.Component {
         $('#subgroup2').addClass('active');
       },
       onProcess () {
-        console.log(JSON.stringify(this.groups));  // DWM::
+        this.props.onNextTask(this.props.task, this.props.job,
+                              {groups: JSON.stringify(this.groups)});
       },
       onReset () {
         this.groups.group_f = 0;
@@ -75,6 +76,7 @@ export default class ParallelSetsComponent extends React.Component {
       job: React.PropTypes.object,
       onGroup1: React.PropTypes.func,
       onGroup2: React.PropTypes.func,
+      onNextTask: React.PropTypes.func,
       onProcess: React.PropTypes.func,
       onReset: React.PropTypes.func
     };

@@ -4,6 +4,8 @@ import React from 'react';
 
 import ParallelSetsComponent from './parallelsets';
 
+void ParallelSetsComponent;  // make my editor's linter happy.
+
 export default class ProcessDataComponent extends React.Component {
   constructor (props) {
     super(props);
@@ -15,11 +17,17 @@ export default class ProcessDataComponent extends React.Component {
       /* The folder names are used to look up where to load and store data */
       dataFolderName: 'OSUMO Inputs',
       targetFolderName: 'OSUMO Results',
+      /* This allows chaining tasks.  Once this is refactored into a more
+       * reasonable component, another copy of the component should be shown
+       * rather than this chaining method. */
+      progressMessage: [],
+      resultMessage: [],
+      processTaskKey: [],
+      tasklist: [],
       inputs: {}
     };
     this.setState(initialState);
     this.inputDefaults = {};  /* populated when controls are rendered */
-    let m_this = this;
 
     /* from girder/plugins/jobs/server/constants.py */
     this.JobStatus = {
@@ -39,7 +47,7 @@ export default class ProcessDataComponent extends React.Component {
      *      use the current state's taskkey.
      * @return {object} the select task specification.
      */
-    this.getTaskSpec = function (taskkey) {
+    this.getTaskSpec = (taskkey) => {
       taskkey = taskkey === undefined ? this.state.taskkey : taskkey;
       for (var idx in this.state.tasks) {
         let taskspec = this.state.tasks[idx];
@@ -54,7 +62,7 @@ export default class ProcessDataComponent extends React.Component {
      *
      * @param {function} callback function to call when both IDs are present.
      */
-    this.getInputAndOutputFolders = function (callback) {
+    this.getInputAndOutputFolders = (callback) => {
       if (this.foldersRequest) {
         this.foldersRequest.abort();
       }
@@ -71,9 +79,9 @@ export default class ProcessDataComponent extends React.Component {
             sort: 'created',
             sortdir: -1
           }});
-          this.foldersRequest.done(function (resp) {
-            m_this[folder.id] = resp.response[0]._id;
-            m_this.getInputAndOutputFolders(callback);
+          this.foldersRequest.done((resp) => {
+            this[folder.id] = resp.response[0]._id;
+            this.getInputAndOutputFolders(callback);
             return null;
           });
           return;
@@ -84,7 +92,7 @@ export default class ProcessDataComponent extends React.Component {
 
     /* Fetch the list of items based on the current state's data folder.
      */
-    this.fetchItems = function () {
+    this.fetchItems = () => {
       if (this.itemsRequest) {
         this.itemsRequest.abort();
       }
@@ -97,8 +105,8 @@ export default class ProcessDataComponent extends React.Component {
         sort: 'updated',
         sortdir: -1
       }});
-      this.itemsRequest.done(function (resp) {
-        m_this.setState({
+      this.itemsRequest.done((resp) => {
+        this.setState({
           items: resp.response
         });
       });
@@ -108,53 +116,63 @@ export default class ProcessDataComponent extends React.Component {
      *
      * @param {object} event the event that triggered the change.
      */
-    this.changeTask = function (event) {
-      m_this.setState({taskkey: event.target.value});
+    this.changeTask = (event) => {
+      this.setState({taskkey: event.target.value});
     };
 
     /* Respond to a change in any task control.
      *
      * @param {object} event the event that triggered the change.
      */
-    this.changeTaskInput = function (event) {
-      let inputs = m_this.state.inputs;
+    this.changeTaskInput = (event) => {
+      let inputs = this.state.inputs;
       inputs[$(event.target).attr('data-reference')] = event.target.value;
-      m_this.setState({inputs: inputs});
+      this.setState({inputs: inputs});
     };
 
     /* Run a task.
      *
+     * @param {number} position if set, this is the chained process position.
      * @param {object} event the event that triggered the change.
      */
-    this.process = function (event) {
-      let params = $.extend({}, m_this.inputDefaults, m_this.state.inputs,
-                            {taskkey: m_this.state.taskkey});
-      let task = m_this.getTaskSpec();
-      for (let idx in task.parameters || []) {
-        let par = task.parameters[idx];
-        if (params[par.key] === undefined &&
-            m_this.state[par.key] !== undefined) {
-          params[par.key] = m_this.state[par.key];
-        }
-        if (params[par.key] === undefined &&
-            m_this[par.key] !== undefined) {
-          params[par.key] = m_this[par.key];
+    this.process = (position, event) => {
+      position = position || 0;
+      let taskkey = (position === 0 ? this.state.taskkey
+                     : this.state.tasklist[position]);
+      let params = {taskkey: taskkey};
+      let task = this.getTaskSpec(taskkey);
+      let inputs = [].concat(task.parameters || [], task.inputs || []);
+      for (let idx in inputs) {
+        let key = inputs[idx].key;
+        let value = this.state.inputs[key];
+        if (value === undefined) { value = this.inputDefaults[key]; }
+        if (value === undefined) { value = this.state[key]; }
+        if (value === undefined) { value = this[key]; }
+        if (value !== undefined) {
+          params[key] = value;
         }
       }
-      m_this.setState({
-        resultMessage: [],
-        processTaskKey: m_this.state.taskkey
+      let results = this.state.resultMessage.slice(0, position);
+      results[position] = [];
+      let processTaskKey = this.state.processTaskKey;
+      processTaskKey[position] = taskkey;
+      let progressMessage = this.state.progressMessage.slice(0, position);
+      this.setState({
+        resultMessage: results,
+        processTaskKey,
+        progressMessage
       });
-      if (m_this.progressRequest) {
-        for (let idx in m_this.progressRequest) {
-          m_this.progressRequest[idx].abort();
+      if (this.progressRequest) {
+        for (let idx in this.progressRequest) {
+          this.progressRequest[idx].abort();
         }
       }
-      if (m_this.progressPollTimer) {
-        window.clearTimeout(m_this.progressPollTimer);
+      if (this.progressPollTimer) {
+        window.clearTimeout(this.progressPollTimer);
       }
-      m_this.progressRequest = [m_this.request({path: 'osumo', method: 'POST', data: params})];
-      m_this.progressRequest[0].done(m_this.pollProgress);
+      this.progressRequest = [this.request({path: 'osumo', method: 'POST', data: params})];
+      this.progressRequest[0].done(
+        (...args) => this.pollProgress(position, ...args));
     };
 
     /* Check the current job status.  If it hasn't completed, wait a short time
@@ -162,41 +180,45 @@ export default class ProcessDataComponent extends React.Component {
      * show the resultant files (this will need to be changed to show the
      * resultant visualization instead).
      *
+     * @param {number} position the chained process position.
      * @param {object} resp the current job status.
      */
-    this.pollProgress = function (resp) {
-      m_this.progressRequest = [];
-      m_this.currentJob = resp.response;
+    this.pollProgress = (position, resp) => {
+      this.progressRequest = [];
+      this.currentJob = resp.response;
       let job = resp.response;
       let status = 'RUNNING';
-      for (var statusKey in m_this.JobStatus) {
-        if (job.status === m_this.JobStatus[statusKey]) {
+      for (var statusKey in this.JobStatus) {
+        if (job.status === this.JobStatus[statusKey]) {
           status = statusKey;
         }
       }
       let progress = status + ' - ' + job.updated;
-      if (job.status === m_this.JobStatus.ERROR) {
+      if (job.status === this.JobStatus.ERROR) {
         if (job.log.indexOf('Traceback') >= 0) {
           progress += ' - ' + job.log.substr(0, job.log.indexOf('Traceback'));
         } else {
           progress += ' - ' + job.log;
         }
       }
-      m_this.setState({progressMessage: progress});
-      if (job.status !== m_this.JobStatus.ERROR &&
-          job.status !== m_this.JobStatus.SUCCESS &&
-          job.status !== m_this.JobStatus.CANCELED) {
-        m_this.progressPollTimer = window.setTimeout(function () {
-          m_this.progressPollTimer = null;
-          m_this.progressRequest = [m_this.request({path: 'job/' + m_this.currentJob['_id']})];
-          m_this.progressRequest[0].done(m_this.pollProgress);
+      let progressMessage = this.state.progressMessage;
+      progressMessage[position] = progress;
+      this.setState({progressMessage: progressMessage});
+      if (job.status !== this.JobStatus.ERROR &&
+          job.status !== this.JobStatus.SUCCESS &&
+          job.status !== this.JobStatus.CANCELED) {
+        this.progressPollTimer = window.setTimeout(() => {
+          this.progressPollTimer = null;
+          this.progressRequest = [this.request({path: 'job/' + this.currentJob['_id']})];
+          this.progressRequest[0].done(
+            (...args) => this.pollProgress(position, ...args));
         }, 1000);
         return;
       }
-      if (job.status !== m_this.JobStatus.SUCCESS) {
+      if (job.status !== this.JobStatus.SUCCESS) {
         return;
       }
-      let task = m_this.getTaskSpec(m_this.state.processTaskKey);
+      let task = this.getTaskSpec(this.state.processTaskKey[position]);
       for (let key in job.processedFiles) {
         job.processedFiles[key].output = {};
         for (let outkey in task.outputs) {
@@ -206,7 +228,7 @@ export default class ProcessDataComponent extends React.Component {
           }
         }
       }
-      job.processedFiles.sort(function (a, b) {
+      job.processedFiles.sort((a, b) => {
         let ashow = a.output.show;
         let bshow = b.output.show;
         if (ashow !== bshow) {
@@ -222,9 +244,10 @@ export default class ProcessDataComponent extends React.Component {
       });
       for (let key in job.processedFiles) {
         if (job.processedFiles[key].output.show !== false) {
-          let ajax = m_this.showResultsItem(key, job.processedFiles[key], job);
+          let ajax = this.showResultsItem(
+            key, job.processedFiles[key], job, position);
           if (ajax) {
-            m_this.progressRequest.push(ajax);
+            this.progressRequest.push(ajax);
           }
         }
       }
@@ -240,17 +263,18 @@ export default class ProcessDataComponent extends React.Component {
      * @param {string} key the name of result.
      * @param {object} details the processed file details for the result
      * @param {object} job the job object with information about this item.
+     * @param {number} position the chained process position.
      * @returns {object} ajax object if a further call is being made.
      */
-    this.showResultsItem = function (key, details, job) {
+    this.showResultsItem = (key, details, job, position) => {
       let results = this.state.resultMessage;
-      let pos = results.length;
-      results.push([<div key={'key_' + pos}>{details.name}</div>]);
+      let pos = results[position].length;
+      results[position].push([<div key={'key_' + pos}>{details.name}</div>]);
       this.setState({resultMessage: results});
       let ajax = null;
       switch (details.output.show) {
         case 'image':
-          results[pos].push(<img key={'data_' + pos} src={
+          results[position][pos].push(<img key={'data_' + pos} src={
               this.props.apiRoot + '/file/' + details.fileId +
               '/download?image=.png'}></img>);
           this.setState({resultMessage: results});
@@ -259,15 +283,16 @@ export default class ProcessDataComponent extends React.Component {
           ajax = this.request({
             path: 'file/' + details.fileId + '/download'
           });
-          ajax.done(function (resp) {
-            let results = m_this.state.resultMessage;
-            results[pos].push(<ParallelSetsComponent
+          ajax.done((resp) => {
+            let results = this.state.resultMessage;
+            results[position][pos].push(<ParallelSetsComponent
               key={'data_' + pos}
               data={resp.response}
-              task={m_this.getTaskSpec(m_this.state.processTaskKey)}
+              task={this.getTaskSpec(this.state.processTaskKey[position])}
               job={job}
+              onNextTask={(...args) => this.onNextTask(position, ...args)}
             />);
-            m_this.setState({resultMessage: results});
+            this.setState({resultMessage: results});
           });
           break;
         default:
@@ -275,25 +300,45 @@ export default class ProcessDataComponent extends React.Component {
             path: 'file/' + details.fileId + '/download',
             dataType: 'text'
           });
-          ajax.done(function (resp) {
-            let results = m_this.state.resultMessage;
-            results[pos].push(<div key={'data_' + pos}>{resp.response}</div>);
-            m_this.setState({resultMessage: results});
+          ajax.done((resp) => {
+            let results = this.state.resultMessage;
+            results[position][pos].push(<div key={'data_' + pos}>{resp.response}</div>);
+            this.setState({resultMessage: results});
           });
           break;
       }
       return ajax;
     };
 
+    this.onNextTask = (position, task, job, inputs = {}) => {
+      if (!task.nexttask) {
+        return;
+      }
+      let stateInputs = this.state.inputs;
+      Object.assign(stateInputs, inputs);
+      for (let idx in task.nexttask.transfers || []) {
+        let key = task.nexttask.transfers[idx];
+        for (let fileidx in job.processedFiles || []) {
+          if (key === job.processedFiles[fileidx].output.key) {
+            stateInputs[key] = job.processedFiles[fileidx].fileId;
+          }
+        }
+      }
+      let tasklist = this.state.tasklist;
+      tasklist[position + 1] = task.nexttask.task;
+      this.setState({inputs: stateInputs, tasklist: tasklist});
+      this.process(position + 1);
+    };
+
     /* Perform intitial data load */
 
     this.tasksRequest = this.request({path: 'osumo/tasks'});
-    this.tasksRequest.done(function (resp) {
-      m_this.setState({
+    this.tasksRequest.done((resp) => {
+      this.setState({
         tasks: resp.response
       });
-      if (!m_this.state.taskkey && m_this.state.tasks.length > 0) {
-        m_this.setState({taskkey: m_this.state.tasks[0].key});
+      if (!this.state.taskkey && this.state.tasks.length > 0) {
+        this.setState({taskkey: this.state.tasks[0].key});
       }
     });
     this.fetchItems();
@@ -318,9 +363,11 @@ export default class ProcessDataComponent extends React.Component {
       <div id='function-selector'>
         <label className='control-label'>Task: </label>
         <select id='function' className='form-control' onChange={this.changeTask} value={this.state.taskkey}>{
-          this.state.tasks.map(function (task) {
-            return <option key={task.key} value={task.key}
-                    title={task.description}>{task.name}</option>;
+          this.state.tasks.map((task) => {
+            if (task.show !== false) {
+              return <option key={task.key} value={task.key}
+                      title={task.description}>{task.name}</option>;
+            }
           })
         }</select>
         <div className='task-desc g-item-info-header'>{this.getTaskSpec().description || ''}</div>
@@ -341,7 +388,7 @@ export default class ProcessDataComponent extends React.Component {
               onChange={this.changeTaskInput}
               value={this.state.inputs[inpspec.key]}
               data-reference={inpspec.key} key={inpspec.key}>{
-            items.map(function (item) {
+            items.map((item) => {
               return <option key={item._id} value={item._id}>{item.name}</option>;
             })
           }</select>);
@@ -367,7 +414,7 @@ export default class ProcessDataComponent extends React.Component {
               onChange={this.changeTaskInput}
               value={this.state.inputs[inpspec.key]}
               data-reference={inpspec.key} key={inpspec.key}>{
-            inpspec.enum.map(function (entry) {
+            inpspec.enum.map((entry) => {
               if (!entry.id && !entry.name) {
                 entry = {id: entry, name: entry};
               }
@@ -391,10 +438,19 @@ export default class ProcessDataComponent extends React.Component {
         { functionSelector }
         <div id='function-controls'>{ functionControls }</div>
         <button className='btn btn-default' id='process'
-         onClick={this.process}>Process</button>
-        <div id='progress'>{ this.state.progressMessage }</div>
-        <div id='results'>{ this.state.resultMessage }</div>
+         onClick={(...args) => this.process(0, ...args)}>Process</button>
+        <div id='progress0'>{ this.state.progressMessage[0] }</div>
+        <div id='results0'>{ this.state.resultMessage[0] }</div>
+        <div id='progress1'>{ this.state.progressMessage[1] }</div>
+        <div id='results1'>{ this.state.resultMessage[1] }</div>
       </div>
     );
+  }
+
+  static get propTypes () {
+    return {
+      apiRoot: React.PropTypes.string,
+      rest: React.PropTypes.func
+    };
   }
 }
