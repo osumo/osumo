@@ -68,6 +68,7 @@ outputs:
   - key: dataplot
     parentType: "folder"
     parent: "parameter:targetFolderId"
+    show: image
     name: "Survival Plot.png"
     dataType: "image"
     dataFormat: "png"

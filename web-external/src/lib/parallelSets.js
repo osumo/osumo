@@ -90,17 +90,31 @@ var parallelSets = (function () {
            tooltip.style('visibility', 'hidden');
          })
          .on('click', function (d) {
+           var elem = d3.select(this);
+           var item = {label: d.label, key: d.key};
+           var add, nodes, color;
            if (groups.group_f === 1) {
-             d3.select(this).attr('class', 'box black');
-             groups.GROUP1.node.push(d.key);
+             color = 'black';
+             nodes = groups.GROUP1.node;
            }
            if (groups.group_f === 2) {
-             d3.select(this).attr('class', 'box red');
-             groups.GROUP2.node.push(d.key);
+             color = 'red';
+             nodes = groups.GROUP2.node;
+           }
+           add = !elem.classed(color);
+           elem.classed(color, add);
+           elem.classed('box', elem.classed('black') || elem.classed('red'));
+           for (var i = 0; i < nodes.length; i += 1) {
+             if (nodes[i].label === item.label && nodes[i].key === item.key) {
+               nodes.splice(i, 1);
+               break;
+             }
+           }
+           if (add) {
+             nodes.push(item);
            }
          });
 
-    // var links =
     nodes.selectAll('path.link')
          .data(function (n) {
            if (n.incoming.length > 1) {
@@ -116,13 +130,27 @@ var parallelSets = (function () {
                  })
                  .attr('d', linkLine(false))
                  .on('click', function (l) {
+                   var elem = d3.select(this);
+                   var item = {source: l.source, target: l.target};
+                   var links, add, cls;
                    if (groups.group_f === 1) {
-                     d3.select(this).attr('class', 'link two');
-                     groups.GROUP1.link.push({source: l.source, target: l.target});
+                     links = groups.GROUP1.link;
+                     cls = 'two';
                    }
                    if (groups.group_f === 2) {
-                     d3.select(this).attr('class', 'link one');
-                     groups.GROUP2.link.push({source: l.source, target: l.target});
+                     links = groups.GROUP1.link;
+                     cls = 'one';
+                   }
+                   add = !elem.classed(cls);
+                   elem.classed(cls, add);
+                   for (var i = 0; i < links.length; i += 1) {
+                     if (links[i].source === item.source && links[i].target === item.target) {
+                       links.splice(i, 1);
+                       break;
+                     }
+                   }
+                   if (add) {
+                     links.push(item);
                    }
                  });
   }

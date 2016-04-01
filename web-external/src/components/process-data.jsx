@@ -171,8 +171,21 @@ export default class ProcessDataComponent extends React.Component {
         window.clearTimeout(this.progressPollTimer);
       }
       this.progressRequest = [this.request({path: 'osumo', method: 'POST', data: params})];
-      this.progressRequest[0].done(
-        (...args) => this.pollProgress(position, ...args));
+      this.progressRequest[0].then(
+        (...args) => this.pollProgress(position, ...args)).catch((error) => {
+          let msg = 'Unknown error.  Check console.';
+          if (error) {
+            if (error.jqXHR && error.jqXHR.responseJSON &&
+                error.jqXHR.responseJSON.message) {
+              msg = error.jqXHR.responseJSON.message;
+            } else if (error.errorThrown) {
+              msg = error.errorThrown;
+            }
+          }
+          let progressMessage = this.state.progressMessage;
+          progressMessage[position] = msg;
+          this.setState({progressMessage: progressMessage});
+        });
     };
 
     /* Check the current job status.  If it hasn't completed, wait a short time

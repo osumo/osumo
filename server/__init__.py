@@ -40,16 +40,21 @@ class Osumo(Resource):
         :param used: the user used for permissions.
         :returns: a girder resource or None.
         """
-        value = self.model(type).load(id, user=user, exc=(type != 'file'))
+        loadFunc = self.model(type).load
+        kwargs = {}
+        if 'level' in inspect.getargspec(loadFunc).args:
+            kwargs['level'] = AccessType.READ
+        value = loadFunc(id, user=user, exc=(type != 'file'), **kwargs)
         if type == 'file' and value is None:
             # If we want a file, allow a one-file item to be used
             # instead
-            item = self.model('item').load(id, user=user)
+            item = self.model('item').load(id, user=user,
+                                           level=AccessType.READ)
             if item:
                 files = list(self.model('item').childFiles(item))
                 if len(files) == 1:
                     value = self.model('file').load(
-                        files[0]['_id'], user=user)
+                        files[0]['_id'], user=user, level=AccessType.READ)
         return value
 
     @describeRoute(
