@@ -198,8 +198,12 @@ export default class ProcessDataComponent extends React.Component {
      */
     this.pollProgress = (position, resp) => {
       this.progressRequest = [];
-      this.currentJob = resp.response;
       let job = resp.response;
+      if (job.job && job.token) {
+        this.currentJobToken = job.token;
+        job = job.job;
+      }
+      this.currentJob = job;
       let status = 'RUNNING';
       for (var statusKey in this.JobStatus) {
         if (job.status === this.JobStatus[statusKey]) {
@@ -222,7 +226,7 @@ export default class ProcessDataComponent extends React.Component {
           job.status !== this.JobStatus.CANCELED) {
         this.progressPollTimer = window.setTimeout(() => {
           this.progressPollTimer = null;
-          this.progressRequest = [this.request({path: 'job/' + this.currentJob['_id']})];
+          this.progressRequest = [this.request({path: 'job/' + this.currentJob['_id'], data: {token: this.currentJobToken}})];
           this.progressRequest[0].done(
             (...args) => this.pollProgress(position, ...args));
         }, 1000);

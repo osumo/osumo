@@ -1,5 +1,5 @@
 require(survival)
-load(input_path)
+load(input_rdata)
 
 k <- num_clusters
 cl <- kmeans(t(ge_filt), centers = k)

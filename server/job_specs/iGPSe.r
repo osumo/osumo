@@ -18,8 +18,8 @@ mRNACluster.b <- as.numeric(mRNACluster.cl$cluster)
 miRNACluster.cl <- kmeans(t(miRNA.m), centers = mirna_clusters)
 miRNACluster.b <- as.numeric(miRNACluster.cl$cluster)
 
-# generate heatplot
-render_heatplot <- function(data, cl){
+# generate heatmap
+render_heatmap <- function(data, cl){
   localdir = Sys.getenv('tempdir', unset=tempdir())
   output_plot = tempfile('plot', tmpdir=tempdir, fileext='.png')
   png(filename=output_plot, width=314, height=400, units="px")
@@ -43,8 +43,8 @@ render_heatplot <- function(data, cl){
   return(output_plot)
 }
 
-output_mrna_heatplot = render_heatplot(t(mRNA.m), mRNACluster.b)
-output_mirna_heatplot = render_heatplot(t(miRNA.m), miRNACluster.b)
+output_mrna_heatmap = render_heatmap(t(mRNA.m), mRNACluster.b)
+output_mirna_heatmap = render_heatmap(t(miRNA.m), miRNACluster.b)
 
 # generate visualization data
 vis_data <- function(mRNA.cl, miRNA.cl){

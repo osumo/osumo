@@ -8,7 +8,7 @@ from girder import events
 from girder.api import access
 from girder.api.describe import Description, describeRoute
 from girder.api.rest import Resource
-from girder.constants import AccessType
+from girder.constants import AccessType, TokenScope
 from girder.utility.model_importer import ModelImporter
 
 from girder.plugins.worker import utils as workerUtils
@@ -29,6 +29,39 @@ class Osumo(Resource):
         self.route('POST', (), self.processTask)
         # This should change if we add a custom token per job.
         self.jobInfo = {}
+
+    def _adjustDataTypes(self, data, params, user):
+        """
+        Based on a dictionary of data, make sure each item is case to the
+        appropriate data type or references a resource.
+
+        :param data: a dictionary of data items to process.  Modified.
+        :param params: the query parameters with values for each data item.
+        :param user: the user to use for fetching resources.
+        """
+        for key in data:
+            value = params.get(key, data[key].get('default', None))
+
+            type = data[key].get('type')
+            if type in ('file', 'item', 'folder'):
+                value = self._getResource(type, value, user)
+            elif type == 'integer':
+                value = int(value)
+            elif type == 'boolean':
+                value = 'true' if value in (True, 'true') else 'false'
+            elif type == 'temppath':
+                file = tempfile.NamedTemporaryFile(
+                    suffix=value if value is not None else '')
+                value = file.name
+                file.close()
+                data[key]['format'] = 'text'
+                data[key]['type'] = 'string'
+            elif type in ('enum', 'string', 'text'):
+                data[key]['format'] = 'text'
+                data[key]['type'] = 'string'
+            else:
+                raise NotImplementedError('No input data type %s' % type)
+            data[key]['data'] = value
 
     def _getResource(self, type, id, user):
         """
@@ -57,6 +90,23 @@ class Osumo(Resource):
                         files[0]['_id'], user=user, level=AccessType.READ)
         return value
 
+    def _getTaskUser(self, task):
+        """
+        Get the current user.  If there is no current user, check if the task
+        has a fallback user and get that instead.
+
+        :param task: the task specification
+        :returns: the user.
+        """
+        user, token = self.getCurrentUser(True)
+        if not user and task.get('fallbackUser'):
+            user = self.model('user').findOne(
+                {'login': task.get('fallbackUser')})
+            token = None
+        if not user:
+            raise access.AccessException('You must be logged in.')
+        return user, token
+
     @describeRoute(
         Description('List available tasks')
     )
@@ -77,7 +127,7 @@ class Osumo(Resource):
         tasks = [taskrow[-1] for taskrow in tasks]
         return tasks
 
-    @access.user
+    @access.public
     @describeRoute(
         Description('Process a task')
         .notes('Each task takes a variety of input parameters.  See the '
@@ -93,32 +143,8 @@ class Osumo(Resource):
         # Any input that doesn't have a default is required.
         self.requireParams((key for key in data
                             if 'default' not in data[key]), params)
-
-        user = self.getCurrentUser()
-
-        for key in data:
-            value = params.get(key, data[key].get('default', None))
-
-            type = data[key].get('type')
-            if type in ('file', 'item', 'folder'):
-                value = self._getResource(type, value, user)
-            elif type == 'integer':
-                value = int(value)
-            elif type == 'boolean':
-                value = 'true' if value in (True, 'true') else 'false'
-            elif type == 'temppath':
-                file = tempfile.NamedTemporaryFile(
-                    suffix=value if value is not None else '')
-                value = file.name
-                file.close()
-                data[key]['format'] = 'text'
-                data[key]['type'] = 'string'
-            elif type in ('enum', 'string', 'text'):
-                data[key]['format'] = 'text'
-                data[key]['type'] = 'string'
-            else:
-                raise NotImplementedError('No input data type %s' % type)
-            data[key]['data'] = value
+        user, token = self._getTaskUser(task)
+        self._adjustDataTypes(data, params, user)
 
         job = self.model('job', 'jobs').createJob(
             title='sumo %s' % task.get('name', 'task'),
@@ -133,6 +159,12 @@ class Osumo(Resource):
             token=jobToken,
             logPrint=True)
 
+        if not token:
+            # It seems like we should be able to use a token without USER_AUTH
+            # in its scope, but I'm not sure how.
+            token = self.model('token').createToken(
+                user, days=1, scope=TokenScope.USER_AUTH)
+
         inputs = {}
         for key in data:
             if data[key].get('input') is False:
@@ -141,7 +173,7 @@ class Osumo(Resource):
             if data[key].get('type') in ('file', 'item', 'folder'):
                 spec = workerUtils.girderInputSpec(
                     spec['data'], resourceType=data[key]['type'],
-                    token=self.getCurrentToken(),
+                    token=token,
                     dataType=data[key].get('dataType', 'string'),
                     dataFormat=data[key].get('dataFormat', 'text'),
                     )
@@ -152,7 +184,7 @@ class Osumo(Resource):
         outputs = {}
         for output in task.get('outputs', {}):
             key = output['key']
-            spec = {'token': self.getCurrentToken()}
+            spec = {'token': token}
             for subkey in output:
                 if (subkey in inspect.getargspec(
                         workerUtils.girderOutputSpec).args):
@@ -169,7 +201,10 @@ class Osumo(Resource):
         self.model('job', 'jobs').scheduleJob(job)
         self.jobInfo[str(job['_id'])] = {'user': user}
 
-        return self.model('job', 'jobs').filter(job, user)
+        return {
+            'job': self.model('job', 'jobs').filter(job, user),
+            'token': str(token['_id'])
+        }
 
     def dataProcess(self, event):
         """

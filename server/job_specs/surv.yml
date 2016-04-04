@@ -4,6 +4,8 @@ name: Survival Plot
 
 description: "Calculate a survival plot."
 
+fallbackUser: "osumopublicuser"
+
 task:
     name: surv
     mode: r
@@ -39,7 +41,7 @@ inputs:
     description: "A set of rdata."
     type: item
     subtype: rdata
-    preferredNames: "\.rdata$"
+    preferredNames: "\\.rdata$"
   - key: num_clusters
     name: "Num. Clusters"
     description: "The number (k) of clusters used in calculations"

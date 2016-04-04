@@ -4,6 +4,8 @@ name: iGPSePart2
 
 description: "iGPSe: Interactive Genomics Patient Stratification explorer, second processing step"
 
+fallbackUser: "osumopublicuser"
+
 show: false
 
 task:

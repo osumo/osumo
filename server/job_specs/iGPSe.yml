@@ -4,6 +4,8 @@ name: iGPSe
 
 description: "iGPSe: Interactive Genomics Patient Stratification explorer"
 
+fallbackUser: "osumopublicuser"
+
 task:
   name: iGPSe
   mode: r
@@ -55,11 +57,11 @@ task:
       target: memory
       type: r
       format: object
-    - name: output_mrna_heatplot
+    - name: output_mrna_heatmap
       target: filepath
       type: image
       format: png
-    - name: output_mirna_heatplot
+    - name: output_mirna_heatmap
       target: filepath
       type: image
       format: png
@@ -162,14 +164,14 @@ outputs:
     name: "clinical_dim.txt"
     dataType: "r"
     dataFormat: "serialized"
-  - key: output_mrna_heatplot
+  - key: output_mrna_heatmap
     show: image
     parentType: "folder"
     parent: "parameter:targetFolderId"
     name: "mRNA Heatplot.png"
     dataType: "image"
     dataFormat: "png"
-  - key: output_mirna_heatplot
+  - key: output_mirna_heatmap
     show: image
     parentType: "folder"
     parent: "parameter:targetFolderId"

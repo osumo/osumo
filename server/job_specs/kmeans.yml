@@ -4,6 +4,8 @@ name: kmeans
 
 description: "Calculate k mean values for a set of n-dimensional data points."
 
+fallbackUser: "osumopublicuser"
+
 task:
     name: kmeans
     mode: r
