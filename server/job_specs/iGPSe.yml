@@ -15,12 +15,12 @@ task:
     - name: mrna_input_path
       type: string
       format: text
-    - name: mrna_metric
-      type: string
-      format: text
-    - name: mrna_algorithm
-      type: string
-      format: text
+    # - name: mrna_metric
+    #   type: string
+    #   format: text
+    # - name: mrna_algorithm
+    #   type: string
+    #   format: text
     - name: mrna_clusters
       type: number
       format: number
@@ -28,12 +28,12 @@ task:
     - name: mirna_input_path
       type: string
       format: text
-    - name: mirna_metric
-      type: string
-      format: text
-    - name: mirna_algorithm
-      type: string
-      format: text
+    # - name: mirna_metric
+    #   type: string
+    #   format: text
+    # - name: mirna_algorithm
+    #   type: string
+    #   format: text
     - name: mirna_clusters
       type: number
       format: number
@@ -78,22 +78,23 @@ inputs:
     description: "mRNA data."
     type: file
     subtype: rdata
-  - key: mrna_metric
-    name: "mRNA Clustering Metric"
-    type: enum
-    enum:
-      - 'Euclidean Distance'
-      - 'Correlation'
-    default: 'Euclidean Distance'
-    format: string
-  - key: mrna_algorithm
-    name: "mRNA Clustering Algorithm"
-    type: enum
-    enum:
-      - 'Kmeans'
-      - 'Spectral Clustering'
-    default: 'Kmeans'
-    format: string
+    preferredNames: "^mRNA.*csv$"
+  # - key: mrna_metric
+  #   name: "mRNA Clustering Metric"
+  #   type: enum
+  #   enum:
+  #     - 'Euclidean Distance'
+  #     - 'Correlation'
+  #   default: 'Euclidean Distance'
+  #   format: string
+  # - key: mrna_algorithm
+  #   name: "mRNA Clustering Algorithm"
+  #   type: enum
+  #   enum:
+  #     - 'Kmeans'
+  #     - 'Spectral Clustering'
+  #   default: 'Kmeans'
+  #   format: string
   - key: mrna_clusters
     name: "mRNA Number of Clusters (k)"
     description: "The number (k) of clusters used in calculations"
@@ -106,22 +107,23 @@ inputs:
     description: "miRNA data."
     type: file
     subtype: rdata
-  - key: mirna_metric
-    name: "miRNA Clustering Metric"
-    type: enum
-    enum:
-      - 'Euclidean Distance'
-      - 'Correlation'
-    default: 'Euclidean Distance'
-    format: string
-  - key: mirna_algorithm
-    name: "miRNA Clustering Algorithm"
-    type: enum
-    enum:
-      - 'Kmeans'
-      - 'Spectral Clustering'
-    default: 'Kmeans'
-    format: string
+    preferredNames: "^miRNA.*csv$"
+  # - key: mirna_metric
+  #   name: "miRNA Clustering Metric"
+  #   type: enum
+  #   enum:
+  #     - 'Euclidean Distance'
+  #     - 'Correlation'
+  #   default: 'Euclidean Distance'
+  #   format: string
+  # - key: mirna_algorithm
+  #   name: "miRNA Clustering Algorithm"
+  #   type: enum
+  #   enum:
+  #     - 'Kmeans'
+  #     - 'Spectral Clustering'
+  #   default: 'Kmeans'
+  #   format: string
   - key: mirna_clusters
     name: "miRNA Number of Clusters (k)"
     description: "The number (k) of clusters used in calculations"
@@ -133,6 +135,7 @@ inputs:
     name: "Clinical Profile"
     type: file
     subtype: rdata
+    preferredNames: "^time.*csv$"
 
 parameters:
   - key: targetFolderId

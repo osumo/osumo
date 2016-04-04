@@ -396,6 +396,21 @@ export default class ProcessDataComponent extends React.Component {
       switch (inpspec.type) {
         case 'item': case 'file':
           let items = this.state.items;
+          if (inpspec.preferredNames) {
+            let match = new RegExp(inpspec.preferredNames);
+            items = items.slice();
+            for (let idx = 0; idx < items.length; idx += 1) {
+              items[idx].idx = idx;
+            }
+            items.sort(function (a, b) {
+              let matcha = !!match.test(a.name);
+              let matchb = !!match.test(b.name);
+              if (matcha !== matchb) {
+                return matcha ? -1 : 1;
+              }
+              return a.idx - b.idx;
+            });
+          }
           // we should filter items based on the subtype
           ctl.push(<select className='form-control'
               onChange={this.changeTaskInput}
