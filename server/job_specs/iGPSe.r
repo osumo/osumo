@@ -32,7 +32,7 @@ render_heatmap <- function(data, cl){
   temp = data[cl == ord[1],];
   seperation <- matrix(nrow=10,ncol=dim(data)[2])
   temp <- rbind(temp, seperation)
-  for(i in 2:k){ 
+  for(i in 2:k){
     temp <- rbind(temp , data[cl == ord[i],],  seperation)
   }
   pheatmap(temp[,1:dim(data)[2]], cluster_rows=F, cluster_cols=F,
@@ -67,8 +67,8 @@ vis_data <- function(mRNA.cl, miRNA.cl){
                   offsetValue = miRNA.offsetValue, links = c(1:miRNA.k), incoming = c(1:miRNA.k))
 
   df <- data.frame(source=integer(),
-                   target=integer(), 
-                   count=integer(), 
+                   target=integer(),
+                   count=integer(),
                    outOffset=integer(),
                    inOffset= integer())
 
@@ -76,17 +76,18 @@ vis_data <- function(mRNA.cl, miRNA.cl){
     for (j in 1:length(miRNA.cl$size)){
       count <- sum((mRNA.cl$cluster == as.integer(mRNA.key[i]) & miRNA.cl$cluster == as.integer(miRNA.key[j])))
       df <- rbind(df,data.frame(source=as.integer(mRNA.key[i]),
-                                target=as.integer(miRNA.key[j]), 
-                                count=count, 
+                                target=as.integer(miRNA.key[j]),
+                                count=count,
                                 outOffset=0,
-                                inOffset=0)) 
+                                inOffset=0,
+                                position=(i - 1) * length(miRNA.cl$size) + j))
     }
   }
   for (i in 1:nrow(df)){
     source <- df$source[i]
     target <- df$target[i]
-    df$outOffset[i] <- sum(df$count[df$source == source & df$count>df$count[i]])
-    df$inOffset[i] <- sum(df$count[df$target == target & df$count>df$count[i]])
+    df$outOffset[i] <- sum(df$count[df$source == source & (df$count>df$count[i] | (df$count==df$count[i] & df$position<df$position[i]))])
+    df$inOffset[i] <- sum(df$count[df$target == target & (df$count>df$count[i] | (df$count==df$count[i] & df$position<df$position[i]))])
   }
 
   rv1$links <- lapply(mRNA.key, function(x){
