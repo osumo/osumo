@@ -2,7 +2,9 @@
 
 name: kmeans
 
-description: "Calculate k mean values for a set of n-dimensional data points."
+description: "k-means: Calculate k mean values for a set of n-dimensional data points."
+
+notes: "Use Lloyd's algorithm to partition the data set into k clusters."
 
 fallbackUser: "osumopublicuser"
 
@@ -42,18 +44,21 @@ inputs:
     description: "A list of points, all with the same number of dimensions."
     type: item
     subtype: csv
+    notes: "This is a CSV file containing one row per data point and one column per dimension"
   - key: has_header
     name: "Header in Data"
     description: "If set, skip the first line of the input file."
     type: boolean
     default: true
     format: json
+    notes: "Select this if the input data has a header row"
   - key: num_clusters
     name: "Num. Clusters"
     description: "The number (k) of clusters to calculate means for"
     type: integer
     default: 5
     format: number
+    notes: "The data will be partitioned into this many clusters"
 
 # Parameters are required by the rest endpoint, but not by the task inputs
 parameters:
@@ -70,9 +75,13 @@ outputs:
     name: "centers.csv"
     dataType: "table"
     dataFormat: "csv"
+    displayName: "Centers"
+    notes: "Each point in this file is one of the located means.  The points have the same number of dimensions as the input data."
   - key: clusters
     parentType: "folder"
     parent: "parameter:targetFolderId"
     name: "clusters.csv"
     dataType: "table"
     dataFormat: "csv"
+    displayName: "Clusters"
+    notes: "For each row of input data, this indicates which mean it was included with"

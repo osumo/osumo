@@ -57,3 +57,6 @@ outputs:
     show: image
     dataType: "image"
     dataFormat: "png"
+    displayName: "Survival Comparision"
+    notes: "This compares the two groups selected from the clustered data."
+

@@ -4,6 +4,8 @@ import React from 'react';
 
 import ParallelSetsComponent from './parallelsets';
 
+import '../style/process-data';
+
 void ParallelSetsComponent;  // make my editor's linter happy.
 
 export default class ProcessDataComponent extends React.Component {
@@ -246,6 +248,17 @@ export default class ProcessDataComponent extends React.Component {
         }
       }
       job.processedFiles.sort((a, b) => {
+        let apos = a.output.position;
+        let bpos = b.output.position;
+        if (apos !== bpos) {
+          if (apos === undefined || apos === false) {
+            return 1;
+          }
+          if (bpos === undefined || bpos === false) {
+            return -1;
+          }
+          return apos > bpos ? 1 : -1;
+        }
         let ashow = a.output.show;
         let bshow = b.output.show;
         if (ashow !== bshow) {
@@ -286,7 +299,13 @@ export default class ProcessDataComponent extends React.Component {
     this.showResultsItem = (key, details, job, position) => {
       let results = this.state.resultMessage;
       let pos = results[position].length;
-      results[position].push([<div key={'key_' + pos}>{details.name}</div>]);
+      results[position].push([]);
+      if (details.output.displayName !== '') {
+        results[position][pos].push(<div className='output-name' key={'key_' + pos}>{details.output.displayName || details.name}</div>);
+      }
+      if (details.output.notes) {
+        results[position][pos].push(<div className='output-notes' key={'notes_' + pos}>{details.output.notes}</div>);
+      }
       this.setState({resultMessage: results});
       let ajax = null;
       switch (details.output.show) {
@@ -377,7 +396,7 @@ export default class ProcessDataComponent extends React.Component {
     }
 
     let functionSelector = (
-      <div id='function-selector'>
+      <div id='function-selector' key='function-selector'>
         <label className='control-label'>Task: </label>
         <select id='function' className='form-control' onChange={this.changeTask} value={this.state.taskkey}>{
           this.state.tasks.map((task) => {
@@ -388,6 +407,7 @@ export default class ProcessDataComponent extends React.Component {
           })
         }</select>
         <div className='task-desc g-item-info-header'>{this.getTaskSpec().description || ''}</div>
+        <div className='task-notes'>{this.getTaskSpec().notes || ''}</div>
       </div>
     );
     let functionControls = [];
@@ -396,7 +416,10 @@ export default class ProcessDataComponent extends React.Component {
     for (idx in task.inputs || []) {
       let inpspec = task.inputs[idx];
       let defaultValue = inpspec.default;
-      let ctl = [<label className='control-label' key='label'>{inpspec.name} </label>];
+      let ctl = [<label className='control-label' key={'control-label-' + inpspec.key}>{inpspec.name} </label>];
+      if (inpspec.notes) {
+        ctl.push(<div className='control-notes' key={'control-notes-' + inpspec.key}>{inpspec.notes}</div>);
+      }
       switch (inpspec.type) {
         case 'item': case 'file':
           let items = this.state.items;
@@ -465,18 +488,31 @@ export default class ProcessDataComponent extends React.Component {
       }
     }
 
+    let output = [];
+    for (let idx in this.state.progressMessage) {
+      output.push(<div key={'progress' + idx}>{ this.state.progressMessage[idx] }</div>);
+      let results = [];
+      for (let ridx in this.state.resultMessage[idx]) {
+        results.push(<div key={'results' + idx + '_' + ridx}>{ this.state.resultMessage[idx][ridx] }</div>);
+      }
+      output.push(<div key={'results' + idx}>{results}</div>);
+    }
+
     return (
       <div id='g-app-body-container' className='g-default-layout'>
         { functionSelector }
         <div id='function-controls'>{ functionControls }</div>
         <button className='btn btn-default' id='process'
          onClick={(...args) => this.process(0, ...args)}>Process</button>
+        {output}
+      </div>
+    );
+    /*
         <div id='progress0'>{ this.state.progressMessage[0] }</div>
         <div id='results0'>{ this.state.resultMessage[0] }</div>
         <div id='progress1'>{ this.state.progressMessage[1] }</div>
         <div id='results1'>{ this.state.resultMessage[1] }</div>
-      </div>
-    );
+    */
   }
 
   static get propTypes () {
