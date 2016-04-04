@@ -168,14 +168,14 @@ outputs:
     show: image
     parentType: "folder"
     parent: "parameter:targetFolderId"
-    name: "mRNA Heatplot.png"
+    name: "mRNA Heatmap.png"
     dataType: "image"
     dataFormat: "png"
   - key: output_mirna_heatmap
     show: image
     parentType: "folder"
     parent: "parameter:targetFolderId"
-    name: "miRNA Heatplot.png"
+    name: "miRNA Heatmap.png"
     dataType: "image"
     dataFormat: "png"
   - key: clustersJSON

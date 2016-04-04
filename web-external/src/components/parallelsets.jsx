@@ -27,8 +27,8 @@ export default class ParallelSetsComponent extends React.Component {
     let result = <div className='parallelsets'>
       <div className='controls'>
         <div className='btn-group alignment' data-toggle='buttons-radio'>
-          <button type='button' className='btn' onClick={onGroup1.bind(this)} id='subgroup1'>Subgroup 1</button>
-          <button type='button' className='btn' onClick={onGroup2.bind(this)} id='subgroup2'>Subgroup 2</button>
+          <button type='button' className='btn' onClick={onGroup1.bind(this)} id='subgroup1'>Group 1</button>
+          <button type='button' className='btn' onClick={onGroup2.bind(this)} id='subgroup2'>Group 2</button>
         </div>
         <input type='button' onClick={onReset.bind(this)} className='btn btn-primary' value='Reset'/>
         <input type='button' onClick={onProcess.bind(this)} className='btn btn-primary' value='PLOT'/>
