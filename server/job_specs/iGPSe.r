@@ -109,5 +109,5 @@ clustersJSON <- toJSON(clusters)
 
 # Make a single output object.  This will get passed to the second half of the
 # job along with the user selections from the parallel sets.
-transferData = list("clusters"=clusters, "mRNACluster"=mRNACluster.cl, "miRNACluster"=miRNACluster.cl, "clinical"=clinical.m)
+transferData = list("clusters"=list("cl1"=mRNACluster.cl, "cl2"=miRNACluster.cl, "combine"=clusters), "mRNACluster"=mRNACluster.cl, "miRNACluster"=miRNACluster.cl, "clinical"=clinical.m)
 

@@ -105,13 +105,14 @@ var parallelSets = (function () {
            elem.classed(color, add);
            elem.classed('box', elem.classed('black') || elem.classed('red'));
            for (var i = 0; i < nodes.length; i += 1) {
-             if (nodes[i].label === item.label && nodes[i].key === item.key) {
+             if (nodes[i][0].label === item.label &&
+                 nodes[i][0].key === item.key) {
                nodes.splice(i, 1);
                break;
              }
            }
            if (add) {
-             nodes.push(item);
+             nodes.push([item]);
            }
          });
 
@@ -138,19 +139,20 @@ var parallelSets = (function () {
                      cls = 'two';
                    }
                    if (groups.group_f === 2) {
-                     links = groups.GROUP1.link;
+                     links = groups.GROUP2.link;
                      cls = 'one';
                    }
                    add = !elem.classed(cls);
                    elem.classed(cls, add);
                    for (var i = 0; i < links.length; i += 1) {
-                     if (links[i].source === item.source && links[i].target === item.target) {
+                     if (links[i][0].source === item.source &&
+                         links[i][0].target === item.target) {
                        links.splice(i, 1);
                        break;
                      }
                    }
                    if (add) {
-                     links.push(item);
+                     links.push([item]);
                    }
                  });
   }

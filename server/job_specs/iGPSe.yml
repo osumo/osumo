@@ -188,7 +188,7 @@ outputs:
     dataType: "r"
     dataFormat: "serialized"
 
-# We probably want o generalize this so that different routes could lead to
+# We probably want to generalize this so that different routes could lead to
 # different next tasks.  Also, the transfer currently transfers a Girder file
 # object.  If we want to transfer other resources, we'll need to change this.
 nexttask: 
