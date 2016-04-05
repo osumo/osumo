@@ -28,7 +28,7 @@ task:
     - name: mrna_clusters
       type: number
       format: number
-    
+
     - name: mirna_input_path
       type: string
       format: text
@@ -41,7 +41,7 @@ task:
     - name: mirna_clusters
       type: number
       format: number
-    
+
     - name: clinical_input_path
       type: string
       format: text
@@ -82,7 +82,7 @@ inputs:
     description: "mRNA data."
     type: file
     subtype: rdata
-    preferredNames: "^mRNA.*csv$"
+    onlyNames: "^mRNA.*csv$"
     notes: "This must be a CSV file with one column per subject, one header row, and one data row per gene"
   # - key: mrna_metric
   #   name: "mRNA Clustering Metric"
@@ -107,13 +107,13 @@ inputs:
     default: 5
     format: number
     notes: "Clustering is performed via k-means."
-  
+
   - key: mirna_input_path
     name: "MicroRNA Expression Profile"
     description: "miRNA data."
     type: file
     subtype: rdata
-    preferredNames: "^miRNA.*csv$"
+    onlyNames: "^miRNA.*csv$"
     notes: "This must be a CSV file with one column per subject, one header row, and one data row per micro RNA"
   # - key: mirna_metric
   #   name: "miRNA Clustering Metric"
@@ -143,7 +143,7 @@ inputs:
     name: "Clinical Profile"
     type: file
     subtype: rdata
-    preferredNames: "^time.*csv$"
+    onlyNames: "^time.*csv$"
     notes: "This must be a CSV file with a header row and one row per subject, and columns containing the row description, survival duration, and an indicator field."
 
 parameters:
@@ -152,7 +152,7 @@ parameters:
     type: folder
     input: false
 
-outputs: 
+outputs:
   - key: output_mrna_dim
     parentType: "folder"
     parent: "parameter:targetFolderId"
@@ -212,7 +212,7 @@ outputs:
 # We probably want to generalize this so that different routes could lead to
 # different next tasks.  Also, the transfer currently transfers a Girder file
 # object.  If we want to transfer other resources, we'll need to change this.
-nexttask: 
+nexttask:
   task: iGPSePart2
   transfers:
     - transferData

@@ -93,13 +93,17 @@ var parallelSets = (function () {
            var elem = d3.select(this);
            var item = {label: d.label, key: d.key};
            var add, nodes, color;
-           if (groups.group_f === 1) {
-             color = 'black';
-             nodes = groups.GROUP1.node;
-           }
-           if (groups.group_f === 2) {
-             color = 'red';
-             nodes = groups.GROUP2.node;
+           switch (groups.group_f) {
+             case 1:
+               color = 'black';
+               nodes = groups.GROUP1.node;
+               break;
+             case 2:
+               color = 'red';
+               nodes = groups.GROUP2.node;
+               break;
+             default:
+               return;
            }
            add = !elem.classed(color);
            elem.classed(color, add);
@@ -134,13 +138,17 @@ var parallelSets = (function () {
                    var elem = d3.select(this);
                    var item = {source: l.source, target: l.target};
                    var links, add, cls;
-                   if (groups.group_f === 1) {
-                     links = groups.GROUP1.link;
-                     cls = 'two';
-                   }
-                   if (groups.group_f === 2) {
-                     links = groups.GROUP2.link;
-                     cls = 'one';
+                   switch (groups.group_f) {
+                     case 1:
+                       links = groups.GROUP1.link;
+                       cls = 'two';
+                       break;
+                     case 2:
+                       links = groups.GROUP2.link;
+                       cls = 'one';
+                       break;
+                     default:
+                       return;
                    }
                    add = !elem.classed(cls);
                    elem.classed(cls, add);

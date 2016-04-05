@@ -423,17 +423,17 @@ export default class ProcessDataComponent extends React.Component {
       switch (inpspec.type) {
         case 'item': case 'file':
           let items = this.state.items;
-          if (inpspec.preferredNames) {
-            let match = new RegExp(inpspec.preferredNames);
+          if (inpspec.onlyNames || inpspec.preferredNames) {
+            let match = new RegExp(inpspec.onlyNames || inpspec.preferredNames);
             items = items.slice();
             for (let idx = 0; idx < items.length; idx += 1) {
               items[idx].idx = idx;
             }
             items.sort(function (a, b) {
-              let matcha = !!match.test(a.name);
-              let matchb = !!match.test(b.name);
-              if (matcha !== matchb) {
-                return matcha ? -1 : 1;
+              a.matched = !!match.test(a.name);
+              b.matched = !!match.test(b.name);
+              if (a.matched !== b.matched) {
+                return a.matched ? -1 : 1;
               }
               return a.idx - b.idx;
             });
@@ -444,6 +444,9 @@ export default class ProcessDataComponent extends React.Component {
               value={this.state.inputs[inpspec.key]}
               data-reference={inpspec.key} key={inpspec.key}>{
             items.map((item) => {
+              if (inpspec.onlyNames && !item.matched) {
+                return;
+              }
               return <option key={item._id} value={item._id}>{item.name}</option>;
             })
           }</select>);

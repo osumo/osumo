@@ -41,7 +41,7 @@ inputs:
     description: "A set of rdata."
     type: item
     subtype: rdata
-    preferredNames: "\\.rdata$"
+    onlyNames: "\\.rdata$"
   - key: num_clusters
     name: "Num. Clusters"
     description: "The number (k) of clusters used in calculations"
@@ -55,19 +55,21 @@ parameters:
     type: folder
     input: false
 
-outputs: 
+outputs:
   - key: fit
     parentType: "folder"
     parent: "parameter:targetFolderId"
     name: "fitoutput.txt"
     dataType: "r"
     dataFormat: "serialized"
+    show: false
   - key: sdf
     parentType: "folder"
     parent: "parameter:targetFolderId"
     name: "sdfoutput.txt"
     dataType: "r"
     dataFormat: "serialized"
+    show: false
   - key: dataplot
     parentType: "folder"
     parent: "parameter:targetFolderId"

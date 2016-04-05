@@ -75,9 +75,9 @@ if ((length(groups$GROUP1$node) > 0 | length(groups$GROUP1$link) > 0) &
   p.val = (1 - pchisq(sdf$chisq, length(sdf$n) - 1))
   mtext("Time (days)", side=1, line=2.5, col="black", cex=1.5)
   mtext("Survival Probability", side=2, line=2.5, col="black", cex=1.5)
-  text(50, 0.05, paste("p-value =", round(p.val, digits=4)), adj=c(0,0), font=2.5, cex=1.4) # You may need to adjust the coordinates here for the different dataset
-  title(main=list("KM Survival Plot", cex=2, font=2)) 
-  legend(50, 0.18, c('Group 1', 'Group 2'), col=c(1:2), lwd=2, cex=1.5)  # You may need to adjust the coordinates here for the different dataset 
+  text(50, 0.01, paste("p-value =", round(p.val, digits=4)), adj=c(0,0), font=2.5, cex=1.4) # You may need to adjust the coordinates here for the different dataset
+  title(main=list("KM Survival Plot", cex=2, font=2))
+  legend("topright", c('Group 1', 'Group 2'), col=c(1:2), lwd=2, cex=1.5, bty="n")  # You may need to adjust the coordinates here for the different dataset
 
 }
 dev.off()
