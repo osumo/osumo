@@ -1,9 +1,9 @@
 import React from 'react';
 
-import Links from './footer/links';
-import Info from './footer/info';
+import Links from './links';
+import Info from './info';
 
-import propTypes from '../prop-types';
+import propTypes from '../../prop-types';
 
 class Footer extends React.Component {
   render () {
