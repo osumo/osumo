@@ -1,10 +1,10 @@
 
 import React from 'react';
 
-import Header from './front-page/header';
-import Body from './front-page/body';
+import Header from './header';
+import Body from './body';
 
-import propTypes from '../prop-types';
+import propTypes from '../../prop-types';
 
 class FrontPage extends React.Component {
   render () {
