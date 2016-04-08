@@ -50,9 +50,11 @@ $(() => {
     type: rootReducer().globalNav.list.extend,
     entries: [
       /* id, name, icon, target */
+      /*
       [0, 'Collections', 'sitemap', 'collections'],
       [1, 'Users', 'user', 'users'],
       [2, 'Groups', 'users', 'groups'],
+      */
       [3, 'Process Data', 'user', 'process']
     ].map(([id, name, icon, target]) => ({
       id,
