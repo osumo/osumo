@@ -1,0 +1,218 @@
+---
+
+name: iGPSe
+
+description: "iGPSe: Interactive Genomics Patient Stratification explorer"
+
+notes: "Show a survival plot based on clustering of different data sets."
+
+fallbackUser: "osumopublicuser"
+
+task:
+  name: iGPSe
+  mode: r
+
+  script: >
+      @include(iGPSe.r)
+
+  inputs:
+    - name: mrna_input_path
+      type: string
+      format: text
+    # - name: mrna_metric
+    #   type: string
+    #   format: text
+    # - name: mrna_algorithm
+    #   type: string
+    #   format: text
+    - name: mrna_clusters
+      type: number
+      format: number
+
+    - name: mirna_input_path
+      type: string
+      format: text
+    # - name: mirna_metric
+    #   type: string
+    #   format: text
+    # - name: mirna_algorithm
+    #   type: string
+    #   format: text
+    - name: mirna_clusters
+      type: number
+      format: number
+
+    - name: clinical_input_path
+      type: string
+      format: text
+
+  outputs:
+    - name: output_mrna_dim
+      target: memory
+      type: r
+      format: object
+    - name: output_mirna_dim
+      target: memory
+      type: r
+      format: object
+    - name: output_clinical_dim
+      target: memory
+      type: r
+      format: object
+    - name: output_mrna_heatmap
+      target: filepath
+      type: image
+      format: png
+    - name: output_mirna_heatmap
+      target: filepath
+      type: image
+      format: png
+    - name: clustersJSON
+      target: memory
+      type: string
+      format: text
+    - name: transferData
+      target: memory
+      type: r
+      format: object
+
+inputs:
+  - key: mrna_input_path
+    name: "Gene Expression Profile"
+    description: "mRNA data."
+    type: file
+    subtype: rdata
+    onlyNames: "^mRNA.*csv$"
+    notes: "This must be a CSV file with one column per subject, one header row, and one data row per gene"
+  # - key: mrna_metric
+  #   name: "mRNA Clustering Metric"
+  #   type: enum
+  #   enum:
+  #     - 'Euclidean Distance'
+  #     - 'Correlation'
+  #   default: 'Euclidean Distance'
+  #   format: string
+  # - key: mrna_algorithm
+  #   name: "mRNA Clustering Algorithm"
+  #   type: enum
+  #   enum:
+  #     - 'Kmeans'
+  #     - 'Spectral Clustering'
+  #   default: 'Kmeans'
+  #   format: string
+  - key: mrna_clusters
+    name: "mRNA Number of Clusters (k)"
+    description: "The number (k) of clusters used in calculations"
+    type: integer
+    default: 5
+    format: number
+    notes: "Clustering is performed via k-means."
+
+  - key: mirna_input_path
+    name: "MicroRNA Expression Profile"
+    description: "miRNA data."
+    type: file
+    subtype: rdata
+    onlyNames: "^miRNA.*csv$"
+    notes: "This must be a CSV file with one column per subject, one header row, and one data row per micro RNA"
+  # - key: mirna_metric
+  #   name: "miRNA Clustering Metric"
+  #   type: enum
+  #   enum:
+  #     - 'Euclidean Distance'
+  #     - 'Correlation'
+  #   default: 'Euclidean Distance'
+  #   format: string
+  # - key: mirna_algorithm
+  #   name: "miRNA Clustering Algorithm"
+  #   type: enum
+  #   enum:
+  #     - 'Kmeans'
+  #     - 'Spectral Clustering'
+  #   default: 'Kmeans'
+  #   format: string
+  - key: mirna_clusters
+    name: "miRNA Number of Clusters (k)"
+    description: "The number (k) of clusters used in calculations"
+    type: integer
+    default: 5
+    format: number
+    notes: "Clustering is performed via k-means."
+
+  - key: clinical_input_path
+    name: "Clinical Profile"
+    type: file
+    subtype: rdata
+    onlyNames: "^time.*csv$"
+    notes: "This must be a CSV file with a header row and one row per subject, and columns containing the row description, survival duration, and an indicator field."
+
+parameters:
+  - key: targetFolderId
+    name: "Target Folder"
+    type: folder
+    input: false
+
+outputs:
+  - key: output_mrna_dim
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "mrna_dim.txt"
+    dataType: "r"
+    dataFormat: "serialized"
+    show: false
+  - key: output_mirna_dim
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "mirna_dim.txt"
+    dataType: "r"
+    dataFormat: "serialized"
+    show: false
+  - key: output_clinical_dim
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "clinical_dim.txt"
+    dataType: "r"
+    dataFormat: "serialized"
+    show: false
+  - key: output_mrna_heatmap
+    show: image
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "mRNA Heatmap.png"
+    dataType: "image"
+    dataFormat: "png"
+    displayName: "mRNA Heatmap"
+    notes: "The major groups show how the data was clustered.  The columns show different mRNA attributes, and the rows represent each subject."
+  - key: output_mirna_heatmap
+    show: image
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "miRNA Heatmap.png"
+    dataType: "image"
+    dataFormat: "png"
+    displayName: "miRNA Heatmap"
+    notes: "The major groups show how the data was clustered.  The columns show different miRNA attributes, and the rows represent each subject."
+  - key: clustersJSON
+    show: parallelSets
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "clusters.json"
+    dataType: "string"
+    dataFormat: "text"
+    displayName: "Cluster Selection"
+    notes: "Select two groups to compare.  The left side shows the clusters generated from mRNA data, and the right side from miRNA data.  If a link between the sides is selected, those subjects in the intersection between those two clusters are used.  After selecting at least one cluster or link for each of the two groups, select PLOT to generate a comparison survival plot."
+  - key: transferData
+    show: false
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "transferData.txt"
+    dataType: "r"
+    dataFormat: "serialized"
+
+# We probably want to generalize this so that different routes could lead to
+# different next tasks.  Also, the transfer currently transfers a Girder file
+# object.  If we want to transfer other resources, we'll need to change this.
+nexttask:
+  task: iGPSePart2
+  transfers:
+    - transferData

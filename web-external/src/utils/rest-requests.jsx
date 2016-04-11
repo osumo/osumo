@@ -92,7 +92,13 @@ const restRequests = ({
       opts.headers = opts.headers || {};
       opts.headers['Girder-Token'] = token;
     }
-    return ajax(opts);
+    let ajaxObj = ajax(opts);
+    ajaxObj.abort = function () {
+      if (this.isCancellable()) {
+        this.cancel();
+      }
+    };
+    return ajaxObj;
   };
 
   Object.assign(result, {

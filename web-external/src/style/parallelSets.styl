@@ -1,0 +1,50 @@
+#brick
+  .node
+    stroke #fff
+    stroke-width 0.8px
+  .link
+    fill none
+    stroke #000
+    opacity .3
+  .link.on
+    stroke #F00
+    opacity .7
+  .link.one
+    stroke #e32636
+    opacity 1
+  .link.two
+    stroke #687894
+    opacity 1
+  .link.one.two
+    stroke #a56
+  .box
+    stroke-width 0
+  .box.red
+    stroke #FF0000
+    stroke-width 3.5
+  .box.black
+    stroke #000000
+    stroke-width 3.5
+  .box.black.red
+    stroke #804040
+  div.tooltip
+    position absolute
+    z-index 10
+    visibility hidden
+    background-color#fff
+    -webkit-border-radius3px
+    -moz-border-radius3px
+    box-shadow 1px 2px 4px 2px #777
+    padding10px
+    left0
+    top0
+    opacity .7
+  .line
+    fill none
+    stroke steelblue
+    stroke-width 1.5px
+  .axis path,.axis line
+    fill none                  /* don't fill areas bounded by the axis line */
+    stroke grey                /* make the axis line grey */
+    stroke-width 1.3           /* make the width of the axis lines 1 pixel */
+    shape-rendering crispEdges /* make the edges sharp */

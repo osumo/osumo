@@ -1,3 +1,4 @@
+/* exported React, Provider */
 
 import 'babel-polyfill';
 
@@ -9,6 +10,8 @@ import { partial } from 'underscore';
 
 import MainApp from './components/main-app';
 import FrontPage from './components/front-page';
+
+import ProcessDataComponent from './components/process-data';
 
 import rootReducer from './reducer';
 import events from './utils/events';
@@ -30,20 +33,29 @@ $(() => {
   const apiRoot = 'api/v1';
   // const staticRoot = 'static';
 
+  /* initialize rest API */
+  const rest = restRequests({ events, apiRoot });
+
   /* create store and populate it with initial state */
   const store = createStore(rootReducer);
 
   const dummy = (msg) => partial(DummyComponent, { msg });
 
+  const process_tab = () => partial(ProcessDataComponent, {
+    rest: rest,
+    apiRoot: apiRoot
+  });
+
   store.dispatch({
     type: rootReducer().globalNav.list.extend,
     entries: [
       /* id, name, icon, target */
+      /*
       [0, 'Collections', 'sitemap', 'collections'],
       [1, 'Users', 'user', 'users'],
-      [2, 'INDEX', 'user', ''],
-      [3, 'Groups', 'users', 'groups'],
-      [4, 'INDEX', 'user', '']
+      [2, 'Groups', 'users', 'groups'],
+      */
+      [3, 'Process Data', 'user', 'process']
     ].map(([id, name, icon, target]) => ({
       id,
       value: { name, icon, target }
@@ -57,12 +69,10 @@ $(() => {
       '': FrontPage,
       collections: dummy('Collections Test'),
       users: dummy('Users Test'),
-      groups: dummy('Groups Test')
+      groups: dummy('Groups Test'),
+      process: process_tab()
     }
   });
-
-  /* initialize rest API */
-  const rest = restRequests({ events, apiRoot });
 
   /* define some functions to be used for routing */
 
@@ -148,7 +158,8 @@ $(() => {
 
   ReactDOM.render(<App/>, $div[0]);
 
-  /* expose some variables for debugging */
+  /* expose some variables for debugging.  This also exposes d3 in a way the
+   * parallel sets javascript expects. */
   Object.assign(window, { store, rootReducer, react: require('react') });
 });
 

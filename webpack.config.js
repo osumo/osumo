@@ -2,7 +2,6 @@
 "use strict";
 
 var path = require("path");
-var process = require("process");
 
 var webpack = require("webpack");
 
@@ -38,7 +37,8 @@ plugins = plugins.concat([
         // and inject the jquery library
         // This is required by many jquery plugins
         jQuery: "jquery",
-        $: "jquery"
+        $: "jquery",
+        d3: "d3"
     }),
 
     new webpack.optimize.CommonsChunkPlugin({

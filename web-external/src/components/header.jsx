@@ -20,7 +20,7 @@ class Header extends React.Component {
       <div id='g-app-header-container'>
         <div className='g-header-wrapper'>
           <div className='g-app-title' onClick={ onTitle }>
-            Girder
+            SUMO
           </div>
           <User currentUser={ currentUser }
                 onFolders={ onFolders }

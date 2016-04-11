@@ -1,7 +1,7 @@
 const ABOUT_URL = (
-    'http://girder.readthedocs.org/en/latest/user-guide.html');
+    'https://github.com/osumo/osumo');
 
-const BUG_URL = 'https://github.com/girder/girder/issues/new';
+const BUG_URL = 'https://github.com/osumo/osumo/issues/new';
 
 const CONTACT_URL = 'mailto:kitware@kitware.com';
 

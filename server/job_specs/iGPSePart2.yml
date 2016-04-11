@@ -1,0 +1,62 @@
+---
+
+name: iGPSePart2
+
+description: "iGPSe: Interactive Genomics Patient Stratification explorer, second processing step"
+
+fallbackUser: "osumopublicuser"
+
+show: false
+
+task:
+  name: iGPSePart2
+  mode: r
+
+  script: >
+      @include(iGPSePart2.r)
+
+  inputs:
+    - name: transferData
+      target: memory
+      type: r
+      format: object
+    - name: groups
+      type: string
+      format: text
+
+  outputs:
+    - name: dataplot
+      target: filepath
+      type: image
+      format: png
+
+inputs:
+  - key: transferData
+    name: "Transfer data from part 1"
+    description: "This must be the output from iGPSe part 1"
+    type: file
+    dataType: r
+    dataFormat: serialized
+  - key: groups
+    name: "Groups"
+    description: "Groups selected from parallel sets."
+    type: text
+    format: string
+
+parameters:
+  - key: targetFolderId
+    name: "Target Folder"
+    type: folder
+    input: false
+
+outputs:
+  - key: dataplot
+    parentType: "folder"
+    parent: "parameter:targetFolderId"
+    name: "Survival Plot.png"
+    show: image
+    dataType: "image"
+    dataFormat: "png"
+    displayName: "Survival Comparision"
+    notes: "This compares the two groups selected from the clustered data."
+
