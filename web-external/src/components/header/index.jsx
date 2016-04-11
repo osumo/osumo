@@ -1,8 +1,8 @@
 import React from 'react';
 
-import User from './header/user';
+import User from './user';
 
-import propTypes from '../prop-types';
+import propTypes from '../../prop-types';
 
 class Header extends React.Component {
   render () {

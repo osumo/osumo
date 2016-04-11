@@ -1,8 +1,8 @@
 import React from 'react';
 
-import List from './global-nav/list';
+import List from './list';
 
-import propTypes from '../prop-types';
+import propTypes from '../../prop-types';
 
 class GlobalNav extends React.Component {
   render () {
