@@ -1,7 +1,7 @@
-import { compose } from '../utils/reducer';
-import currentTargetReducer from './global-nav/current-target';
-import list from './global-nav/list';
-import table from './global-nav/table';
+import { compose } from '../../utils/reducer';
+import currentTargetReducer from './current-target';
+import list from './list';
+import table from './table';
 
 const globalNavReducer = compose({
   /*

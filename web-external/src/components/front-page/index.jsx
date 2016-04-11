@@ -1,8 +1,8 @@
 import React from 'react';
 
-import Marketing from './front-page/marketing';
+import Marketing from './marketing';
 
-import propTypes from '../prop-types';
+import propTypes from '../../prop-types';
 
 class FrontPage extends React.Component {
   render () {
