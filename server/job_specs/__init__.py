@@ -26,7 +26,7 @@ from .. import yaml_importer  # noqa
 
 # This is the list of jobs we want to load.  It could be changed to search the
 # local directory for .yml files
-_jobList = ['kmeans', 'surv', 'iGPSe', 'iGPSePart2']
+_jobList = ['kmeans', 'surv', 'iGPSe', 'iGPSePart2', 'silhouette']
 
 # This is the list of jobs we succeeded in loading.  Other modules can use this
 # list to determine which jobs are available
