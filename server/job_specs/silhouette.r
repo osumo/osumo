@@ -1,5 +1,5 @@
 # Read Data
-dmiRNA = read.csv(mirna_input_path)
+dmiRNA = read.csv(sil_input_path)
 
 #clustering
 color <- palette()
@@ -12,7 +12,7 @@ localdir = Sys.getenv('tempdir', unset=tempdir())
 dataplot1 = tempfile('plot', tmpdir=tempdir, fileext='.png')
 png(filename=dataplot1, width=800, height=800, units="px") 
 
-plot(si, col=color[1:k]) # with cluster-wise coloring
+plot(si, col=color[1:k], border=NA) # with cluster-wise coloring
 
 dev.off()
 
