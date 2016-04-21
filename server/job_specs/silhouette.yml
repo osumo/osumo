@@ -14,7 +14,7 @@ task:
       @include(silhouette.r)
 
   inputs:
-    - name: mirna_input_path
+    - name: sil_input_path
       type: string
       format: text
     - name: silhouette_clusters
@@ -32,7 +32,7 @@ task:
       format: png
 
 inputs:
-  - key: mirna_input_path
+  - key: sil_input_path
     name: "MicroRNA Expression Profile"
     description: "miRNA data."
     type: file
@@ -69,4 +69,4 @@ outputs:
     name: "dataplot2.png"
     dataType: "image"
     dataFormat: "png"
-    displayName: "Plot 2"
+    displayName: "Nearest Neighbor Graph"
