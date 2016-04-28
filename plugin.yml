@@ -1,7 +1,7 @@
 
 name: OSUMO
 version: 0.0.1
-description: "**M**ulti-**O**mics Data Analytics @ **OSU**"
+description: "Multi-Omics Data Analytics @ OSU"
 grunt:
     autobuild: false
     dependencies:
