@@ -7,7 +7,7 @@ import tempfile
 from girder import events
 from girder.api import access
 from girder.api.describe import Description, describeRoute
-from girder.api.rest import Resource
+from girder.api.rest import Resource, RestException
 from girder.constants import AccessType, TokenScope
 from girder.utility.model_importer import ModelImporter
 
@@ -136,6 +136,8 @@ class Osumo(Resource):
     )
     def processTask(self, params, **kwargs):
         self.requireParams(('taskkey', ), params)
+        if getattr(job_specs, params['taskkey'], None) is None:
+            raise RestException('No task named %s.' % params['taskkey'])
         task = copy.deepcopy(getattr(job_specs, params['taskkey']))
         data = {}
         data.update({input['key']: input for input in task['inputs']})

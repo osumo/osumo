@@ -17,6 +17,10 @@
 #  limitations under the License.
 ##############################################################################
 
+# Deal with a bug where PEP257 fails when parsing __all__.  Sadly, this
+# disables flake tests for the whole file.
+# flake8: noqa
+
 import girder
 import yaml
 
