@@ -7,7 +7,6 @@ cache:
     - $HOME/.cache
     - $HOME/build/osumo/osumo/_build/data/plugins/osumo
 sudo: false
-# sudo: required
 
 compiler:
   - gcc
@@ -27,23 +26,20 @@ addons:
       - zip
       - libgtk2.0-0
       - python-dev
-      # - gsl-dev  # disallowed by travis w/o sudo
-      - libgsl0-dev  # possible substitute for gsl-dev
+      - libgsl0-dev 
       - r-base-dev
-      ## - r-cran-ggplot2   # Not allowed w/o sudo
       - r-cran-matrix
-      ## - r-cran-plyr      # Not allowed w/o sudo
-      # - r-cran-rcpp    # Either this or stringr fails on travis
-      ## - r-cran-reshape2  # Not allowed w/o sudo
-      # - r-cran-stringr
       - r-cran-survival
-      - r-recommended    # Should include many others
+      - r-recommended    # More than we really need
 
 before_install:
   - echo "options(repos = c(CRAN='https://cran.rstudio.com/'))" > ~/.Rprofile
   - main_path=$PWD
   - build_path=$main_path/build
   - mkdir -p $build_path
+
+  - mkdir -p $HOME/.cache
+  - mkdir -p $HOME/build/osumo/osumo/_build/data/plugins/osumo
   
   - export R_LIBS=$HOME/.cache/R
   - export R_LIBS_USER=$R_LIBS
@@ -96,7 +92,7 @@ before_install:
   - ln -s $main_path $girder_path/plugins/osumo
 
 install:
-  - R -e "install.packages(c('colorspace', 'FNN', 'magrittr', 'proxy', 'RColorBrewer'), repos='http://cran.rstudio.com')"
+  - R -e "install.packages(c('colorspace', 'deldir', 'FNN', 'magrittr', 'proxy', 'RColorBrewer'), repos='http://cran.rstudio.com')"
   - R -e "install.packages(c('cccd', 'cluster', 'igraph', 'jsonlite', 'pheatmap', 'survival'), repos='http://cran.rstudio.com')"
   - cd $girder_path
   - pip install -U -r requirements.txt -r requirements-dev.txt
@@ -115,7 +111,7 @@ script:
   - cd _build
   # Our coverage numbers are small, because we aren't testing all of girder
   - cmake -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DPYTHON_COVERAGE:BOOL=YES -DCOVERAGE_MINIMUM_PASS=40 -DJS_COVERAGE_MINIMUM_PASS=9 $girder_path
-  - make
+  - make || true
   - cat /tmp/worker.out  # ##DWM::
   - JASMINE_TIMEOUT=15000 ctest -VV -R '(py_coverage_reset|py_coverage_combine|py_coverage$|coverage_xml|osumo)'
   - cat /tmp/worker.out  # ##DWM::
