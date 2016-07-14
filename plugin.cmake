@@ -37,7 +37,7 @@ add_eslint_test(
 
 add_python_test(tasks PLUGIN osumo BIND_SERVER
   EXTERNAL_DATA
-  "osumotestfiles.zip" "plugins/osumo/osumotestfiles.zip"
+  "plugins/osumo/osumotestfiles.zip"
 )
 set_property(TEST server_osumo.tasks
  APPEND PROPERTY ENVIRONMENT
