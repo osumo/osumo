@@ -26,7 +26,7 @@ addons:
       - zip
       - libgtk2.0-0
       - python-dev
-      - libgsl0-dev 
+      - libgsl0-dev
       - r-base-dev
       - r-cran-matrix
       - r-cran-survival
@@ -40,16 +40,16 @@ before_install:
 
   - mkdir -p $HOME/.cache
   - mkdir -p $HOME/build/osumo/osumo/_build/data/plugins/osumo
-  
+
   - export R_LIBS=$HOME/.cache/R
   - export R_LIBS_USER=$R_LIBS
   - mkdir -p $R_LIBS || true
 
   - pip install -U pip virtualenv
-  - mkdir -p $main_path/env
-  - virtualenv $main_path/env
-  - source $main_path/env/bin/activate
-  - pip install --upgrade pip
+  # - mkdir -p $main_path/env
+  # - virtualenv $main_path/env
+  # - source $main_path/env/bin/activate
+  # - pip install --upgrade pip
 
   # Use Node 5.10
   - rm -rf ~/.nvm
@@ -101,7 +101,7 @@ install:
 
 script:
   - cd $girder_worker_path
-  
+
   - echo $R_LIBS
   - R -e ".libPaths()"
 
@@ -112,7 +112,9 @@ script:
   # Our coverage numbers are small, because we aren't testing all of girder
   - cmake -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DPYTHON_COVERAGE:BOOL=YES -DCOVERAGE_MINIMUM_PASS=40 -DJS_COVERAGE_MINIMUM_PASS=9 $girder_path
   - make || true
-  - cat /tmp/worker.out  # ##DWM::
+  # Enable to verify worker is running
+  # - cat /tmp/worker.out
   - JASMINE_TIMEOUT=15000 ctest -VV -R '(py_coverage_reset|py_coverage_combine|py_coverage$|coverage_xml|osumo)'
-  - cat /tmp/worker.out  # ##DWM::
+  # Enable to see worker log output
+  # - cat /tmp/worker.out
 
