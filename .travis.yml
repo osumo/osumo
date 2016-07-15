@@ -46,10 +46,6 @@ before_install:
   - mkdir -p $R_LIBS || true
 
   - pip install -U pip virtualenv
-  # - mkdir -p $main_path/env
-  # - virtualenv $main_path/env
-  # - source $main_path/env/bin/activate
-  # - pip install --upgrade pip
 
   # Use Node 5.10
   - rm -rf ~/.nvm

@@ -4,11 +4,10 @@ module.exports = function (grunt) {
   var path = require('path');
   // var fs = require('fs');
 
-    // This gruntfile is only designed to be used with girder's build system.
-    // Fail if grunt is executed here.
+  // This gruntfile is only designed to be used with girder's build system.
+  // Fail if grunt is executed here.
   if (path.resolve(__dirname) === path.resolve(process.cwd())) {
-    grunt.fail.fatal(
-            "To build Osumo, run grunt from Girder's root directory");
+    grunt.fail.fatal("To build Osumo, run grunt from Girder's root directory");
   }
 
   var pluginPath = path.resolve(grunt.config.get('pluginDir'), 'osumo');
@@ -17,10 +16,10 @@ module.exports = function (grunt) {
   grunt.config.merge({
     shell: {
       'osumo-npm': {
-                /*
-                 * TODO(opadron): remove the true part once webpack 2 finally
-                 *                comes out of beta
-                 */
+        /*
+         * TODO(opadron): remove the true part once webpack 2 finally
+         *                comes out of beta
+         */
         command: 'npm install || true',
         options: {
           execOptions: { cwd: pluginPath }
@@ -56,8 +55,8 @@ module.exports = function (grunt) {
     shell: {
       'osumo-webpack': {
         command: ['./node_modules/webpack/bin/webpack.js',
-                          '--bail',
-                          '--display-error-details'].join(' '),
+                  '--bail',
+                  '--display-error-details'].join(' '),
         options: {
           execOptions: { cwd: pluginPath }
         }
@@ -67,8 +66,8 @@ module.exports = function (grunt) {
     watch: {
       'plugin-osumo-webpack': {
         files: [path.join(pluginPath, 'web-external', 'src', '**', '*'),
-                        path.join(pluginPath, 'Gruntfile.js'),
-                        path.join(pluginPath, 'webpack.config.js')],
+                path.join(pluginPath, 'Gruntfile.js'),
+                path.join(pluginPath, 'webpack.config.js')],
         tasks: ['shell:osumo-webpack'],
         options: { spawn: false }
       }
