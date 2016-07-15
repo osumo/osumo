@@ -1,4 +1,6 @@
-# Use the R language default, as travis always has Python
+# Use the python language default and install R as we need.  The travis version
+# of R was too difficult to update with everything we need compared to just
+# installing it in the python container.
 language: python
 cache:
   packages: true
@@ -107,7 +109,7 @@ script:
   - cd _build
   # Our coverage numbers are small, because we aren't testing all of girder
   - cmake -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DPYTHON_COVERAGE:BOOL=YES -DCOVERAGE_MINIMUM_PASS=40 -DJS_COVERAGE_MINIMUM_PASS=9 $girder_path
-  - make || true
+  - make
   # Enable to verify worker is running
   # - cat /tmp/worker.out
   - JASMINE_TIMEOUT=15000 ctest -VV -R '(py_coverage_reset|py_coverage_combine|py_coverage$|coverage_xml|osumo)'
