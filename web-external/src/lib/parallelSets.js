@@ -1,7 +1,7 @@
 import d3 from 'd3';
 
 var parallelSets = (function () {
-  //setting
+  // setting
   var settings = {
     canvas_width: 800,
     canvas_height: 450,

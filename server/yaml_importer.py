@@ -1,6 +1,3 @@
-
-import imp
-import json
 import sys
 import yaml
 
@@ -9,9 +6,8 @@ import os.path
 from re import compile
 from types import ModuleType
 
-from collections import MutableMapping
-
 RE_INCLUDE = compile(r"""^@include\(([^\(\)]+)\)""")
+
 
 class YamlImporter(object):
     def merge(self, value, object=None):
@@ -29,7 +25,8 @@ class YamlImporter(object):
                     is_array = False
 
         if is_dict:
-            if object is None: object={}
+            if object is None:
+                object = {}
 
             for k, v in generator:
                 object[k] = self.merge(v)
@@ -61,7 +58,7 @@ class YamlImporter(object):
                          else path or ["."]):
             for candidate, is_package in (
                 (os.path.join(basepath, mid_path, "__init__.yml"), True),
-                (os.path.join(basepath, mid_path) + ".yml"       , False),
+                (os.path.join(basepath, mid_path) + ".yml", False),
                 (os.path.join(os.path.dirname(basepath),
                               mid_path,
                               "__init__.yml"), True),
@@ -90,5 +87,4 @@ class YamlImporter(object):
 
 sys.meta_path.append(YamlImporter())
 
-__all__ = []
-
+__all__ = ()
