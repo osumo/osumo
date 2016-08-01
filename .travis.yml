@@ -108,7 +108,7 @@ script:
   - mkdir -p _build
   - cd _build
   # Our coverage numbers are small, because we aren't testing all of girder
-  - cmake -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DPYTHON_COVERAGE:BOOL=YES -DCOVERAGE_MINIMUM_PASS=40 -DJS_COVERAGE_MINIMUM_PASS=9 $girder_path
+  - cmake -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DPYTHON_COVERAGE:BOOL=YES -DPYTHON_COVERAGE_CONFIG="$main_path/plugin_tests/pycoverage.cfg" -DCOVERAGE_MINIMUM_PASS=90 -DJS_COVERAGE_MINIMUM_PASS=9 $girder_path
   - make
   # Enable to verify worker is running
   # - cat /tmp/worker.out
