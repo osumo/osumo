@@ -14,8 +14,12 @@ const fromSubMapping = (mapping, defaults = {}) => {
     let changed = false;
 
     Object.entries(mapping).forEach(([key, value]) => {
-      result[key] = value(state[key], action);
-      changed = (changed || result[key] !== state[key]);
+      if (!(key in state) || action._composeParentType === key) {
+        result[key] = value(state[key], action);
+        changed = (changed || result[key] !== state[key]);
+      } else {
+        result[key] = state[key];
+      }
     });
 
     return (changed ? result : state);
@@ -30,9 +34,16 @@ const fromTypeMapping = (mapping, defaults = {}) => {
 
   defaultReducer = defaultReducer || createIdentityReducer(defaultState);
 
-  return (state = defaultState, action) => (
-    (mapping[action.type] || defaultReducer)(state, action)
-  );
+  return (state = defaultState, action) => {
+    let reducer = mapping[action.type];
+    if (reducer) {
+      delete action._composeParentType;
+    } else {
+      reducer = defaultReducer;
+    }
+
+    return reducer(state, action);
+  };
 };
 
 const amendPrefix = (value, prefix) => (
@@ -160,14 +171,17 @@ const compose = (typeMapping = {}) => {
          * If the above search does not return a reducer, the target
          * reducer must be a descendant.
          */
-        if (!targetReducer) {
-          let [, ...subType] = typePattern;
+        if (targetReducer) {
+          delete action._composeParentType;
+        } else {
+          let [parentType, ...subType] = typePattern;
           subType = subType.join('.');
 
           targetReducer = subMappingReducer;
           action = {
             ...action,
-            type: subType
+            type: subType,
+            _composeParentType: parentType
           };
         }
 

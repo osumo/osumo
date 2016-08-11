@@ -105,6 +105,7 @@ script:
 
   - python -m girder_worker >/tmp/worker.out 2>&1 &
   - cd $main_path
+  - npm run 'test:frontend'
   - mkdir -p _build
   - cd _build
   # Our coverage numbers are small, because we aren't testing all of girder
