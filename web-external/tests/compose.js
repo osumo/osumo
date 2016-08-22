@@ -1,14 +1,9 @@
-
 import { createStore } from 'redux';
 import { compose } from '../src/utils/reducer';
 import { setScalar } from '../src/utils/common-reducers';
-
 import test from 'tape';
 
-
 test('compose duplicate leaves', (t) => {
-  t.plan(20);
-
   const scalar = (def) => compose({ set: setScalar }).defaultState(def);
 
   const a  = scalar('a');
@@ -74,6 +69,6 @@ test('compose duplicate leaves', (t) => {
   t.equal(state.b, 'bb');
   t.equal(state.c.a, 'caca');
   t.equal(state.c.b, 'CBCB');
+
+  t.end();
 });
-
-
