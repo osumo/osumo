@@ -36,7 +36,7 @@
   "scripts": {
     "build": "webpack",
     "build:watch": "webpack --watch --progress",
-    "test:frontend": "node_modules/.bin/babel-tape-runner 'web-external/tests/**/*.js*' | node_modules/.bin/tap-spec"
+    "test:frontend": "babel-tape-runner 'web-external/tests/**/*.js*' | tap-spec"
   },
   "devDependencies": {
     "babel-plugin-transform-react-jsx": "^6.8.0",
