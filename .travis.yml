@@ -98,12 +98,15 @@ install:
   - npm install
 
 script:
-  - cd $girder_worker_path
-
   - echo $R_LIBS
   - R -e ".libPaths()"
 
+  - cd $main_path
+  - npm run 'test:frontend'
+
+  - cd $girder_worker_path
   - python -m girder_worker >/tmp/worker.out 2>&1 &
+
   - cd $main_path
   - mkdir -p _build
   - cd _build
