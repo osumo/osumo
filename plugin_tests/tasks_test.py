@@ -148,7 +148,7 @@ class OsumoTasksTest(base.TestCase):
             }
         return files
 
-    def _processTask(self, params, result=None, timeout=10):
+    def _processTask(self, params, result=None, timeout=30):
         """
         Run an OSUMO task until it ends.
 
@@ -180,10 +180,13 @@ class OsumoTasksTest(base.TestCase):
                                 params={'token': jobToken})
             self.assertStatusOk(resp)
             job = resp.json
-            if job['status'] in (
-                    girder.plugins.jobs.constants.JobStatus.ERROR,
-                    girder.plugins.jobs.constants.JobStatus.CANCELED,
-                    girder.plugins.jobs.constants.JobStatus.SUCCESS):
+            # Ensure that there is something in the job log if we had an error,
+            # as that gets flushed after the status change
+            if ((job.get('log') and job['status'] in (
+                    girder.plugins.jobs.constants.JobStatus.ERROR, )) or
+                    job['status'] in (
+                        girder.plugins.jobs.constants.JobStatus.CANCELED,
+                        girder.plugins.jobs.constants.JobStatus.SUCCESS)):
                 self.assertEqual(job['status'], result)
                 return job
             time.sleep(0.05)
@@ -366,4 +369,3 @@ class OsumoTasksTest(base.TestCase):
                             isJson=False)
         results = self.getBody(resp, text=False)
         self.assertEqual(results[:4], '\x89PNG')
-        # ##DWM::

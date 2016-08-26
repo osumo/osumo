@@ -7,7 +7,8 @@ cache:
   pip: true
   directories:
     - $HOME/.cache
-    - $HOME/build/osumo/osumo/_build/data/plugins/osumo
+    - $HOME/build/osumo/osumo/_build/store
+    - $HOME/build/osumo/osumo/_build/data
 sudo: false
 
 compiler:
@@ -41,7 +42,8 @@ before_install:
   - mkdir -p $build_path
 
   - mkdir -p $HOME/.cache
-  - mkdir -p $HOME/build/osumo/osumo/_build/data/plugins/osumo
+  - mkdir -p $HOME/build/osumo/osumo/_build/data
+  - mkdir -p $HOME/build/osumo/osumo/_build/store
 
   - export R_LIBS=$HOME/.cache/R
   - export R_LIBS_USER=$R_LIBS
@@ -90,8 +92,21 @@ before_install:
   - ln -s $main_path $girder_path/plugins/osumo
 
 install:
-  - R -e "install.packages(c('colorspace', 'deldir', 'FNN', 'magrittr', 'proxy', 'RColorBrewer'), repos='http://cran.rstudio.com')"
-  - R -e "install.packages(c('cccd', 'cluster', 'igraph', 'jsonlite', 'pheatmap', 'survival'), repos='http://cran.rstudio.com')"
+  # Only install R packages if they aren't present or are older versions than 
+  # we expect.  Without the conditional installation, caching the packages in
+  # Travis doesn't save much time.  We just use one package for each set for
+  # version comparison, as this should be sufficient for cache purposes.
+
+  - R -e "if (require('colorspace')) packageVersion('colorspace')"
+  - R -e "if (!require('colorspace') || packageVersion('colorspace') < numeric_version('1.2.6')) install.packages(c('colorspace', 'deldir', 'FNN', 'magrittr', 'proxy', 'RColorBrewer'), repos='http://cran.rstudio.com')"
+  # - R -e "install.packages(c('colorspace', 'deldir', 'FNN', 'magrittr', 'proxy', 'RColorBrewer'), repos='http://cran.rstudio.com')"
+  - R -e "packageVersion('colorspace')"
+
+  - R -e "if (require('cccd')) packageVersion('cccd')"
+  # - R -e "install.packages(c('cccd', 'cluster', 'igraph', 'jsonlite', 'pheatmap', 'survival'), repos='http://cran.rstudio.com')"
+  - R -e "if (!require('cccd') || packageVersion('cccd') < numeric_version('1.5')) install.packages(c('cccd', 'cluster', 'igraph', 'jsonlite', 'pheatmap', 'survival'), repos='http://cran.rstudio.com')"
+  - R -e "packageVersion('cccd')"
+
   - cd $girder_path
   - pip install -U -r requirements.txt -r requirements-dev.txt
   # - pip install --no-cache-dir -e .
@@ -116,6 +131,8 @@ script:
   # Enable to verify worker is running
   # - cat /tmp/worker.out
   - JASMINE_TIMEOUT=15000 ctest -VV -R '(py_coverage_reset|py_coverage_combine|py_coverage$|coverage_xml|osumo)'
-  # Enable to see worker log output
-  # - cat /tmp/worker.out
+
+after_failure:
+  # On failures, show girder's error log and the worker output
+  - cat /tmp/worker.out
 
