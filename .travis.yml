@@ -94,7 +94,7 @@ before_install:
 install:
   # Only install R packages if they aren't present or are older versions than 
   # we expect.  Without the conditional installation, caching the packages in
-  # Travis doesn't same much time.  We just use one package for each set for
+  # Travis doesn't save much time.  We just use one package for each set for
   # version comparison, as this should be sufficient for cache purposes.
 
   - R -e "if (require('colorspace')) packageVersion('colorspace')"
@@ -130,6 +130,6 @@ script:
   - JASMINE_TIMEOUT=15000 ctest -VV -R '(py_coverage_reset|py_coverage_combine|py_coverage$|coverage_xml|osumo)'
 
 after_failure:
-  # On failures, show girder's error long and the worker output
+  # On failures, show girder's error log and the worker output
   - cat /tmp/worker.out
 
