@@ -1,14 +1,16 @@
 /* globals $ */
 
 import React from 'react';
+import { connect } from 'react-redux';
 
 import ParallelSetsComponent from './parallelsets';
+import { apiRoot, rest } from '../../globals';
 
-import '../style/process-data';
+import '../../style/process-data';
 
 void ParallelSetsComponent;  // make my editor's linter happy.
 
-export default class ProcessDataComponent extends React.Component {
+class ProcessDataComponent extends React.Component {
   constructor (props) {
     super(props);
     this.request = this.props.rest;
@@ -389,10 +391,7 @@ export default class ProcessDataComponent extends React.Component {
     let idx;
 
     if (!this.state || !this.state.tasks || !this.state.items) {
-      return (
-        <div id='g-app-body-container' className='g-default-layout'>Loading
-        </div>
-      );
+      return <div>'Loading'</div>;
     }
 
     let functionSelector = (
@@ -502,7 +501,7 @@ export default class ProcessDataComponent extends React.Component {
     }
 
     return (
-      <div id='g-app-body-container' className='g-default-layout'>
+      <div>
         { functionSelector }
         <div id='function-controls'>{ functionControls }</div>
         <button className='btn btn-default' id='process'
@@ -525,3 +524,5 @@ export default class ProcessDataComponent extends React.Component {
     };
   }
 }
+
+export default connect(null, () => ({ apiRoot, rest }))(ProcessDataComponent);

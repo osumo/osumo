@@ -3,8 +3,6 @@ import React from 'react';
 import Links from './links';
 import Info from './info';
 
-import propTypes from '../../prop-types';
-
 class Footer extends React.Component {
   render () {
     let { apiRoot } = this.props;
@@ -18,7 +16,7 @@ class Footer extends React.Component {
   }
 
   static get propTypes () {
-    return { apiRoot: propTypes.apiRoot };
+    return { apiRoot: React.PropTypes.string };
   }
 }
 

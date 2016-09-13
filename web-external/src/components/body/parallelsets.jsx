@@ -2,8 +2,8 @@ import React from 'react';
 import d3 from 'd3';
 import $ from 'jquery';
 
-import parallelSets from '../lib/parallelSets';
-import '../style/parallelSets';
+import parallelSets from '../../utils/parallelSets';
+import '../../style/parallelSets';
 
 export default class ParallelSetsComponent extends React.Component {
   componentDidMount () {

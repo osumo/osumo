@@ -1,64 +1,26 @@
 import React from 'react';
 
-import Header from './header';
-import GlobalNav from './global-nav';
-import Footer from './footer';
-
-import propTypes from '../prop-types';
-
-const DummyBodyComponent = () => (
-  <div id='g-app-body-container' className='g-default-layout'/>
-);
+import BodyContainer from './containers/body';
+import DialogBackdrop from './dialog/backdrop';
+import DialogContainer from './containers/dialog';
+import FooterContainer from './containers/footer';
+import GlobalNavContainer from './containers/global-nav';
+import HeaderContainer from './containers/header';
 
 class MainApp extends React.Component {
   render () {
-    let {
-      apiRoot,
-      currentTarget,
-      currentUser,
-      navList,
-      navTable,
-      staticRoot,
+    let { dialogComponentKey } = this.props;
 
-      onCollections,
-      onFolders,
-      onInfo,
-      onLogin,
-      onLogout,
-      onNavigate,
-
-      onRegister,
-      onTitle
-    } = this.props;
-
-    let Body = navTable[currentTarget] || DummyBodyComponent;
+    let dialogEnabled = !!(dialogComponentKey);
 
     return (
-      <div>
-        <Header currentUser={ currentUser }
-                onFolders={ onFolders }
-                onInfo={ onInfo }
-                onLogout={ onLogout }
-                onLogin={ onLogin }
-                onRegister={ onRegister }
-                onTitle={ onTitle }/>
-
-        <GlobalNav currentTarget={ currentTarget }
-                   navList={ navList }
-                   onNavigate={ onNavigate }/>
-
-        <Body key={ currentTarget }
-              apiRoot={ apiRoot }
-              staticRoot={ staticRoot }
-              currentUser={ currentUser }
-              onCollections={ onCollections }
-              onFolders={ onFolders }
-              onInfo={ onInfo }
-              onLogin={ onLogin }
-              onNavigate={ onNavigate }
-              onRegister={ onRegister }/>
-
-        <Footer apiRoot={ apiRoot }/>
+      <div className={ dialogEnabled ? 'modal-open' : null }>
+        <HeaderContainer/>
+        <GlobalNavContainer/>
+        <BodyContainer/>
+        <DialogContainer/>
+        <DialogBackdrop enabled={ dialogEnabled }/>
+        <FooterContainer/>
       </div>
     );
 
@@ -67,47 +29,15 @@ class MainApp extends React.Component {
      *                later.
      */
     // <div id='g-app-progress-container'/>
-    // <div id='g-dialog-container' className='modal fade'/>
     // <div id='g-alerts-container'/>
   }
 
   static get defaultProps () {
-    return {
-      apiRoot: 'api/v1',
-      currentTarget: '',
-      currentUser: null,
-      navList: [],
-      navTable: {},
-      staticRoot: 'static',
-
-      /* TODO(opadron): replace with a warning message */
-      onCollections () { console.log('ON COLLECTIONS'); },
-      onFolders () { console.log('ON FOLDERS'); },
-      onInfo () { console.log('ON INFO'); },
-      onRegister () { console.log('ON REGISTER'); },
-      onLogin () { console.log('ON LOGIN'); },
-      onNavigate () { console.log('ON NAVIGATE'); },
-      onTitle () { console.log('ON TITLE'); }
-    };
+    return { dialogComponentKey: null };
   }
 
   static get propTypes () {
-    return {
-      apiRoot: propTypes.apiRoot,
-      currentTarget: propTypes.currentTarget,
-      currentUser: propTypes.currentUser,
-      navList: propTypes.navList,
-      navTable: propTypes.navTable,
-      onCollections: propTypes.onCollections,
-      onFolders: propTypes.onFolders,
-      onInfo: propTypes.onInfo,
-      onLogin: propTypes.onLogin,
-      onLogout: propTypes.onLogout,
-      onNavigate: propTypes.onNavigate,
-      onRegister: propTypes.onRegister,
-      onTitle: propTypes.onTitle,
-      staticRoot: propTypes.staticRoot
-    };
+    return { dialogComponentKey: React.PropTypes.string };
   }
 }
 
