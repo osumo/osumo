@@ -1,10 +1,17 @@
 import { compose } from '../utils/reducer';
-import currentUser from './current-user';
-import globalNav from './global-nav';
+import { bool, object, string } from '../utils/common-reducers';
+import dialog from './dialog';
 
 const rootReducer = compose().children({
-  currentUser,
-  globalNav
+  dialog,
+  globalNavTarget: string,
+  header: compose().children({
+    dropdownOpened: bool
+  }),
+  loginInfo: compose().children({
+    token: string,
+    user: object
+  })
 });
 
 export default rootReducer;
