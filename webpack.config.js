@@ -66,7 +66,7 @@ if(production) {
 module.exports = {
     cache: true,
 
-    devtool: (production ? "source-map" : null),
+    devtool: (production ? null : "source-map"),
 
     entry: {
         common: [
@@ -125,6 +125,11 @@ module.exports = {
     resolve: {
         extensions: [".js", ".jsx", ".styl", ".css", ".jade", ""],
         modulesDirectories: [srcDir, nodeModulesDir]
+    },
+
+    semistandard: {
+      global: ["location"],
+      env: ["browser"]
     },
 
     plugins: plugins
