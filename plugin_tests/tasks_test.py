@@ -59,10 +59,10 @@ class OsumoTasksTest(base.TestCase):
             '/system/setting', method='PUT', user=self.admin, params={
                 'list': json.dumps([{
                     'key': 'worker.broker',
-                    'value': 'mongodb://127.0.0.1/girder_worker'
+                    'value': 'amqp://guest@127.0.0.1/'
                     }, {
                     'key': 'worker.backend',
-                    'value': 'mongodb://127.0.0.1/girder_worker'
+                    'value': 'amqp://guest@127.0.0.1/'
                     }])})
         self.assertStatusOk(resp)
         # Create OSUMO user and folders
@@ -279,7 +279,7 @@ class OsumoTasksTest(base.TestCase):
             'num_clusters': 0,
         }
         job = self._processTask(params, self.JobStatus.ERROR)
-        self.assertIn('Error: number of cluster centres', job['log'])
+        self.assertIn('Error: number of cluster centres', ''.join(job['log']))
 
     def testTaskSurvival(self):
         files = self._uploadTestFiles(['brca.rdata'])
@@ -304,11 +304,11 @@ class OsumoTasksTest(base.TestCase):
         # Test with bad parameters
         params['num_clusters'] = 0
         job = self._processTask(params, self.JobStatus.ERROR)
-        self.assertIn('Error: number of cluster centres', job['log'])
+        self.assertIn('Error: number of cluster centres', ''.join(job['log']))
 
         params['num_clusters'] = 1
         job = self._processTask(params, self.JobStatus.ERROR)
-        self.assertIn('Error in survdiff.fit', job['log'])
+        self.assertIn('Error in survdiff.fit', ''.join(job['log']))
 
     def testTaskIgpse(self):
         files = self._uploadTestFiles([

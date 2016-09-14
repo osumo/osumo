@@ -215,36 +215,25 @@ class Osumo(Resource):
 
         :param event: the event with the file information.
         """
-        if self.jobInfo.get(event.info['reference']) is None:
+        reference = event.info['reference']
+        jobInfo = self.jobInfo.get(reference)
+        if jobInfo is None:
             # Not our job
             return
-        self.jobInfo[event.info['reference']].setdefault('processedFiles', [])
-        self.jobInfo[event.info['reference']]['processedFiles'].append({
+        job = self.model('job', 'jobs').load(
+            id=reference, user=jobInfo['user'], level=AccessType.ADMIN,
+            fields={'processedFiles', 'kwargs', 'userId', 'type', 'status'})
+        if not job:
+            return
+        files = job.get('processedFiles', [])
+        files.append({
             'fileId': event.info['file']['_id'],
             'itemId': event.info['file']['itemId'],
             'name': event.info['file']['name']
         })
-
-    def modelJobSave(self, event):
-        """
-        Just before a job is saved, see if it is one of ours.  If so, add our
-        processedFiles information.
-
-        :param event: the event with the job.
-        """
-        job = event.info
-        jobId = str(job.get('_id', ''))
-        if jobId not in self.jobInfo:
-            # Not our job
-            return
-        if 'processedFiles' not in self.jobInfo[jobId]:
-            # No files
-            return
-        # Get the list of distinct files
-        files = (job.get('processedFiles', []) +
-                 self.jobInfo[jobId]['processedFiles'])
-        job['processedFiles'] = files
-        del self.jobInfo[jobId]['processedFiles']
+        self.model('job', 'jobs').updateJob(
+            job, otherFields={'processedFiles': files},
+            log='Added processed file %s' % event.info['file']['name'])
 
 
 def load(info):
@@ -273,4 +262,3 @@ def load(info):
     info['serverRoot'].girder.api
 
     events.bind('data.process', 'osumo', info['apiRoot'].osumo.dataProcess)
-    events.bind('model.job.save', 'osumo', info['apiRoot'].osumo.modelJobSave)
