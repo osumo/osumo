@@ -139,7 +139,7 @@ script:
   - make
   # Enable to verify worker is running
   # - cat /tmp/worker.out
-  - JASMINE_TIMEOUT=15000 ctest -VV 
+  - JASMINE_TIMEOUT=15000 ctest -VV -E js_cover
 
 after_failure:
   # On failures, show girder's error log and the worker output
