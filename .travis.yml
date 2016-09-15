@@ -34,6 +34,11 @@ addons:
       - r-cran-matrix
       - r-cran-survival
       - r-recommended    # More than we really need
+      # girder worker
+      - rabbitmq-server
+
+services:
+  - rabbitmq
 
 before_install:
   - echo "options(repos = c(CRAN='https://cran.rstudio.com/'))" > ~/.Rprofile
