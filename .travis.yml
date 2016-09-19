@@ -34,8 +34,17 @@ addons:
       - r-cran-matrix
       - r-cran-survival
       - r-recommended    # More than we really need
+      # girder worker
+      - rabbitmq-server
+
+services:
+  - rabbitmq
 
 before_install:
+  # These may be set to any git commit-ish, such as master or a sha1 hash
+  - export GIRDER_GIT_COMMIT=1a0765d747cc79e1586ab9ba24b0618057155fe9
+  - export GIRDER_WORKER_GIT_COMMIT=29c1f504e0f5335d5e6d370bb1077e4df4e05a78
+
   - echo "options(repos = c(CRAN='https://cran.rstudio.com/'))" > ~/.Rprofile
   - main_path=$PWD
   - build_path=$main_path/build
@@ -63,7 +72,8 @@ before_install:
 
   - girder_path=$HOME/girder
   - rm -fr $girder_path
-  - git clone https://github.com/girder/girder.git $girder_path && git -C $girder_path checkout a381b5822b1fb063e3d8877fc1a6ff629e52eebf
+  - git clone https://github.com/girder/girder.git $girder_path 
+  - git -C $girder_path checkout $GIRDER_GIT_COMMIT
   - ln -sf $main_path $girder_path/plugins/
   - ls -l $girder_path/plugins
 
@@ -71,7 +81,8 @@ before_install:
   - cmake --version
 
   - girder_worker_path=$HOME/girder_worker
-  - git clone https://github.com/girder/girder_worker.git $girder_worker_path && git -C $girder_worker_path checkout 4429c6e98b2b11d47edb43390571551ab2d36749
+  - git clone https://github.com/girder/girder_worker.git $girder_worker_path 
+  - git -C $girder_worker_path checkout $GIRDER_WORKER_GIT_COMMIT
   - cp $main_path/testing/travis/girder_worker.local.cfg $girder_worker_path/girder_worker/worker.local.cfg
   - pip install -U -r $girder_worker_path/requirements.txt -r $girder_worker_path/girder_worker/plugins/girder_io/requirements.txt -r $girder_worker_path/girder_worker/plugins/r/requirements.txt
 
@@ -126,11 +137,11 @@ script:
   - mkdir -p _build
   - cd _build
   # Our coverage numbers are small, because we aren't testing all of girder
-  - cmake -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DPYTHON_COVERAGE:BOOL=YES -DPYTHON_COVERAGE_CONFIG="$main_path/plugin_tests/pycoverage.cfg" -DCOVERAGE_MINIMUM_PASS=90 -DJS_COVERAGE_MINIMUM_PASS=9 $girder_path
+  - cmake -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DPYTHON_COVERAGE:BOOL=YES -DPYTHON_COVERAGE_CONFIG="$main_path/plugin_tests/pycoverage.cfg" -DCOVERAGE_MINIMUM_PASS=90 -DJS_COVERAGE_MINIMUM_PASS=9 -DRUN_CORE_TESTS:BOOL="OFF" -DTEST_PLUGINS:STRING="osumo" $girder_path
   - make
   # Enable to verify worker is running
   # - cat /tmp/worker.out
-  - JASMINE_TIMEOUT=15000 ctest -VV -R '(py_coverage_reset|py_coverage_combine|py_coverage$|coverage_xml|osumo)'
+  - JASMINE_TIMEOUT=15000 ctest -VV -E js_cover
 
 after_failure:
   # On failures, show girder's error log and the worker output
