@@ -1,5 +1,5 @@
 import { Router, history } from 'backbone';
-import { zip, isFunction } from 'underscore';
+import { zip, isFunction } from 'lodash';
 
 const PARSE_PARAM = 0;
 const PARSE_IDENTIFIER = 1;

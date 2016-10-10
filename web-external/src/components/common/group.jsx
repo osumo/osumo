@@ -1,5 +1,5 @@
 import React from 'react';
-import { isArray, isFunction, isNull, isUndefined } from 'underscore';
+import { isArray, isFunction, isNull, isUndefined } from 'lodash';
 
 /**
  * utility function for filtering child components

@@ -1,4 +1,4 @@
-import { isArray } from 'underscore';
+import { isArray } from 'lodash';
 
 const objectReduce = (partial, item) => {
   if (isArray(partial)) {

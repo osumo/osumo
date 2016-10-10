@@ -1,4 +1,4 @@
-import { isString, isObject, isUndefined } from 'underscore';
+import { isString, isObject, isUndefined } from 'lodash';
 
 import objectReduce from './object-reduce';
 import isArraySubstring from './is-array-substring';
