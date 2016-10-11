@@ -36,6 +36,7 @@
   "scripts": {
     "build": "webpack",
     "build:watch": "webpack --watch --progress",
+    "lint": "semistandard web-external/src",
     "test:frontend": "babel-tape-runner 'web-external/tests/**/*.js*' | tap-spec"
   },
   "devDependencies": {
