@@ -3,6 +3,7 @@
 import React from 'react';
 
 import ParallelSetsComponent from './parallelsets';
+import FileSelector from './fileSelector';
 
 import '../style/process-data';
 
@@ -438,8 +439,15 @@ export default class ProcessDataComponent extends React.Component {
               return a.idx - b.idx;
             });
           }
+
+          let fileselector;
+          if (idx === '0') {
+            fileselector = <FileSelector folder={this.dataFolderId} />;
+          }
+
           // we should filter items based on the subtype
-          ctl.push(<select className='form-control'
+          ctl.push(<div>
+            <select className='form-control'
               onChange={this.changeTaskInput}
               value={this.state.inputs[inpspec.key]}
               data-reference={inpspec.key} key={inpspec.key}>{
@@ -449,7 +457,9 @@ export default class ProcessDataComponent extends React.Component {
               }
               return <option key={item._id} value={item._id}>{item.name}</option>;
             })
-          }</select>);
+          }</select>
+            {fileselector}
+          </div>);
           defaultValue = items[0]._id;
           break;
         case 'boolean':
