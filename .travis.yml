@@ -64,8 +64,8 @@ before_install:
   - rm -rf ~/.nvm
   - git clone https://github.com/creationix/nvm.git ~/.nvm
   - source ~/.nvm/nvm.sh
-  - nvm install 5.10
-  - nvm use 5.10
+  - nvm install v5
+  - nvm use v5
   - npm config set python `which python`
   - if [ $TRAVIS_OS_NAME == "linux" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
   - cd $main_path
