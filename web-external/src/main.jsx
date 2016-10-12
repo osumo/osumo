@@ -30,7 +30,7 @@ const DummyComponent = ({ msg }) => (
 $(() => {
   /* define some constants here */
   /* TODO(opadron): Is there a better place for these? */
-  const apiRoot = 'api/v1';
+  const apiRoot = girder.apiRoot = 'api/v1';
   // const staticRoot = 'static';
 
   /* initialize rest API */

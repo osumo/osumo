@@ -84,6 +84,7 @@ export default class ProcessDataComponent extends React.Component {
           }});
           this.foldersRequest.done((resp) => {
             this[folder.id] = resp.response[0]._id;
+            this[folder.id.slice(0, -2)] = resp.response[0];
             this.getInputAndOutputFolders(callback);
             return null;
           });
@@ -442,7 +443,7 @@ export default class ProcessDataComponent extends React.Component {
 
           let fileselector;
           if (idx === '0') {
-            fileselector = <FileSelector folder={this.dataFolderId} />;
+            fileselector = <FileSelector folder={this.dataFolder} />;
           }
 
           // we should filter items based on the subtype
