@@ -15,6 +15,10 @@ export default class ProcessDataComponent extends React.Component {
     this.request = this.props.rest;
   }
 
+  itemSelected (item) {
+    console.log('item selected:', item);
+  }
+
   componentWillMount () {
     let initialState = {
       /* The folder names are used to look up where to load and store data */
@@ -443,7 +447,7 @@ export default class ProcessDataComponent extends React.Component {
 
           let fileselector;
           if (idx === '0') {
-            fileselector = <FileSelector folder={this.dataFolder} />;
+            fileselector = <FileSelector folder={this.dataFolder} itemSelected={this.itemSelected} />;
           }
 
           // we should filter items based on the subtype

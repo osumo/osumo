@@ -4,14 +4,13 @@ import content from './content.jade';
 
 const FileSelectorWidget = girder.View.extend({
   initialize: function (settings) {
-    this.folder = settings.folder;
     this.hierarchyView = new girder.views.HierarchyWidget({
       parentView: this,
-      parentModel: this.folder,
+      parentModel: settings.folder,
       showActions: true,
       checkboxes: true,
       onItemClick: function (item) {
-        console.log(item);
+        settings.itemSelected(item);
         $('.modal-header button[data-dismiss="modal"]').click();
       }
     });
@@ -30,15 +29,12 @@ export default class FileSelector extends React.Component {
     this.modal = new FileSelectorWidget({
       el: $('#g-dialog-container'),
       parentView: null,
+      itemSelected: this.props.itemSelected,
       folder: new girder.models.FolderModel(this.props.folder)
     });
   }
 
   render () {
-    let {
-      folder
-    } = this.props;
-
     return <div className='fileselector'>
       <input type='button' onClick={() => this.modal.render()} className='btn btn-primary' value='Select an item' />
     </div>;
