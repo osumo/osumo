@@ -4,6 +4,7 @@ import React from 'react';
 
 import ParallelSetsComponent from './parallelsets';
 import FileSelector from './fileSelector';
+import Select from './select';
 
 import '../style/process-data';
 
@@ -428,22 +429,7 @@ export default class ProcessDataComponent extends React.Component {
       }
       switch (inpspec.type) {
         case 'item': case 'file':
-          let items = this.state.items;
-          if (inpspec.onlyNames || inpspec.preferredNames) {
-            let match = new RegExp(inpspec.onlyNames || inpspec.preferredNames);
-            items = items.slice();
-            for (let idx = 0; idx < items.length; idx += 1) {
-              items[idx].idx = idx;
-            }
-            items.sort(function (a, b) {
-              a.matched = !!match.test(a.name);
-              b.matched = !!match.test(b.name);
-              if (a.matched !== b.matched) {
-                return a.matched ? -1 : 1;
-              }
-              return a.idx - b.idx;
-            });
-          }
+          const items = this.state.items.map(x => Object.assign({}, x));
 
           let fileselector;
           if (idx === '0') {
@@ -451,20 +437,20 @@ export default class ProcessDataComponent extends React.Component {
           }
 
           // we should filter items based on the subtype
-          ctl.push(<div>
-            <select className='form-control'
-              onChange={this.changeTaskInput}
-              value={this.state.inputs[inpspec.key]}
-              data-reference={inpspec.key} key={inpspec.key}>{
-            items.map((item) => {
-              if (inpspec.onlyNames && !item.matched) {
-                return;
-              }
-              return <option key={item._id} value={item._id}>{item.name}</option>;
-            })
-          }</select>
-            {fileselector}
-          </div>);
+          const inpspecCopy = Object.assign({}, inpspec);
+          const input = this.state.inputs[inpspec.key];
+          ctl.push(
+            <div>
+              <Select
+                className='form-control'
+                onChange={this.changeTaskInput}
+                selected={input}
+                options={items}
+                inpspec={inpspecCopy} />
+
+              {fileselector}
+            </div>
+          );
           defaultValue = items[0]._id;
           break;
         case 'boolean':
