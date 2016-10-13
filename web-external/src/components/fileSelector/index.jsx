@@ -10,7 +10,7 @@ const FileSelectorWidget = girder.View.extend({
       showActions: true,
       checkboxes: true,
       onItemClick: function (item) {
-        settings.itemSelected(item);
+        settings.itemSelected(item.attributes);
         $('.modal-header button[data-dismiss="modal"]').click();
       }
     });
@@ -36,7 +36,7 @@ export default class FileSelector extends React.Component {
 
   render () {
     return <div className='fileselector'>
-      <input type='button' onClick={() => this.modal.render()} className='btn btn-primary' value='Select an item' />
+      <input type='button' onClick={() => this.modal.render()} className='btn btn-primary' value='Add a file' />
     </div>;
   }
 }
