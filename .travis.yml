@@ -127,6 +127,8 @@ script:
   - echo $R_LIBS
   - R -e ".libPaths()"
 
+  - npm run lint
+
   - cd $main_path
   - npm run 'test:frontend'
 
