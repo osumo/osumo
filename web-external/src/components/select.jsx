@@ -62,11 +62,19 @@ export default class Select extends React.Component {
   }
 
   addOption (item) {
+    // Find the index of the requested item in the list.
+    let i;
+    for (i = 0; i < this.state.options.length; i++) {
+      if (this.state.options[i]._id === item._id) {
+        break;
+      }
+    }
+
     // Make the new item appear in the list.
     item.matched = true;
 
     this.setState(oldState => ({
-      options: [...oldState.options, item],
+      options: [...oldState.options.slice(0, i), item, ...oldState.options.slice(i + 1)]
     }));
   }
 }
