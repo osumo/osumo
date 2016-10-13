@@ -1,11 +1,17 @@
 import React from 'react';
 
+import FileSelector from './fileSelector';
+
 export default class Select extends React.Component {
   componentWillMount () {
     const {
       inpspec,
+      folder,
       options
     } = this.props;
+
+    this.folder = folder;
+    this.id = inpspec.key;
 
     if (inpspec.onlyNames || inpspec.preferredNames) {
       let match = new RegExp(inpspec.onlyNames || inpspec.preferredNames);
@@ -33,16 +39,31 @@ export default class Select extends React.Component {
       inpspec
     } = this.props;
 
-    return <select
-             className={className}
-             onChange={onChange}
-             value={selected}
-             data-reference={inpspec.key}
-             key={inpspec.key}>
-             {
-               this.options.map(item => inpspec.onlyNames && !item.matched ? undefined :
-                 <option key={item._id} value={item._id}>{item.name}</option>)
-             }
-           </select>;
+    let fileSelector;
+    if (this.folder) {
+      fileSelector = <FileSelector
+                        folder={this.folder}
+                        itemSelected={this.itemSelected.bind(this)} />;
+    }
+
+    return <div>
+      <select
+        className={className}
+        onChange={onChange}
+        value={selected}
+        data-reference={inpspec.key}
+        key={inpspec.key}>
+          {
+            this.options.map(item => inpspec.onlyNames && !item.matched ? undefined :
+              <option key={item._id} value={item._id}>{item.name}</option>)
+          }
+      </select>
+
+      {fileSelector}
+    </div>;
+  }
+
+  itemSelected (item) {
+    console.log(`item selected in ${this.id}:`, item);
   }
 }

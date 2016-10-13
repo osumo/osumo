@@ -3,7 +3,6 @@
 import React from 'react';
 
 import ParallelSetsComponent from './parallelsets';
-import FileSelector from './fileSelector';
 import Select from './select';
 
 import '../style/process-data';
@@ -14,10 +13,6 @@ export default class ProcessDataComponent extends React.Component {
   constructor (props) {
     super(props);
     this.request = this.props.rest;
-  }
-
-  itemSelected (item) {
-    console.log('item selected:', item);
   }
 
   componentWillMount () {
@@ -431,11 +426,6 @@ export default class ProcessDataComponent extends React.Component {
         case 'item': case 'file':
           const items = this.state.items.map(x => Object.assign({}, x));
 
-          let fileselector;
-          if (idx === '0') {
-            fileselector = <FileSelector folder={this.dataFolder} itemSelected={this.itemSelected} />;
-          }
-
           // we should filter items based on the subtype
           const inpspecCopy = Object.assign({}, inpspec);
           const input = this.state.inputs[inpspec.key];
@@ -446,9 +436,8 @@ export default class ProcessDataComponent extends React.Component {
                 onChange={this.changeTaskInput}
                 selected={input}
                 options={items}
-                inpspec={inpspecCopy} />
-
-              {fileselector}
+                inpspec={inpspecCopy}
+                folder={this.dataFolder} />
             </div>
           );
           defaultValue = items[0]._id;
