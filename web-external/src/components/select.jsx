@@ -31,17 +31,19 @@ export default class Select extends React.Component {
                             itemSelected={this.addOption.bind(this)} />;
     }
 
-    this.setState(Object.assign({}, this.props));
+    this.setState({options});
   }
 
   render () {
     const {
+      options
+    } = this.state;
+    const {
       className,
       onChange,
       inpspec,
-      selected,
-      options
-    } = this.state;
+      selected
+    } = this.props;
 
     return <div>
       <select
@@ -62,6 +64,10 @@ export default class Select extends React.Component {
   }
 
   addOption (item) {
+    const {
+      onSetItem
+    } = this.props;
+
     // Find the index of the requested item in the list.
     let i;
     for (i = 0; i < this.state.options.length; i++) {
@@ -76,5 +82,6 @@ export default class Select extends React.Component {
     this.setState(oldState => ({
       options: [...oldState.options.slice(0, i), item, ...oldState.options.slice(i + 1)]
     }));
+    onSetItem(item._id);
   }
 }

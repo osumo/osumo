@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import { partial } from 'underscore';
 import ParallelSetsComponent from './parallelsets';
 import Select from './select';
 
@@ -131,6 +132,15 @@ export default class ProcessDataComponent extends React.Component {
     this.changeTaskInput = (event) => {
       let inputs = this.state.inputs;
       inputs[$(event.target).attr('data-reference')] = event.target.value;
+      this.setState({inputs: inputs});
+    };
+
+    /* Respond to a change in any task control.
+     *
+     * @param {object} event the event that triggered the change.
+     */
+    this.setTaskInput = (key, value) => {
+      let inputs = {...this.state.inputs, [key]: value};
       this.setState({inputs: inputs});
     };
 
@@ -430,15 +440,15 @@ export default class ProcessDataComponent extends React.Component {
           const inpspecCopy = Object.assign({}, inpspec);
           const input = this.state.inputs[inpspec.key];
           ctl.push(
-            <div>
-              <Select
-                className='form-control'
-                onChange={this.changeTaskInput}
-                selected={input}
-                options={items}
-                inpspec={inpspecCopy}
-                folder={this.dataFolder} />
-            </div>
+            <Select
+              key={inpspec.key}
+              className='form-control'
+              onChange={this.changeTaskInput}
+              onSetItem={partial(this.setTaskInput, inpspec.key)}
+              selected={input}
+              options={items}
+              inpspec={inpspecCopy}
+              folder={this.dataFolder} />
           );
           defaultValue = items[0]._id;
           break;
