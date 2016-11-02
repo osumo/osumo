@@ -91,14 +91,6 @@ module.exports = {
     },
 
     module: {
-        preLoaders: [
-          {
-            test: /\.js[x]$/,
-            loader: 'semistandard',
-            include: path.resolve(__dirname, 'web-external', 'src')
-          }
-        ],
-
         loaders: [
             { test: /\.css$/,
               loader: "style-loader!css-loader" },

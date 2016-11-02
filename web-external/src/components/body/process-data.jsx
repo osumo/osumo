@@ -3,8 +3,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { partial } from 'underscore';
 import ParallelSetsComponent from './parallelsets';
 import { apiRoot, rest } from '../../globals';
+import Select from './select';
 
 import '../../style/process-data';
 
@@ -85,6 +87,7 @@ class ProcessDataComponent extends React.Component {
           }});
           this.foldersRequest.done((resp) => {
             this[folder.id] = resp.response[0]._id;
+            this[folder.id.slice(0, -2)] = resp.response[0];
             this.getInputAndOutputFolders(callback);
             return null;
           });
@@ -131,6 +134,15 @@ class ProcessDataComponent extends React.Component {
     this.changeTaskInput = (event) => {
       let inputs = this.state.inputs;
       inputs[$(event.target).attr('data-reference')] = event.target.value;
+      this.setState({inputs: inputs});
+    };
+
+    /* Respond to a change in any task control.
+     *
+     * @param {object} event the event that triggered the change.
+     */
+    this.setTaskInput = (key, value) => {
+      let inputs = {...this.state.inputs, [key]: value};
       this.setState({inputs: inputs});
     };
 
@@ -421,34 +433,22 @@ class ProcessDataComponent extends React.Component {
       }
       switch (inpspec.type) {
         case 'item': case 'file':
-          let items = this.state.items;
-          if (inpspec.onlyNames || inpspec.preferredNames) {
-            let match = new RegExp(inpspec.onlyNames || inpspec.preferredNames);
-            items = items.slice();
-            for (let idx = 0; idx < items.length; idx += 1) {
-              items[idx].idx = idx;
-            }
-            items.sort(function (a, b) {
-              a.matched = !!match.test(a.name);
-              b.matched = !!match.test(b.name);
-              if (a.matched !== b.matched) {
-                return a.matched ? -1 : 1;
-              }
-              return a.idx - b.idx;
-            });
-          }
+          const items = this.state.items.map(x => Object.assign({}, x));
+
           // we should filter items based on the subtype
-          ctl.push(<select className='form-control'
+          const inpspecCopy = Object.assign({}, inpspec);
+          const input = this.state.inputs[inpspec.key];
+          ctl.push(
+            <Select
+              key={inpspec.key}
+              className='form-control'
               onChange={this.changeTaskInput}
-              value={this.state.inputs[inpspec.key]}
-              data-reference={inpspec.key} key={inpspec.key}>{
-            items.map((item) => {
-              if (inpspec.onlyNames && !item.matched) {
-                return;
-              }
-              return <option key={item._id} value={item._id}>{item.name}</option>;
-            })
-          }</select>);
+              onSetItem={partial(this.setTaskInput, inpspec.key)}
+              selected={input}
+              options={items}
+              inpspec={inpspecCopy}
+              folder={this.dataFolder} />
+          );
           defaultValue = items[0]._id;
           break;
         case 'boolean':
