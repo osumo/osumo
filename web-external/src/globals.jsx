@@ -4,7 +4,7 @@ import createLogger from 'redux-logger';
 
 import restRequests from './utils/rest-requests';
 import events from './utils/events';
-export const apiRoot = 'api/v1';
+export const apiRoot = girder.apiRoot = 'api/v1';
 export const staticRoot = 'static';
 export const rest = restRequests({ events, apiRoot });
 

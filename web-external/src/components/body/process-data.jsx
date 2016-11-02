@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { partial } from 'underscore';
 import ParallelSetsComponent from './parallelsets';
 import { apiRoot, rest } from '../../globals';
-import Select from './select';
+import Select from '../select';
 
 import '../../style/process-data';
 
