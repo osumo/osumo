@@ -1,0 +1,63 @@
+---
+
+name: iGPSe
+mode: r
+
+script: "@include(iGPSe.r)"
+
+inputs:
+  - name: mrna_input_path
+    type: string
+    format: text
+
+  - name: mrna_clusters
+    type: number
+    format: number
+
+  - name: mirna_input_path
+    type: string
+    format: text
+
+  - name: mirna_clusters
+    type: number
+    format: number
+
+  - name: clinical_input_path
+    type: string
+    format: text
+
+outputs:
+  - name: output_mrna_dim
+    target: memory
+    type: r
+    format: object
+
+  - name: output_mirna_dim
+    target: memory
+    type: r
+    format: object
+
+  - name: output_clinical_dim
+    target: memory
+    type: r
+    format: object
+
+  - name: output_mrna_heatmap
+    target: filepath
+    type: image
+    format: png
+
+  - name: output_mirna_heatmap
+    target: filepath
+    type: image
+    format: png
+
+  - name: clustersJSON
+    target: memory
+    type: string
+    format: text
+
+  - name: transferData
+    target: memory
+    type: r
+    format: object
