@@ -18,7 +18,8 @@ class Footer extends React.Component {
                 id='g-register-button'
                 type='submit'
                 onClick={ onSubmit }>
-          <i className='icon-plus-circled'>Register</i>
+          <i className='icon-plus-circled'/>
+          Register
         </button>
       </div>
     );

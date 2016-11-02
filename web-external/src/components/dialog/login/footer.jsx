@@ -20,7 +20,7 @@ class Footer extends React.Component {
                 type='submit'
                 onClick={ onSubmit }>
           <i className='icon-login'/>
-          { NBSP } Login
+          Log in
         </button>
       </div>
     );
