@@ -3,7 +3,7 @@ import Group from '../common/group';
 
 class Dialog extends React.Component {
   render () {
-    let { children, enabled, filterKey, onClose } = this.props;
+    let { backupKey, children, enabled, filterKey, onClose } = this.props;
 
     let className = (enabled ? 'modal fade in' : 'modal fade');
     let style = (enabled ? { display: 'block' } : { display: 'none' });
@@ -19,8 +19,10 @@ class Dialog extends React.Component {
     return (
       <Group className={ className }
              id='g-dialog-container'
+             backupKey={ backupKey }
              filterKey={ filterKey }
              style={ style }
+             onlyMatching={ true }
              onKeyDown={ onKeyDown }>
         { children }
       </Group >
@@ -29,6 +31,7 @@ class Dialog extends React.Component {
 
   static get propTypes () {
     return {
+      backupKey: React.PropTypes.string,
       children: React.PropTypes.oneOfType([
         React.PropTypes.oneOf([null]),
         React.PropTypes.element,
