@@ -24,6 +24,8 @@ router.pushState(false);
 
 export const $rootDiv = $('<div>').attr('id', 'root');
 
+let itemSelectedCallback = null;
+
 export default {
   apiRoot,
   rest,
@@ -32,5 +34,6 @@ export default {
   store,
   router,
   routeStack,
-  $rootDiv
+  $rootDiv,
+  itemSelectedCallback
 };

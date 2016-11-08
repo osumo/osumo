@@ -1,5 +1,7 @@
 import { isNull, isString, isUndefined } from 'underscore';
-import { actionTypes, rest, router, routeStack, store } from './globals';
+import globals from './globals';
+
+let { actionTypes, rest, router, routeStack, store } = globals;
 const dispatch = store.dispatch.bind(store);
 
 export const clearCurrentUser = () => [
@@ -17,6 +19,19 @@ export const closeDialog = () => {
   clearDialog();
   router(routeStack.pop());
 };
+
+export const onItemSelect = (...args) => {
+  if (globals.itemSelectedCallback) {
+    return globals.itemSelectedCallback(...args);
+  }
+}
+
+export const openFileSelectorDialog = () => [
+  { type: actionTypes.dialog.errorField.clear },
+  { type: actionTypes.dialog.errorMessage.clear },
+  { type: actionTypes.dialog.form.clearAll },
+  { type: actionTypes.dialog.componentKey.set, value: 'file-selector' },
+].forEach(dispatch);
 
 export const openLoginDialog = () => [
   { type: actionTypes.dialog.errorField.clear },
@@ -45,10 +60,14 @@ export const openRegisterDialog = () => [
   { type: actionTypes.dialog.focus.time.set, value: new Date() }
 ].forEach(dispatch);
 
-export const setCurrentUser = (user, token) => [
-  { type: actionTypes.loginInfo.user.set, value: user },
-  { type: actionTypes.loginInfo.token.set, value: token }
-].forEach(dispatch);
+export const setCurrentUser = (user, token) => {
+  [
+    { type: actionTypes.loginInfo.user.set, value: user },
+    { type: actionTypes.loginInfo.token.set, value: token }
+  ].forEach(dispatch);
+
+  return setFileNavigation('user', user._id);
+};
 
 export const setDialogError = ({ field, message }) => {
   if (isNull(field) || isUndefined(field)) {
@@ -66,10 +85,28 @@ export const setDialogError = ({ field, message }) => {
   dispatch({ type: actionTypes.dialog.focus.time.set, value: new Date() });
 };
 
+export const setFileNavigation = (parentType, parentId) => (
+  (
+    rest({
+      path: `${ parentType }/${ parentId }`
+    }).then(({ response: parent }) => ({
+      parentType,
+      folder: parent
+    }))
+  ).then(({ parentType, folder }) => [
+    { type: actionTypes.dialog.currentFolderParentType.set, value: parentType },
+    { type: actionTypes.dialog.currentFolder.set, value: folder },
+  ].forEach(dispatch))
+);
+
 export const setGlobalNavTarget = (target) => {
   dispatch({ type: actionTypes.globalNavTarget.set, value: target });
   clearDialog();
 };
+
+export const setItemSelectedCallback = (callback) => (
+  globals.itemSelectedCallback = callback
+);
 
 export const submitLoginForm = (state = null) => {
   if (isNull(state)) {
@@ -81,8 +118,10 @@ export const submitLoginForm = (state = null) => {
   return (
     rest.login(login, password)
     .then((user) => {
-      setCurrentUser(user, user.token.token);
+      let promise = setCurrentUser(user, user.token.token);
       closeDialog();
+
+      return promise;
     })
     .catch(({ responseJSON: { message } }) => setDialogError({
       field: 'login',
@@ -187,12 +226,16 @@ export default {
   clearCurrentUser,
   clearDialog,
   closeDialog,
+  onItemSelect,
+  openFileSelectorDialog,
   openLoginDialog,
   openResetPasswordDialog,
   openRegisterDialog,
   setCurrentUser,
   setDialogError,
+  setFileNavigation,
   setGlobalNavTarget,
+  setItemSelectedCallback,
   submitLoginForm,
   submitLogoutForm,
   submitResetPasswordForm,

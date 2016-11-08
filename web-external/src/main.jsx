@@ -16,6 +16,9 @@ import MainApp from './components/main-app';
 import './style/full-viewport';
 
 $(() => {
+  /* disable girder's router navigation as it clashes with our router */
+  girder.router.navigate = () => null;
+
   $(document.body).append(globals.$rootDiv);
   actions.verifyCurrentUser();
 

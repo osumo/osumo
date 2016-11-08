@@ -1,6 +1,7 @@
 import React from 'react';
 
-import FileSelector from './fileSelector';
+import actions from '../../actions';
+import { router } from '../../globals';
 
 export default class Select extends React.Component {
   componentWillMount () {
@@ -26,9 +27,20 @@ export default class Select extends React.Component {
     }
 
     if (folder) {
-      this.fileSelector = <FileSelector
-                            folder={folder}
-                            itemSelected={this.addOption.bind(this)} />;
+      this.fileSelector = (
+        <div className='file-selector'>
+          <input type='button'
+                 onClick={() => {
+                   actions.setItemSelectedCallback((item) => {
+                     this.addOption(item);
+                     actions.closeDialog();
+                   });
+                   router('file-select');
+                 }}
+                 className='btn btn-primary'
+                 value='Add a file'/>
+        </div>
+      );
     }
 
     this.setState({options});

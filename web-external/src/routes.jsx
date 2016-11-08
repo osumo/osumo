@@ -17,10 +17,12 @@ export const handleSpecialNavTarget = ({ params: { target } }, next) => {
   let currentRoute = router();
   let doPush = (
     (
+      target === 'file-select' ||
       target === 'login' ||
       target === 'register' ||
       target === 'forgot-password'
     ) && !(
+      currentRoute === 'file-select' ||
       currentRoute === 'login' ||
       currentRoute === 'register' ||
       currentRoute === 'forgot-password'
@@ -31,7 +33,9 @@ export const handleSpecialNavTarget = ({ params: { target } }, next) => {
     routeStack.push(currentRoute);
   }
 
-  if (target === 'login') {
+  if (target === 'file-select') {
+    actions.openFileSelectorDialog();
+  } else if (target === 'login') {
     actions.openLoginDialog();
   } else if (target === 'logout') {
     rest.logout();

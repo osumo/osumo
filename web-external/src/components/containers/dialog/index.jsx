@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Dialog from '../../dialog';
+import FileSelectorDialogContainer from './file-selector';
 import LoginDialogContainer from './login';
 import RegisterDialogContainer from './register';
 import ResetPasswordDialogContainer from './reset-password';
@@ -14,6 +15,8 @@ const DialogContainer = connect(
   (dispatch) => ({
     onClose: closeDialog,
     children: [
+      <FileSelectorDialogContainer key='file-selector'
+                                   groupKey='file-selector'/>,
       <LoginDialogContainer key='login' groupKey='login'/>,
       <RegisterDialogContainer key='register' groupKey='register'/>,
       <ResetPasswordDialogContainer key='reset-password'
