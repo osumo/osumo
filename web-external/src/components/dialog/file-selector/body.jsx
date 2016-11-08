@@ -23,31 +23,41 @@ const FileSelectorView = girder.View.extend({
 
 export default class Body extends React.Component {
   refreshModal () {
-    this.modal = new FileSelectorView({
-      el: $(this.refs.root),
-      parentView: null,
-      itemSelected: this.props.onFileSelect,
-      folder: new (
-        this.props.parentType === 'collection' ?
-          girder.models.CollectionModel
+    let { folder, onFileSelect, parentType } = this.props;
 
-        : this.props.parentType === 'user' ?
-          girder.models.UserModel
+    if (!folder) {
+      this.modal = null;
+    } else {
+      this.modal = new FileSelectorView({
+        el: $(this.refs.root),
+        parentView: null,
+        itemSelected: onFileSelect,
+        folder: new (
+          parentType === 'collection' ?
+            girder.models.CollectionModel
 
-        :
-          girder.models.FolderModel
-      )(this.props.folder)
-    });
+          : parentType === 'user' ?
+            girder.models.UserModel
+
+          :
+            girder.models.FolderModel
+        )(folder)
+      });
+    }
   }
 
   componentDidMount () {
     this.refreshModal();
-    this.modal.render();
+    if (this.modal) {
+      this.modal.render();
+    }
   }
 
   componentDidUpdate () {
     this.refreshModal()
-    this.modal.render();
+    if (this.modal) {
+      this.modal.render();
+    }
   }
 
   render () {
