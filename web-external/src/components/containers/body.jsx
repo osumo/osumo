@@ -5,7 +5,7 @@ import FrontPage from '../body/front-page';
 import ProcessData from '../body/process-data';
 
 const BodyContainer = connect(
-  ({ globalNavTarget: filterKey }) => ({ filterKey }),
+  ({ globalNavTarget: filterKey }) => ({ backupKey: '', filterKey }),
 
   () => ({
     children: [

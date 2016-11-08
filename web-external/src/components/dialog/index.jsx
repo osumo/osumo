@@ -22,7 +22,6 @@ class Dialog extends React.Component {
              backupKey={ backupKey }
              filterKey={ filterKey }
              style={ style }
-             onlyMatching={ true }
              onKeyDown={ onKeyDown }>
         { children }
       </Group >

@@ -3,11 +3,12 @@ import Group from '../common/group';
 
 class Body extends React.Component {
   render () {
-    let { children, filterKey } = this.props;
+    let { backupKey, children, filterKey } = this.props;
 
     return (
       <Group className='g-default-layout'
              id='g-app-body-container'
+             backupKey={ backupKey }
              filterKey={ filterKey }>
         { children }
       </Group>
@@ -16,6 +17,7 @@ class Body extends React.Component {
 
   static get propTypes () {
     return {
+      backupKey: React.PropTypes.string,
       children: React.PropTypes.oneOfType([
         React.PropTypes.oneOf([null]),
         React.PropTypes.element,

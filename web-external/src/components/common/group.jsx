@@ -18,37 +18,48 @@ import { isArray, isFunction, isNull, isUndefined } from 'underscore';
  * array after the first filter attempt is returned and filterKey is the
  * effective key returned.  In either case, the returned array may be empty.
  *
+ * If onlyMatching is provided, and set to false, then the array is not actually
+ * filtered, but instead always returned as-is.  This feature is so that instead
+ * of entirely excluding components from the result array, child components can
+ * instead modify themselves according to the effective filterKey (for example,
+ * they can be hidden but still present in the DOM).  Even then, the effective
+ * key is still computed and returned.
+ *
  * arguments:
  *   - children: array of child components to filter
  *   - filterKey: key by which to filter children
- *   - backupKey: optional backup key by which to filter children
+ *   - options.backupKey: optional backup key by which to filter children
+ *   - options.onlyMatching: whether to actually exclude filtered child
+ *     components from the result array (default: true)
  *
  * returns:
  *   - the filtered array of child components or the children array as-is
  *   - the effective key by which the children have been filtered or null
  */
-const filterChildren = (children, filterKey, backupKey) => {
-  let { backupKey, filterKey } = options;
+const filterChildren = (children, filterKey, options={}) => {
+  let { backupKey, onlyMatching } = options;
   let filteredChildren = children;
-  let effectiveKey = null;
+  let effectiveKey = (
+    (
+      isUndefined(filterKey) ||
+      isNull(filterKey) ||
+      isUndefined(backupKey) ||
+      isNull(backupKey)
+    )
+      ? filterKey
+      : children.some((child) => child.props.groupKey === filterKey)
+        ? filterKey
+        : backupKey
+  );
 
-  if (!isUndefined(filterKey) && !isNull(filterKey)) {
-    effectiveKey = filterKey
+  onlyMatching = (isUndefined(onlyMatching) || onlyMatching);
+
+  if (onlyMatching && !isUndefined(effectiveKey) && !isNull(effectiveKey)) {
     filteredChildren = children.filter(
       (child) => child.props.groupKey === effectiveKey);
-
-    if (
-      filteredChildren.length == 0 &&
-      !isUndefined(backupKey) &&
-      !isNull(backupKey)
-    ) {
-      effectiveKey = backupKey
-      filteredChildren = children.filter(
-        (child) => child.props.groupKey === effectiveKey);
-    }
   }
 
-  return result;
+  return [filteredChildren, effectiveKey];
 };
 
 class Group extends React.Component {
@@ -75,9 +86,11 @@ class Group extends React.Component {
       children = [children];
     }
 
-    if (onlyMatching) {
-      [children, filterKey] = filterChildren(children, filterKey, backupKey);
-    }
+    [children, filterKey] = filterChildren(
+      children,
+      filterKey,
+      { backupKey, onlyMatching }
+    );
 
     children = children.map((child) => React.cloneElement(
       child,
