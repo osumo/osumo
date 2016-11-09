@@ -42,20 +42,23 @@ class User extends React.Component {
               <ul className='dropdown-menu' role='menu'>
                 <li role='presentation'>
                   <a className='g-my-folders' onClick={ onFolders }>
-                    <i className='icon-folder'>My folders</i>
+                    <i className='icon-folder'/>
+                    My folders
                   </a>
                 </li>
                 <li role='presentation'>
                   <a className='g-my-settings'
                      onClick={ onInfo }>
-                    <i className='icon-cog'>My account</i>
+                    <i className='icon-cog'/>
+                    My account
                   </a>
                 </li>
                 <li className='divider' role='presentation'/>
                 <li role='presentation'>
                   <a className='g-logout'
                      onClick={ onLogout }>
-                    <i className='icon-logout'>Log out</i>
+                    <i className='icon-logout'/>
+                    Log out
                   </a>
                 </li>
               </ul>
