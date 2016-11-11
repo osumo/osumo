@@ -3,8 +3,7 @@ import { object, mapping, string } from '../utils/common-reducers';
 
 const dialogReducer = compose().children({
   componentKey: string,
-  currentFolder: object,
-  currentFolderParentType: string,
+  fileNavigation: object.defaultState({ folder: null, parentType: 'user' }),
   errorField: string,
   errorMessage: string,
   focus: compose().children({

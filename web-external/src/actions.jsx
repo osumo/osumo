@@ -93,10 +93,10 @@ export const setFileNavigation = (parentType, parentId) => (
       parentType,
       folder: parent
     }))
-  ).then(({ parentType, folder }) => [
-    { type: actionTypes.dialog.currentFolderParentType.set, value: parentType },
-    { type: actionTypes.dialog.currentFolder.set, value: folder },
-  ].forEach(dispatch))
+  ).then(({ parentType, folder }) => dispatch({
+    type: actionTypes.dialog.fileNavigation.set,
+    value: { folder, parentType }
+  }))
 );
 
 export const setGlobalNavTarget = (target) => {

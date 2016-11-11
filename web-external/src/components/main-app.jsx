@@ -1,8 +1,6 @@
 import React from 'react';
 
 import BodyContainer from './containers/body';
-import DialogBackdrop from './dialog/backdrop';
-import DialogContainer from './containers/dialog';
 import FooterContainer from './containers/footer';
 import GlobalNavContainer from './containers/global-nav';
 import HeaderContainer from './containers/header';
@@ -18,8 +16,6 @@ class MainApp extends React.Component {
         <HeaderContainer/>
         <GlobalNavContainer/>
         <BodyContainer/>
-        <DialogContainer/>
-        <DialogBackdrop enabled={ dialogEnabled }/>
         <FooterContainer/>
       </div>
     );

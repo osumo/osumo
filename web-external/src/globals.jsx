@@ -22,7 +22,9 @@ export const router = makeRouter();
 router.base();
 router.pushState(false);
 
-export const $rootDiv = $('<div>').attr('id', 'root');
+export const $backdropRootDiv = $('<div>').attr('id', 'backdrop-root');
+export const $dialogRootDiv = $('<div>').attr('id', 'dialog-root');
+export const $mainRootDiv = $('<div>').attr('id', 'main-root');
 
 let itemSelectedCallback = null;
 
@@ -34,6 +36,8 @@ export default {
   store,
   router,
   routeStack,
-  $rootDiv,
+  $backdropRootDiv,
+  $dialogRootDiv,
+  $mainRootDiv,
   itemSelectedCallback
 };

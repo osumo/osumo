@@ -7,8 +7,7 @@ import { router } from '../../../globals';
 const FileSelectorDialogContainer = connect(
   ({
     dialog: {
-      currentFolder: folder,
-      currentFolderParentType: parentType
+      fileNavigation: { folder, parentType }
     }
   }) => ({ folder, parentType }),
 

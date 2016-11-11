@@ -12,6 +12,8 @@ import actions from './actions';
 import routes from './routes';
 
 import MainApp from './components/main-app';
+import DialogBackdrop from './components/dialog/backdrop';
+import DialogContainer from './components/containers/dialog';
 
 import './style/full-viewport';
 
@@ -19,7 +21,10 @@ $(() => {
   /* disable girder's router navigation as it clashes with our router */
   girder.router.navigate = () => null;
 
-  $(document.body).append(globals.$rootDiv);
+  $(document.body).append(globals.$mainRootDiv)
+                  .append(globals.$dialogRootDiv)
+                  .append(globals.$backdropRootDiv);
+
   actions.verifyCurrentUser();
 
   /* create main application component and render */
@@ -29,13 +34,27 @@ $(() => {
     }) => ({ dialogComponentKey })
   )(MainApp);
 
+  let Backdrop = connect(
+    ({ dialog: { componentKey } }) => ({ enabled: !!componentKey })
+  )(DialogBackdrop);
+
   router('', routes.setGlobalNavTargetToIndex);
   router(':target', ...routes.targetMiddleWare);
   router.start();
 
   ReactDOM.render(
     <Provider store={ store }><App/></Provider>,
-    globals.$rootDiv[0]
+    globals.$mainRootDiv[0]
+  );
+
+  ReactDOM.render(
+    <Provider store={ store }><DialogContainer/></Provider>,
+    globals.$dialogRootDiv[0]
+  );
+
+  ReactDOM.render(
+    <Provider store={ store }><Backdrop/></Provider>,
+    globals.$backdropRootDiv[0]
   );
 
   /* expose some variables for debugging.  This also exposes d3 in a way the
