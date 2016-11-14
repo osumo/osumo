@@ -1,4 +1,4 @@
-import { isString, isUndefined } from 'underscore';
+import { isString, isObject, isUndefined } from 'underscore';
 
 import objectReduce from './object-reduce';
 import isArraySubstring from './is-array-substring';
@@ -56,6 +56,118 @@ const amendPrefix = (value, prefix) => (
       .reduce(objectReduce, {})
     )
 );
+
+const makeComposedBaseReducer = (
+  simpleMap = {},
+  complexMap = [],
+  subMapping = {}
+) => {
+  let subMappingReducer = fromSubMapping(subMapping);
+
+  return fromTypeMapping(
+    /* Try searching for a direct reducer among the simple mappings. */
+    simpleMap,
+    {
+      /* default reducer for when the above search fails */
+      reducer: (state, action) => {
+        let { type } = action;
+        let typePattern = type.split('.');
+
+        /* Check for a match with a complex type mapping */
+        let [, targetReducer] = complexMap.find(
+          ([pattern, ..._]) => isArraySubstring(pattern, typePattern)
+        ) || [];
+
+        /*
+         * If the above search does not return a reducer, the target
+         * reducer must be a descendant.
+         */
+        if (targetReducer) {
+          delete action._composeParentType;
+        } else {
+          let [parentType, ...subType] = typePattern;
+          subType = subType.join('.');
+
+          targetReducer = subMappingReducer;
+          action = {
+            ...action,
+            type: subType,
+            _composeParentType: parentType
+          };
+        }
+
+        return targetReducer(state, action);
+      }
+    }
+  );
+};
+
+const makeComposedWrappedReducer = (
+  simpleMap,
+  complexMap,
+  subMapping,
+  defaultState,
+  baseActions
+) => {
+  /* child reducers */
+  let baseReducer = makeComposedBaseReducer(simpleMap, complexMap, subMapping);
+
+  let actions = {
+    /* Add all child action namespaces under their given keys. */
+    ...(
+      Object
+      .entries(subMapping)
+      .map(([key, value]) => [key, amendPrefix(value(), key)])
+      .reduce(objectReduce, {})
+    ),
+
+    ...baseActions
+  };
+
+  /*
+   * Instead of returning the main reducer, a wrapper reducer is returned.
+   *
+   * The wrapper reducer forwards to the main reducer, except for the
+   * following considerations:
+   *
+   *   - When called with no arguments, the action type namespace for the
+   *     reducer is returned.
+   *
+   *   - reducer.children(subMappings) returns a new version of this reducer
+   *     where the child reducers have been set to the given reducers.
+   *
+   *   - reducer.defaultState(defaultState) returns a new version of this
+   *     reducer where the default state has been set to the given value.
+   */
+  const wrappedReducer = (state, action) => (
+    isUndefined(action)
+    ? actions
+    : baseReducer(
+        isUndefined(state) ? defaultState : state,
+        action
+      )
+  );
+
+  Object.assign(wrappedReducer, {
+    children: (newSubMapping) => makeComposedWrappedReducer(
+      simpleMap,
+      complexMap,
+      newSubMapping,
+      isObject(defaultState) ? defaultState : {},
+      baseActions
+    ),
+
+    defaultState: (newDefaultState) => makeComposedWrappedReducer(
+      simpleMap,
+      complexMap,
+      subMapping,
+      newDefaultState,
+      baseActions
+    )
+  });
+
+  return wrappedReducer;
+};
 
 const compose = (typeMapping = {}) => {
   /*
@@ -117,7 +229,6 @@ const compose = (typeMapping = {}) => {
    * meant to be used to intercept actions for which there is otherwise a
    * suitable reducer deeper in the reducer tree.
    */
-  let actions;
   const baseActions = (
     Object
     .keys(simpleMap)
@@ -126,97 +237,16 @@ const compose = (typeMapping = {}) => {
   );
 
   /* child reducers */
-  let subMapping;
-  let subMappingReducer;
+  let subMapping = {};
+  let defaultState = null;
 
-  let defaultState;
-
-  const setSubMapping = (sm) => {
-    if (isUndefined(defaultState) && Object.keys(sm).length > 0) {
-      defaultState = {};
-    }
-    subMapping = sm;
-    subMappingReducer = fromSubMapping(sm);
-
-    actions = {
-      /* Add all child action namespaces under their given keys. */
-      ...(
-        Object
-        .entries(subMapping)
-        .map(([key, value]) => [key, amendPrefix(value(), key)])
-        .reduce(objectReduce, {})
-      ),
-
-      ...baseActions
-    };
-  };
-
-  const setDefaultState = (ds) => defaultState = ds;
-
-  let mainReducer = fromTypeMapping(
-    /* Try searching for a direct reducer among the simple mappings. */
+  return makeComposedWrappedReducer(
     simpleMap,
-    {
-      /* default reducer for when the above search fails */
-      reducer (state, action) {
-        let { type } = action;
-        let typePattern = type.split('.');
-
-        /* Check for a match with a complex type mapping */
-        let [, targetReducer] = complexMap.find(
-          ([pattern, ..._]) => isArraySubstring(pattern, typePattern)
-        ) || [];
-
-        /*
-         * If the above search does not return a reducer, the target
-         * reducer must be a descendant.
-         */
-        if (targetReducer) {
-          delete action._composeParentType;
-        } else {
-          let [parentType, ...subType] = typePattern;
-          subType = subType.join('.');
-
-          targetReducer = subMappingReducer;
-          action = {
-            ...action,
-            type: subType,
-            _composeParentType: parentType
-          };
-        }
-
-        return targetReducer(state, action);
-      }
-    }
+    complexMap,
+    subMapping,
+    defaultState,
+    baseActions
   );
-
-  /*
-   * Instead of returning the main reducer, a wrapper reducer is returned.
-   *
-   * The wrapper reducer forwards to the main reducer, except for the
-   * following considerations:
-   *
-   *   - When called with no arguments, the action type namespace for the
-   *     reducer is returned.
-   *
-   *   - reducer.children(subMappings) modifies the child reducers and
-   *     returns the modified reducer.
-   *
-   *   - reducer.defaultState(defaultState) modifies the default state and
-   *     returns the modified reducer.
-   */
-  const wrappingReducer = (state, action) => {
-    if (isUndefined(state)) { state = defaultState; }
-    if (isUndefined(action)) { return actions; }
-    return mainReducer(state, action);
-  };
-
-  Object.assign(wrappingReducer, {
-    children (sm) { setSubMapping(sm); return wrappingReducer; },
-    defaultState (ds) { setDefaultState(ds); return wrappingReducer; }
-  });
-
-  return wrappingReducer.children({});
 };
 
 export {

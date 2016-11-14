@@ -1,6 +1,5 @@
 import React from 'react';
 
-import propTypes from '../../prop-types';
 import { ABOUT_URL, BUG_URL, CONTACT_URL } from '../../constants';
 
 class Links extends React.Component {
@@ -16,7 +15,7 @@ class Links extends React.Component {
   }
 
   static get propTypes () {
-    return { apiRoot: propTypes.apiRoot };
+    return { apiRoot: React.PropTypes.string };
   }
 }
 

@@ -1,13 +1,13 @@
 import React from 'react';
 import { partial } from 'underscore';
 
-import propTypes from '../../prop-types';
-
 class User extends React.Component {
   render () {
     let result;
     let {
       currentUser,
+      dropdownOpened,
+      onDropdown,
       onFolders,
       onInfo,
       onLogout,
@@ -26,28 +26,39 @@ class User extends React.Component {
       result = (
         <div className='g-current-user-wrapper'>
           <div className='g-user-text'>
-            <a data-toggle='dropdown' data-target='#g-user-action-menu'>
+            <a
+              data-toggle='dropdown'
+              data-target='#g-user-action-menu'
+              aria-expanded={ dropdownOpened }
+              onClick={ onDropdown }
+            >
               { currentUser.firstName } { currentUser.lastName }
               <i className='icon-down-open'/>
             </a>
-            <div id='g-user-action-menu' className='dropdown'>
+            <div
+              id='g-user-action-menu'
+              className={ 'dropdown' + (dropdownOpened ? ' open' : '') }
+            >
               <ul className='dropdown-menu' role='menu'>
                 <li role='presentation'>
                   <a className='g-my-folders' onClick={ onFolders }>
-                    <i className='icon-folder'>My folders</i>
+                    <i className='icon-folder'/>
+                    My folders
                   </a>
                 </li>
                 <li role='presentation'>
                   <a className='g-my-settings'
                      onClick={ onInfo }>
-                    <i className='icon-cog'>My account</i>
+                    <i className='icon-cog'/>
+                    My account
                   </a>
                 </li>
                 <li className='divider' role='presentation'/>
                 <li role='presentation'>
                   <a className='g-logout'
                      onClick={ onLogout }>
-                    <i className='icon-logout'>Log out</i>
+                    <i className='icon-logout'/>
+                    Log out
                   </a>
                 </li>
               </ul>
@@ -79,12 +90,14 @@ class User extends React.Component {
 
   static get propTypes () {
     return {
-      currentUser: propTypes.currentUser,
-      onFolders: propTypes.onFolders,
-      onInfo: propTypes.onInfo,
-      onLogout: propTypes.onLogout,
-      onLogin: propTypes.onLogin,
-      onRegister: propTypes.onRegister
+      currentUser: React.PropTypes.objectOf(React.PropTypes.any),
+      dropdownOpened: React.PropTypes.bool,
+      onDropdown: React.PropTypes.func,
+      onFolders: React.PropTypes.func,
+      onInfo: React.PropTypes.func,
+      onLogout: React.PropTypes.func,
+      onLogin: React.PropTypes.func,
+      onRegister: React.PropTypes.func
     };
   }
 }

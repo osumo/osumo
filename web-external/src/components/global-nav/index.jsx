@@ -1,32 +1,34 @@
 import React from 'react';
-
-import List from './list';
-
-import propTypes from '../../prop-types';
+import Root from './root';
+import Group from '../common/group';
 
 class GlobalNav extends React.Component {
   render () {
     let {
-      navList,
-      currentTarget,
-      onNavigate
+      filterKey,
+      children,
+      onChildClick
     } = this.props;
 
     return (
-      <div id='g-global-nav-container'>
-      <List navList={ navList }
-        currentTarget={ currentTarget }
-        onNavigate={ onNavigate }/>
-      <div className='g-global-nav-fade'/>
-      </div>
+      <Group root={ <Root/> }
+             filterKey={ filterKey }
+             onChildClick={ onChildClick }
+             onlyMatching={ false }>
+        { children }
+      </Group>
     );
   }
 
   static get propTypes () {
     return {
-      currentTarget: propTypes.currentTarget,
-      navList: propTypes.navList,
-      onNavigate: propTypes.onNavigate
+      filterKey: React.PropTypes.string,
+      children: React.PropTypes.oneOfType([
+        React.PropTypes.oneOf([null]),
+        React.PropTypes.element,
+        React.PropTypes.arrayOf(React.PropTypes.element)
+      ]),
+      onChildClick: React.PropTypes.func
     };
   }
 }

@@ -22,11 +22,24 @@ const restRequests = ({
    */
   let result = (opts) => {
     opts = opts || {};
-    let defaults = {
-      dataType: 'json',
-      type: 'GET',
+    let defaults = { dataType: 'json', type: 'GET' };
+    if (opts.path.substring(0, 1) !== '/') {
+      opts.path = '/' + opts.path;
+    }
+    opts.url = apiRoot + opts.path;
 
-      error (error, status) {
+    opts = Object.assign({}, defaults, opts);
+
+    var token = opts.girderToken || result.currentToken ||
+      searchCookies('girderToken');
+
+    if (token) {
+      opts.headers = opts.headers || {};
+      opts.headers['Girder-Token'] = token;
+    }
+    let ajaxObj = (
+      ajax(opts)
+      .catch(({ jqXHR: error, textStatus: status }) => {
         let info;
         if (error.status === 401) {
           events.trigger('g:loginUi');
@@ -73,26 +86,10 @@ const restRequests = ({
           };
         }
         events.trigger('g:alert', info);
-        console.error(error.status + ' ' + error.statusText, error.responseText);
-        // lastError = error;
-      }
-    };
+        return error;
+      })
+    );
 
-    if (opts.path.substring(0, 1) !== '/') {
-      opts.path = '/' + opts.path;
-    }
-    opts.url = apiRoot + opts.path;
-
-    opts = Object.assign({}, defaults, opts);
-
-    var token = opts.girderToken || result.currentToken ||
-      searchCookies('girderToken');
-
-    if (token) {
-      opts.headers = opts.headers || {};
-      opts.headers['Girder-Token'] = token;
-    }
-    let ajaxObj = ajax(opts);
     ajaxObj.abort = function () {
       if (this.isCancellable()) {
         this.cancel();
@@ -143,9 +140,9 @@ const restRequests = ({
         events.trigger('g:login', response);
 
         return response.user;
-      }).catch(({ jqxhr }) => {
-        events.trigger('g:login.error', jqxhr.status, jqxhr);
-        return jqxhr;
+      }).catch((jqXHR) => {
+        events.trigger('g:login.error', jqXHR.status, jqXHR);
+        return jqXHR;
       });
     },
 
@@ -159,8 +156,9 @@ const restRequests = ({
 
         events.trigger('g:login', null);
         events.trigger('g:logout.success');
-      }).catch((jqxhr) => {
-        events.trigger('g:logout.error', jqxhr.status, jqxhr);
+      }).catch((jqXHR) => {
+        events.trigger('g:logout.error', jqXHR.status, jqXHR);
+        return jqXHR;
       });
     },
 

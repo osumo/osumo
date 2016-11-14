@@ -1,13 +1,12 @@
 import React from 'react';
-
 import User from './user';
-
-import propTypes from '../../prop-types';
 
 class Header extends React.Component {
   render () {
     let {
       currentUser,
+      dropdownOpened,
+      onDropdown,
       onFolders,
       onInfo,
       onLogout,
@@ -23,6 +22,8 @@ class Header extends React.Component {
             SUMO
           </div>
           <User currentUser={ currentUser }
+                dropdownOpened={ dropdownOpened }
+                onDropdown={ onDropdown }
                 onFolders={ onFolders }
                 onInfo={ onInfo }
                 onLogout={ onLogout }
@@ -36,13 +37,15 @@ class Header extends React.Component {
 
   static get propTypes () {
     return {
-      currentUser: propTypes.currentUser,
-      onFolders: propTypes.onFolders,
-      onInfo: propTypes.onInfo,
-      onLogout: propTypes.onLogout,
-      onLogin: propTypes.onLogin,
-      onRegister: propTypes.onRegister,
-      onTitle: propTypes.onTitle
+      currentUser: React.PropTypes.objectOf(React.PropTypes.any),
+      dropdownOpened: React.PropTypes.bool,
+      onDropdown: React.PropTypes.func,
+      onFolders: React.PropTypes.func,
+      onInfo: React.PropTypes.func,
+      onLogout: React.PropTypes.func,
+      onLogin: React.PropTypes.func,
+      onRegister: React.PropTypes.func,
+      onTitle: React.PropTypes.func
     };
   }
 }

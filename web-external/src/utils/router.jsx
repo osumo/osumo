@@ -64,7 +64,8 @@ const parseFilter = (filter) => {
 
 let historyStarted = false;
 
-let router = () => {
+const router = () => {
+  let currentRoute = '';
   let router = new Router();
   let counter = 0;
 
@@ -73,11 +74,13 @@ let router = () => {
   function result (...args) {
     let [filter, ...callbacks] = args;
     if (args.length === 0) {
-      return result.start();
+      return currentRoute;
     }
 
     if (callbacks.length === 0) {
-      return result.navigate(filter);
+      let navigationResult = result.navigate(filter);
+      currentRoute = filter;
+      return navigationResult;
     } else if (callbacks.length === 1 && !isFunction(callbacks[0])) {
       return result.navigate(filter, callbacks[0]);
     }
@@ -114,6 +117,7 @@ let router = () => {
     start () {
       if (!historyStarted) {
         history.start();
+        currentRoute = location.hash.slice(1);
       }
       historyStarted = true;
       return historyStarted;

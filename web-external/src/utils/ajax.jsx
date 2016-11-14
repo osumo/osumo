@@ -8,7 +8,9 @@ const ajax = (opts) => new Promise((rs, rj) => _ajax(
     },
 
     error (jqXHR, textStatus, errorThrown) {
-      rj({ jqXHR, textStatus, errorThrown });
+      let error = new Error(errorThrown);
+      Object.assign(error, { jqXHR, textStatus });
+      rj(error);
     }
   })
 ));

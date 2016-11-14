@@ -1,15 +1,13 @@
 import { createStore } from 'redux';
 import { compose } from '../src/utils/reducer';
-import { setScalar } from '../src/utils/common-reducers';
+import { string } from '../src/utils/common-reducers';
 import test from 'tape';
 
 test('compose duplicate leaves', (t) => {
-  const scalar = (def) => compose({ set: setScalar }).defaultState(def);
-
-  const a  = scalar('a');
-  const b  = scalar('b');
-  const ca = scalar('ca');
-  const cb = scalar('CB');
+  const a  = string.defaultState('a');
+  const b  = string.defaultState('b');
+  const ca = string.defaultState('ca');
+  const cb = string.defaultState('CB');
 
   const c = compose({
     'b.set': (state, action) => {
