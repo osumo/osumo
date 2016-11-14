@@ -54,9 +54,7 @@ module.exports = function (grunt) {
   grunt.config.merge({
     shell: {
       'osumo-webpack': {
-        command: ['./node_modules/webpack/bin/webpack.js',
-                  '--bail',
-                  '--display-error-details'].join(' '),
+        command: ['npm', 'run', 'build'].join(' '),
         options: {
           execOptions: { cwd: pluginPath }
         }
