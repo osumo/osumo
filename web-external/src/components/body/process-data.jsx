@@ -146,6 +146,15 @@ class ProcessDataComponent extends React.Component {
       this.setState({inputs: inputs});
     };
 
+    /* Update the default that will be applied if nothing is changed.
+     *
+     * @param {string} key input key
+     * @param {string} value default value
+     */
+    this.setInputDefault = (key, value) => {
+      this.inputDefaults[key] = value;
+    };
+
     /* Run a task.
      *
      * @param {number} position if set, this is the chained process position.
@@ -444,12 +453,12 @@ class ProcessDataComponent extends React.Component {
               className='form-control'
               onChange={this.changeTaskInput}
               onSetItem={partial(this.setTaskInput, inpspec.key)}
+              onSetDefault={partial(this.setInputDefault, inpspec.key)}
               selected={input}
               options={items}
               inpspec={inpspecCopy}
               folder={this.dataFolder} />
           );
-          defaultValue = items[0]._id;
           break;
         case 'boolean':
           ctl.push(<input type='checkbox' className='form-control'

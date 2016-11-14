@@ -8,7 +8,9 @@ export default class Select extends React.Component {
     const {
       inpspec,
       folder,
-      options
+      options,
+      onSetDefault,
+      selected
     } = this.props;
 
     if (inpspec.onlyNames || inpspec.preferredNames) {
@@ -41,6 +43,10 @@ export default class Select extends React.Component {
                  value='Add a file'/>
         </div>
       );
+    }
+
+    if (selected === undefined) {
+      onSetDefault(options.find(item => !inpspec.onlyNames || item.matched)._id);
     }
 
     this.setState({options});
