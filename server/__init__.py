@@ -13,8 +13,7 @@ from girder.utility.model_importer import ModelImporter
 
 from girder.plugins.worker import utils as workerUtils
 
-from . import yaml_importer  # noqa
-from . import job_specs
+from .job_specs import job_specs
 
 
 class Osumo(Resource):
@@ -29,39 +28,6 @@ class Osumo(Resource):
         self.route('POST', (), self.processTask)
         # This should change if we add a custom token per job.
         self.jobInfo = {}
-
-    def _adjustDataTypes(self, data, params, user):
-        """
-        Based on a dictionary of data, make sure each item is case to the
-        appropriate data type or references a resource.
-
-        :param data: a dictionary of data items to process.  Modified.
-        :param params: the query parameters with values for each data item.
-        :param user: the user to use for fetching resources.
-        """
-        for key in data:
-            value = params.get(key, data[key].get('default', None))
-
-            type = data[key].get('type')
-            if type in ('file', 'item', 'folder'):
-                value = self._getResource(type, value, user)
-            elif type == 'integer':
-                value = int(value)
-            elif type == 'boolean':
-                value = 'true' if value in (True, 'true') else 'false'
-            elif type == 'temppath':
-                file = tempfile.NamedTemporaryFile(
-                    suffix=value if value is not None else '')
-                value = file.name
-                file.close()
-                data[key]['format'] = 'text'
-                data[key]['type'] = 'string'
-            elif type in ('enum', 'string', 'text'):
-                data[key]['format'] = 'text'
-                data[key]['type'] = 'string'
-            else:
-                raise NotImplementedError('No input data type %s' % type)
-            data[key]['data'] = value
 
     def _getResource(self, type, id, user):
         """
@@ -90,66 +56,41 @@ class Osumo(Resource):
                         files[0]['_id'], user=user, level=AccessType.READ)
         return value
 
-    def _getTaskUser(self, task):
-        """
-        Get the current user.  If there is no current user, check if the task
-        has a fallback user and get that instead.
-
-        :param task: the task specification
-        :returns: the user.
-        """
-        user, token = self.getCurrentUser(True)
-        if not user and task.get('fallbackUser'):
-            user = self.model('user').findOne(
-                {'login': task.get('fallbackUser')})
-            token = None
-        if not user:
-            raise access.AccessException('You must be logged in.')
-        return user, token
-
     @describeRoute(
         Description('List available tasks')
     )
     @access.public
     def getTasks(self, *args, **kwargs):
-        tasks = []
-        for job in job_specs.jobList:
-            task = getattr(job_specs, job).copy()
-            if 'task' in task:
-                del task['task']
-                task['key'] = job
-                tasks.append((
-                    task.get('name', job).lower(),
-                    task.get('name', job),
+        return [
+            row[-1] for row in sorted(
+                (
+                    task.get('name', key).lower(),
+                    task.get('name', key),
                     task
-                ))
-        tasks.sort()
-        tasks = [taskrow[-1] for taskrow in tasks]
-        return tasks
+                )
+                for key, task in job_specs.items()
+            )
+        ]
 
     @access.public
     @describeRoute(
         Description('Process a task')
         .notes('Each task takes a variety of input parameters.  See the '
                'appropriate task specification.')
-        .param('taskkey', 'Key specifying the task to process.', required=True)
+        .param('task', 'Name of the task to process.', required=True)
     )
     def processTask(self, params, **kwargs):
-        self.requireParams(('taskkey', ), params)
-        if getattr(job_specs, params['taskkey'], None) is None:
-            raise RestException('No task named %s.' % params['taskkey'])
-        task = copy.deepcopy(getattr(job_specs, params['taskkey']))
-        data = {}
-        data.update({input['key']: input for input in task['inputs']})
-        data.update({input['key']: input for input in task['parameters']})
-        # Any input that doesn't have a default is required.
-        self.requireParams((key for key in data
-                            if 'default' not in data[key]), params)
-        user, token = self._getTaskUser(task)
-        self._adjustDataTypes(data, params, user)
+        self.requireParams(('task', ), params)
+        task_name = params['task']
+        task_spec = job_specs.get(task_name)
+
+        if task_spec is None:
+            raise RestException('No task named %s.' % task_name)
+
+        user, token = self.getCurrentUser(True)
 
         job = self.model('job', 'jobs').createJob(
-            title='sumo %s' % task.get('name', 'task'),
+            title='sumo %s' % task_spec['name'],
             type='sumo',
             user=user,
             handler='worker_handler')
@@ -167,19 +108,91 @@ class Osumo(Resource):
             token = self.model('token').createToken(
                 user, days=1, scope=TokenScope.USER_AUTH)
 
-        inputs = {}
-        for key in data:
-            if data[key].get('input') is False:
-                continue
-            spec = data.get(key, {}).copy()
-            if data[key].get('type') in ('file', 'item', 'folder'):
-                spec = workerUtils.girderInputSpec(
-                    spec['data'], resourceType=data[key]['type'],
+        job['kwargs']['inputs'] = {}
+        for key in task_spec['inputs']:
+            job['kwargs']['inputs'][key] = {}
+
+            value = params[key].split(':')
+            if len(value) == 1:
+                value = ['string'] + value
+
+            type, value = value[:2]
+
+            if type in ('file', 'item', 'folder'):
+                value = self._getResource(type, value, user)
+                value = workerUtils.girderInputSpec(
+                    value, resourceType=type,
                     token=token,
-                    dataType=data[key].get('dataType', 'string'),
-                    dataFormat=data[key].get('dataFormat', 'text'),
-                    )
-            inputs[key] = spec
+                    dataType='string',
+                    dataFormat='text'
+                )
+
+            elif type == 'integer':
+                value = int(value)
+
+            elif type == 'boolean':
+                value = 'true' if value in (True, 'true') else 'false'
+
+            elif type == 'temppath':
+                file = tempfile.NamedTemporaryFile(
+                    suffix=value if value is not None else '')
+                value = file.name
+                file.close()
+
+                job['kwargs']['inputs'][key]['format'] = 'text'
+                job['kwargs']['inputs'][key]['type'] = 'string'
+
+            elif type in ('enum', 'string', 'text'):
+                job['kwargs']['inputs'][key]['format'] = 'text'
+                job['kwargs']['inputs'][key]['type'] = 'string'
+
+            else:
+                raise NotImplementedError('No input data type %s' % type)
+
+            job['kwargs']['inputs'][key]['data'] = value
+
+        job['kwargs']['outputs'] = {}
+        for key in task_spec['inputs']:
+            job['kwargs']['inputs'][key] = {}
+
+            value = params[key].split(':')
+            if len(value) == 1:
+                value = ['string'] + value
+
+            type, value = value[:2]
+
+            if type in ('file', 'item', 'folder'):
+                value = self._getResource(type, value, user)
+                value = workerUtils.girderInputSpec(
+                    value, resourceType=type,
+                    token=token,
+                    dataType='string',
+                    dataFormat='text'
+                )
+
+            elif type == 'integer':
+                value = int(value)
+
+            elif type == 'boolean':
+                value = 'true' if value in (True, 'true') else 'false'
+
+            elif type == 'temppath':
+                file = tempfile.NamedTemporaryFile(
+                    suffix=value if value is not None else '')
+                value = file.name
+                file.close()
+
+                job['kwargs']['inputs'][key]['format'] = 'text'
+                job['kwargs']['inputs'][key]['type'] = 'string'
+
+            elif type in ('enum', 'string', 'text'):
+                job['kwargs']['inputs'][key]['format'] = 'text'
+                job['kwargs']['inputs'][key]['type'] = 'string'
+
+            else:
+                raise NotImplementedError('No input data type %s' % type)
+
+            job['kwargs']['inputs'][key]['data'] = value
 
         # TODO(opadron): make a special-purpose token just for this job in case
         # the user logs out before it finishes.

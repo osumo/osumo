@@ -22,7 +22,7 @@ import os.path
 from glob import iglob
 import yaml_loader
 
-job_specs = {  # dictionary
+ui_specs = {  # dictionary
 
     # key
     os.path.splitext(os.path.basename(spec_path))[0]:
