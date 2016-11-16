@@ -57,14 +57,34 @@ $(() => {
     globals.$backdropRootDiv[0]
   );
 
-  /* expose some variables for debugging.  This also exposes d3 in a way the
-   * parallel sets javascript expects. */
-  Object.assign(window, {
-    ...globals,
-    commonReducers: require('./utils/common-reducers'),
-    React,
-    router,
-    actions
-  });
+  if (!globals.IN_PRODUCTION) {
+    /* expose some variables for debugging. */
+    Object.assign(window, {
+      ...globals,
+      commonReducers: require('./utils/common-reducers'),
+      React,
+      router,
+      store,
+      rest: globals.rest,
+      actions
+    });
+
+    Promise.delay(3000).then(() =>
+      store.dispatch({
+        type: actionTypes.processData.taskInputs.update,
+        task: 'iGPSe',
+        updates: [{
+          id: 0,
+          value: {
+            clinical_input_path: '579a4d6b660631e6ec757ae1',
+            mirna_clusters: '5',
+            mirna_input_path: '579a4d6b660631e6ec757ac8',
+            mrna_clusters: '5',
+            mrna_input_path: '579a4d6b660631e6ec757ad0'
+          }
+        }]
+      })
+    );
+  }
 });
 
