@@ -9,6 +9,10 @@ import RootSelector from '../../common/root-selector';
 import customItemListTemplate from './item-list-template';
 girder.templates.itemList = customItemListTemplate;
 
+/* hacked to remove the metadata section */
+import customHierarchyTemplate from './hierarchy-template.jade';
+girder.templates.hierarchyWidget = customHierarchyTemplate;
+
 // const FileSelectorView = girder.View.extend({
 console.log(girder.views.HierarchyWidget);
 
