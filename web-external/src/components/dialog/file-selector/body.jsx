@@ -1,18 +1,25 @@
 import React from 'react';
-import jQuery from 'jquery';
+import $ from 'jquery';
 
 import { setFileNavigation } from '../../../actions';
-
 import RootSelector from '../../common/root-selector';
+
+/* hacked to remove the download and view links */
+/* TODO(opadron): flags controlling these links should be upstreamed */
+import customItemListTemplate from './item-list-template';
+girder.templates.itemList = customItemListTemplate;
+
+// const FileSelectorView = girder.View.extend({
+console.log(girder.views.HierarchyWidget);
 
 const FileSelectorView = girder.View.extend({
   initialize: function (settings) {
     this.hierarchyView = new girder.views.HierarchyWidget({
       parentView: this,
       parentModel: settings.folder,
-      showActions: true,
+      showActions: false,
       showItems: true,
-      checkboxes: true,
+      checkboxes: false,
       routing: false,
       onItemClick: function (item) {
         settings.itemSelected(item.attributes);
