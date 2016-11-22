@@ -13,7 +13,11 @@ const GlobalNavContainer = connect(
       <GlobalNavEntry icon='user'
                       name='Process Data'
                       groupKey='process'
-                      key='process'/>
+                      key='process'/>,
+      <GlobalNavEntry icon='user'
+                      name='Testing'
+                      groupKey='testing'
+                      key='testing'/>
     ]
   })
 )(GlobalNav);
