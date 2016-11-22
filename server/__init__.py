@@ -254,7 +254,7 @@ class Osumo(Resource):
             pos_args, extra_args = m.group(1), m.group(3)
             pos_args = pos_args.split(':')
             if extra_args:
-                extra_args = json.loads(extra_args)
+                extra_args = json.loads('{{{}}}'.format(extra_args))
             else:
                 extra_args = {}
 

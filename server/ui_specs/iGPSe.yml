@@ -1,7 +1,7 @@
 ---
 
 name: iGPSe
-description: "iGPSe: Interactive Genomics Patient Stratification explorer"
+description: "Interactive Genomics Patient Stratification explorer"
 notes: "Show a survival plot based on clustering of different data sets."
 
 ui:

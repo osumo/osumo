@@ -20,7 +20,7 @@
 import os.path
 
 from glob import iglob
-import yaml_loader
+from .. import yaml_loader
 
 job_specs = {  # dictionary
 
