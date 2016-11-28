@@ -1,7 +1,9 @@
-import { isNull, isString, isUndefined } from 'underscore';
+
+import { isNull, isString, isUndefined } from 'lodash';
 import globals from './globals';
 
 let { actionTypes, rest, router, routeStack, store } = globals;
+
 const dispatch = store.dispatch.bind(store);
 
 export const clearCurrentUser = () => [

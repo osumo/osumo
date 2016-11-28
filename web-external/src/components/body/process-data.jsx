@@ -3,7 +3,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { partial } from 'underscore';
+import { partial } from 'lodash';
 import ParallelSetsComponent from './parallelsets';
 import { apiRoot, rest } from '../../globals';
 import Select from '../common/select';

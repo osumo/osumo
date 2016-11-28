@@ -10,11 +10,25 @@ export const rest = restRequests({ events, apiRoot });
 
 import reducer from './reducer';
 export const actionTypes = reducer();
+
+export const IN_PRODUCTION = (
+  process.env.NODE_ENV && process.env.NODE_ENV === 'production'
+);
+
 export const store = (
-  (process.env.NODE_ENV && process.env.NODE_ENV === 'production')
+  IN_PRODUCTION
   ? createStore(reducer)
   : createStore(reducer, applyMiddleware(createLogger()))
 );
+
+import Promise from 'bluebird';
+
+Promise.config({
+  warnings: !IN_PRODUCTION,
+  longStackTraces: !IN_PRODUCTION,
+  cancellation: true,
+  monitoring: !IN_PRODUCTION
+});
 
 export let routeStack = [];
 import makeRouter from './utils/router';
@@ -30,10 +44,11 @@ let itemSelectedCallback = null;
 
 export default {
   apiRoot,
-  rest,
   actionTypes,
+  IN_PRODUCTION,
   staticRoot,
   store,
+  rest,
   router,
   routeStack,
   $backdropRootDiv,

@@ -20,8 +20,8 @@ class Entry extends React.Component {
     return (
       <li className={ className }>
         <a className='g-nav-link'
-           g-target={ groupKey }
-           g-name={ name }
+           data-g-target={ groupKey }
+           data-g-name={ name }
            onClick={ onClick } >
           <i className={ icon }></i>
           <span>{ name }</span>

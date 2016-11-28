@@ -4,7 +4,7 @@ import {
   isNull,
   isObject,
   isUndefined
-} from 'underscore';
+} from 'lodash';
 import { compose } from './reducer';
 import objectReduce from './object-reduce';
 

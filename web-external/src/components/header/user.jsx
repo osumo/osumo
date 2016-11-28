@@ -1,5 +1,5 @@
 import React from 'react';
-import { partial } from 'underscore';
+import { partial } from 'lodash';
 
 class User extends React.Component {
   render () {

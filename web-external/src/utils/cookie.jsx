@@ -1,4 +1,4 @@
-import { chain, isObject, isString } from 'underscore';
+import { chain, isObject, isString } from 'lodash';
 
 const mapper = (cookie) => {
   cookie = cookie.trim();
