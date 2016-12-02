@@ -1,10 +1,17 @@
-
 import { isNull, isString, isUndefined } from 'lodash';
 import globals from './globals';
 
 let { actionTypes, rest, router, routeStack, store } = globals;
 
 const dispatch = store.dispatch.bind(store);
+
+export const addAnalysisElement = (element, pageId) => dispatch({
+  type: actionTypes.analysis.addElement, element, pageId
+});
+
+export const addAnalysisPage = (form) => dispatch({
+  type: actionTypes.analysis.addPage, form
+});
 
 export const clearCurrentUser = () => [
   { type: actionTypes.loginInfo.token.clear },
@@ -61,6 +68,29 @@ export const openRegisterDialog = () => [
   { type: actionTypes.dialog.focus.field.set, value: 'login' },
   { type: actionTypes.dialog.focus.time.set, value: new Date() }
 ].forEach(dispatch);
+
+export const removeAnalysisElement = (id, pageId) => dispatch({
+  type: actionTypes.analysis.removeElement, pageId, id
+});
+
+export const removeAnalysisPage = (options) => dispatch({
+  type: actionTypes.analysis.removePage, ...options
+});
+
+export const setAnalysisForm = (form, key, value) => (
+  isUndefined(value)
+    ? Object.entries(key).map(([k, v]) => dispatch({
+      type: actionTypes.analysis.setForm,
+      key: k,
+      value: v
+    }))
+
+    : dispatch({
+      type: actionTypes.analysis.setForm,
+      key,
+      value
+    })
+);
 
 export const setCurrentUser = (user, token) => {
   [
@@ -225,6 +255,8 @@ export const verifyCurrentUser = () => {
 };
 
 export default {
+  addAnalysisElement,
+  addAnalysisPage,
   clearCurrentUser,
   clearDialog,
   closeDialog,
@@ -233,6 +265,9 @@ export default {
   openLoginDialog,
   openResetPasswordDialog,
   openRegisterDialog,
+  removeAnalysisElement,
+  removeAnalysisPage,
+  setAnalysisForm,
   setCurrentUser,
   setDialogError,
   setFileNavigation,
