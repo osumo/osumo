@@ -68,23 +68,6 @@ $(() => {
       rest: globals.rest,
       actions
     });
-
-    Promise.delay(3000).then(() =>
-      store.dispatch({
-        type: actionTypes.processData.taskInputs.update,
-        task: 'iGPSe',
-        updates: [{
-          id: 0,
-          value: {
-            clinical_input_path: '579a4d6b660631e6ec757ae1',
-            mirna_clusters: '5',
-            mirna_input_path: '579a4d6b660631e6ec757ac8',
-            mrna_clusters: '5',
-            mrna_input_path: '579a4d6b660631e6ec757ad0'
-          }
-        }]
-      })
-    );
   }
 });
 
