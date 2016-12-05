@@ -37,7 +37,7 @@ const returnId = (idList, allocator = {}) => {
 
 const analysisReducer = compose({
   addPage (state, action) {
-    let { form } = action;
+    let { page } = action;
     let { idAllocator, pages } = state;
     pages = pages || [];
 
@@ -46,7 +46,7 @@ const analysisReducer = compose({
 
     pages = [
       ...pages,
-      { id, form, elements: [] }
+      { ...page, id, elements: [] }
     ];
 
     return {
@@ -204,7 +204,7 @@ const analysisReducer = compose({
   },
 
   setForm (state, action) {
-    let { form: formKey, key, value } = action;
+    let { name: formKey, key, value } = action;
 
     let forms = state.forms || {};
     let form = forms[formKey] || {};

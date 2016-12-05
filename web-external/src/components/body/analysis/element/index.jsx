@@ -1,6 +1,7 @@
 import React from 'react';
 import ButtonElement from './button';
 import FieldElement from './field';
+import FileSelectionElement from './file-selection';
 
 class Element extends React.Component {
   render () {
@@ -14,6 +15,15 @@ class Element extends React.Component {
 
       case 'field':
         result = (<FieldElement { ...props }/>);
+        break;
+
+      case 'file_selection':
+        result = (<FileSelectionElement { ...props }/>);
+        break;
+
+      case 'folder_selection':
+        result = (<FileSelectionElement { ...props }
+                                        foldersOnly={ true }/>);
         break;
 
       default:

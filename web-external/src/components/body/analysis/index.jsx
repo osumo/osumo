@@ -9,12 +9,7 @@ class Analysis extends React.Component {
 
     return (
       <div className='analysis'>
-        { pages.map(({ id, form, elements }) => (
-          <AnalysisPage elements={ elements }
-                        form={ form }
-                        id={ id }
-                        key={ id }/>
-        )) }
+        { pages.map((page) => (<AnalysisPage { ...page } key={ page.id }/>)) }
       </div>
     );
   }

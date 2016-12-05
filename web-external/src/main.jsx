@@ -72,9 +72,9 @@ $(() => {
     let { Promise } = require('./utils/promise');
     let { actionTypes } = globals;
 
-    const pagePromise = (form) => () => Promise.all([
+    const pagePromise = (page) => () => Promise.all([
       Promise.delay(500),
-      actions.addAnalysisPage(form)
+      actions.addAnalysisPage(page)
     ]);
 
     const elementPromise = (element) => () => Promise.all([
@@ -84,8 +84,15 @@ $(() => {
 
     (
       Promise
-        .delay(3000)
-        .then(pagePromise('igpse'))
+        .delay(1000)
+        .then(pagePromise({
+          name: 'igpse',
+          description: 'Interactive Genomics Patient Stratification explorer',
+          notes: (
+            'Show a survival plot based on clustering of different data sets.'),
+          main_action: 'process'
+        }))
+
 
         .then(elementPromise({
           key: 'mrna_input_path',
@@ -152,8 +159,13 @@ $(() => {
 
         .then(elementPromise({
           type: 'button',
+          name: 'Process'
+        }))
+
+        .then(elementPromise({
+          type: 'button',
           name: 'Process',
-          action: 'process'
+          action: 'somethingElse'
         }))
 
         .then(pagePromise('igpse2'))

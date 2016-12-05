@@ -1,25 +1,59 @@
 import React from 'react';
 import Element from './element';
 
+import './styles.styl';
+
 class Page extends React.Component {
   render () {
-    let { id, form, elements, action } = this.props;
+    let {
+      description,
+      elements,
+      id,
+      main_action,
+      name,
+      notes
+    } = this.props;
 
-    /* TODO(opadron): move action to be an prop of Page */
-    action = (action || 'dummy action');
+    let descriptionText = `(${ id }) ` + (
+      [name, description]
+        .map((text) => text || '')
+        .filter((text) => text !== '')
+        .join(': ')
+    );
+
+    let notesText = notes || '';
+
+    let descriptionComponent = (
+      descriptionText === ''
+        ? descriptionText
+        : (
+          <div className='task-desc g-item-info-header'>
+            { descriptionText }
+          </div>
+        )
+    );
+
+    let notesComponent = (
+      notesText === ''
+        ? notesText
+        : (<div className='task-notes'>{ notesText }</div>)
+    );
+
 
     return (
       <div className='.g-analysis-page'>
         <div className='.g-analysis-page-header'>
-          <h4>{ id }</h4>
-          <h4>{ form }</h4>
+          { descriptionComponent }
+          { notesComponent }
           <form className='function-control'
                 onSubmit={(e) => {
                   e.preventDefault();
-                  console.log(action);
+                  console.log(main_action);
                 }}>
               {elements.map((element) => (
-                <Element key={ element.id } { ...({ ...element, action }) }/>
+                <Element { ...element }
+                         main_action={ main_action }
+                         key={ element.id }/>
               ))}
           </form>
         </div>
@@ -29,9 +63,12 @@ class Page extends React.Component {
 
   static get propTypes () {
     return {
+      description: React.PropTypes.string,
+      elements: React.PropTypes.arrayOf(React.PropTypes.object),
       id: React.PropTypes.number,
-      form: React.PropTypes.string,
-      elements: React.PropTypes.arrayOf(React.PropTypes.object)
+      main_action: React.PropTypes.string,
+      name: React.PropTypes.string,
+      notes: React.PropTypes.string
     };
   }
 }

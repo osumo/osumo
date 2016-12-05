@@ -3,12 +3,14 @@ import { isUndefined } from 'lodash';
 
 class Button extends React.Component {
   render () {
-    let { name, action } = this.props;
+    let { action, name, main_action } = this.props;
+
+    action = action || main_action;
 
     let displayText = name;
     let onClick;
     if (!isUndefined(action)) {
-      displayText = `${ displayText }(${ action })`;
+      displayText = `${ displayText } (${ action })`;
       onClick = (e) => (e.preventDefault(), console.log(action));
     }
 

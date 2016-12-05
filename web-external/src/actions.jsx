@@ -9,8 +9,8 @@ export const addAnalysisElement = (element, pageId) => dispatch({
   type: actionTypes.analysis.addElement, element, pageId
 });
 
-export const addAnalysisPage = (form) => dispatch({
-  type: actionTypes.analysis.addPage, form
+export const addAnalysisPage = (page) => dispatch({
+  type: actionTypes.analysis.addPage, page
 });
 
 export const clearCurrentUser = () => [
@@ -77,16 +77,18 @@ export const removeAnalysisPage = (options) => dispatch({
   type: actionTypes.analysis.removePage, ...options
 });
 
-export const setAnalysisForm = (form, key, value) => (
+export const setAnalysisForm = (name, key, value) => (
   isUndefined(value)
     ? Object.entries(key).map(([k, v]) => dispatch({
       type: actionTypes.analysis.setForm,
+      name,
       key: k,
       value: v
     }))
 
     : dispatch({
       type: actionTypes.analysis.setForm,
+      name,
       key,
       value
     })
