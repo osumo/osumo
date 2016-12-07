@@ -6,6 +6,7 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { connect, Provider } from 'react-redux';
+import URI from 'urijs';
 
 import globals, { router, store } from './globals';
 import actions from './actions';
@@ -38,8 +39,27 @@ $(() => {
     ({ dialog: { componentKey } }) => ({ enabled: !!componentKey })
   )(DialogBackdrop);
 
-  router('', routes.setGlobalNavTargetToIndex);
-  router(':target', ...routes.targetMiddleWare);
+  router(
+    '',
+    routes.setGlobalNavTargetToIndex
+  );
+
+  router(
+    '?*query',
+    routes.setGlobalNavTargetToIndex,
+    ...[routes.targetMiddleWare.slice(1)]
+  );
+
+  router(
+    ':target',
+    ...routes.targetMiddleWare
+  );
+
+  router(
+    ':target?*query',
+    ...routes.targetMiddleWare
+  );
+
   router.start();
 
   ReactDOM.render(
@@ -66,7 +86,8 @@ $(() => {
       router,
       store,
       rest: globals.rest,
-      actions
+      actions,
+      URI
     });
 
     let { Promise } = require('./utils/promise');
@@ -90,7 +111,7 @@ $(() => {
           description: 'Interactive Genomics Patient Stratification explorer',
           notes: (
             'Show a survival plot based on clustering of different data sets.'),
-          main_action: 'process'
+          mainAction: 'process'
         }))
 
 
@@ -100,7 +121,7 @@ $(() => {
           description: 'mRNA data',
           notes: ('This must be a CSV file with one column per ' +
                   'subject, one header row, and one data row per gene.'),
-          type: 'file_selection',
+          type: 'fileSelection',
           options: { onlyNames: '^mRNA.*csv$' }
         }))
 
@@ -111,7 +132,7 @@ $(() => {
           notes: 'Clustering is performed via k-means.',
           type: 'field',
           options: {
-            data_type: 'integer',
+            dataType: 'integer',
             default: 5
           }
         }))
@@ -122,7 +143,7 @@ $(() => {
           description: 'miRNA data',
           notes: ('This must be a CSV file with one column per ' +
                   'subject, one header row, and one data row per micro RNA.'),
-          type: 'file_selection',
+          type: 'fileSelection',
           options: { onlyNames: '^miRNA.*csv$' }
         }))
 
@@ -133,7 +154,7 @@ $(() => {
           notes: 'Clustering is performed via k-means.',
           type: 'field',
           options: {
-            data_type: 'integer',
+            dataType: 'integer',
             default: 5
           }
         }))
@@ -144,7 +165,7 @@ $(() => {
           notes: ('This must be a CSV file with a header row and one row ' +
                   'per subject and columns containing the row description, ' +
                   'survival duration, and an indicator field.'),
-          type: 'file_selection',
+          type: 'fileSelection',
           options: { onlyNames: '^time.*csv$' }
         }))
 
@@ -154,7 +175,7 @@ $(() => {
           description: 'output data folder',
           notes: ('Location where the mRNA heatmap, miRNA ' +
                   'heatmap, and cluster data is stored.'),
-          type: 'folder_selection'
+          type: 'folderSelection'
         }))
 
         .then(elementPromise({
@@ -176,7 +197,7 @@ $(() => {
           description: 'mRNA data',
           notes: ('This must be a CSV file with one column per ' +
                   'subject, one header row, and one data row per gene.'),
-          type: 'file_selection',
+          type: 'fileSelection',
           options: { onlyNames: '^mRNA.*csv$' }
         }))
     );

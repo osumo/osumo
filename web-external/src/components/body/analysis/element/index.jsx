@@ -5,25 +5,50 @@ import FileSelectionElement from './file-selection';
 
 class Element extends React.Component {
   render () {
-    let { id, type, ...props } = this.props;
+    let {
+      id,
+      type,
+      state,
+      onAction,
+      onFileSelect,
+      onStateChange,
+      ...props
+    } = this.props;
+
     let result;
 
     switch (type) {
       case 'button':
-        result = (<ButtonElement { ...props }/>);
+        result = (<ButtonElement onAction={ onAction } { ...props }/>);
         break;
 
       case 'field':
-        result = (<FieldElement { ...props }/>);
+        result = (
+          <FieldElement onStateChange={ onStateChange }
+                        state={ state }
+                        { ...props }/>
+        );
         break;
 
+      case 'fileSelection':
       case 'file_selection':
-        result = (<FileSelectionElement { ...props }/>);
+        result = (
+          <FileSelectionElement onStateChange={ onStateChange }
+                                onFileSelect={ onFileSelect }
+                                state={ state }
+                                { ...props }/>
+        );
         break;
 
+      case 'folderSelection':
       case 'folder_selection':
-        result = (<FileSelectionElement { ...props }
-                                        foldersOnly={ true }/>);
+        result = (
+          <FileSelectionElement onStateChange={ onStateChange }
+                                onFileSelect={ onFileSelect }
+                                state={ state }
+                                { ...props }
+                                foldersOnly={ true }/>
+        );
         break;
 
       default:
@@ -39,7 +64,14 @@ class Element extends React.Component {
   }
 
   static get propTypes () {
-    return { id: React.PropTypes.number };
+    return {
+      id: React.PropTypes.number,
+      onAction: React.PropTypes.func,
+      onFileSelect: React.PropTypes.func,
+      onStateChange: React.PropTypes.func,
+      state: React.PropTypes.object,
+      type: React.PropTypes.string
+    };
   }
 }
 

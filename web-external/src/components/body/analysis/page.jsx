@@ -1,4 +1,6 @@
 import React from 'react';
+import { isUndefined } from 'lodash';
+
 import Element from './element';
 
 import './styles.styl';
@@ -8,10 +10,14 @@ class Page extends React.Component {
     let {
       description,
       elements,
+      form,
       id,
-      main_action,
+      mainAction,
       name,
-      notes
+      notes,
+      onAction,
+      onFileSelect,
+      onStateChange
     } = this.props;
 
     let descriptionText = `(${ id }) ` + (
@@ -39,7 +45,6 @@ class Page extends React.Component {
         : (<div className='task-notes'>{ notesText }</div>)
     );
 
-
     return (
       <div className='.g-analysis-page'>
         <div className='.g-analysis-page-header'>
@@ -48,13 +53,22 @@ class Page extends React.Component {
           <form className='function-control'
                 onSubmit={(e) => {
                   e.preventDefault();
-                  console.log(main_action);
+                  onAction(mainAction);
                 }}>
-              {elements.map((element) => (
-                <Element { ...element }
-                         main_action={ main_action }
-                         key={ element.id }/>
-              ))}
+              {elements.map((element) => {
+                let key = isUndefined(element.key) ? element.id : element.key;
+                return (
+                  <Element { ...element }
+                           mainAction={ mainAction }
+                           onAction={ onAction }
+                           onFileSelect={ () => onFileSelect(key) }
+                           onStateChange={
+                             (state) => onStateChange(key, state)
+                           }
+                           state={ form[key] || {} }
+                           key={ element.id }/>
+                );
+              })}
           </form>
         </div>
       </div>
@@ -65,10 +79,14 @@ class Page extends React.Component {
     return {
       description: React.PropTypes.string,
       elements: React.PropTypes.arrayOf(React.PropTypes.object),
+      form: React.PropTypes.object,
       id: React.PropTypes.number,
-      main_action: React.PropTypes.string,
+      mainAction: React.PropTypes.string,
       name: React.PropTypes.string,
-      notes: React.PropTypes.string
+      notes: React.PropTypes.string,
+      onAction: React.PropTypes.func,
+      onFileSelect: React.PropTypes.func,
+      onStateChange: React.PropTypes.func
     };
   }
 }

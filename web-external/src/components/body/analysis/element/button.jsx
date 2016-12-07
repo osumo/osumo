@@ -3,23 +3,35 @@ import { isUndefined } from 'lodash';
 
 class Button extends React.Component {
   render () {
-    let { action, name, main_action } = this.props;
+    let { action, name, mainAction, onAction } = this.props;
 
-    action = action || main_action;
+    action = action || mainAction;
 
     let displayText = name;
     let onClick;
     if (!isUndefined(action)) {
       displayText = `${ displayText } (${ action })`;
-      onClick = (e) => (e.preventDefault(), console.log(action));
+      onClick = (e) => (e.preventDefault(), onAction(action));
     }
 
     return (
       <button className='btn btn-default'
-              onClick={ onClick }>
+              onClick={ (e) => {
+                e.preventDefault();
+                onAction(action);
+              } }>
         { displayText }
       </button>
     );
+  }
+
+  static get propTypes () {
+    return {
+      action: React.PropTypes.string,
+      name: React.PropTypes.string,
+      mainAction: React.PropTypes.string,
+      onAction: React.PropTypes.func
+    };
   }
 }
 

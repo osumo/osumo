@@ -1,61 +1,51 @@
+import URI from 'urijs';
 import { rest, router, routeStack } from './globals';
 import actions from './actions';
 
 /* :target/a/b/c/etc... -> sets global nav target */
-export const setGlobalNavTarget = ({ params: { target } }, next) => {
-  actions.setGlobalNavTarget(target);
+export const setGlobalNavTarget = ({ target }, next) => {
+  actions._router_setGlobalNavTarget(target);
   next();
 };
 
 /* like above, but hardcoded for the main page */
-export const setGlobalNavTargetToIndex = (_, next) => (
-  setGlobalNavTarget({ params: { target: '' } }, next)
+export const setGlobalNavTargetToIndex = ({}, next) => (
+  setGlobalNavTarget({ target: '' }, next)
 );
 
 /* :target/... -> checks target for special values before passing along */
-export const handleSpecialNavTarget = ({ params: { target } }, next) => {
-  let currentRoute = router();
-  let doPush = (
-    (
-      target === 'file-select' ||
-      target === 'login' ||
-      target === 'register' ||
-      target === 'forgot-password'
-    ) && !(
-      currentRoute === 'file-select' ||
-      currentRoute === 'login' ||
-      currentRoute === 'register' ||
-      currentRoute === 'forgot-password'
-    )
-  );
+export const handleDialog = ({ query }, next) => {
+  let fragment = URI('?' + query);
 
-  if (doPush) {
-    routeStack.push(currentRoute);
-  }
+  const fileSelect = fragment.hasQuery('dialog', 'file-select');
+  const login      = fragment.hasQuery('dialog', 'login');
+  const logout     = fragment.hasQuery('dialog', 'logout');
+  const register   = fragment.hasQuery('dialog', 'register');
+  const forgotPass = fragment.hasQuery('dialog', 'forgot-password');
 
-  if (target === 'file-select') {
-    actions.openFileSelectorDialog();
-  } else if (target === 'login') {
-    actions.openLoginDialog();
-  } else if (target === 'logout') {
+  if (fileSelect) {
+    actions._router_openFileSelectorDialog();
+  } else if (login) {
+    actions._router_openLoginDialog();
+  } else if (logout) {
     rest.logout();
-  } else if (target === 'register') {
-    actions.openRegisterDialog();
-  } else if (target === 'forgot-password') {
-    actions.openResetPasswordDialog();
+  } else if (register) {
+    actions._router_openRegisterDialog();
+  } else if (forgotPass) {
+    actions._router_openResetPasswordDialog();
   } else {
     next();
   }
 };
 
 export const targetMiddleWare = [
-  handleSpecialNavTarget,
-  setGlobalNavTarget
+  setGlobalNavTarget,
+  handleDialog
 ];
 
 export default {
+  handleDialog,
   setGlobalNavTarget,
   setGlobalNavTargetToIndex,
-  handleSpecialNavTarget,
   targetMiddleWare
 };

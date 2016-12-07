@@ -65,7 +65,6 @@ const parseFilter = (filter) => {
 let historyStarted = false;
 
 const router = () => {
-  let currentRoute = '';
   let router = new Router();
   let counter = 0;
 
@@ -74,12 +73,11 @@ const router = () => {
   function result (...args) {
     let [filter, ...callbacks] = args;
     if (args.length === 0) {
-      return currentRoute;
+      return location.hash.slice(1);
     }
 
     if (callbacks.length === 0) {
       let navigationResult = result.navigate(filter);
-      currentRoute = filter;
       return navigationResult;
     } else if (callbacks.length === 1 && !isFunction(callbacks[0])) {
       return result.navigate(filter, callbacks[0]);
@@ -90,15 +88,15 @@ const router = () => {
 
     router.route(filter, callbackName);
     return router.on(`route:${ callbackName }`, (...params) => {
-      let ctx = {
-        params: zip(paramList, params)
-        .reduce((partial, [key, value]) => {
-          if (key) {
-            partial[key] = value;
-          }
-          return partial;
-        }, {})
-      };
+      let ctx = (
+        zip(paramList, params)
+          .reduce((partial, [key, value]) => {
+            if (key) {
+              partial[key] = value;
+            }
+            return partial;
+          }, {})
+      );
 
       let callbackIndex = 0;
       let numCallbacks = callbacks.length;
@@ -117,7 +115,6 @@ const router = () => {
     start () {
       if (!historyStarted) {
         history.start();
-        currentRoute = location.hash.slice(1);
       }
       historyStarted = true;
       return historyStarted;
@@ -142,7 +139,7 @@ const router = () => {
     navigate (route, options = {}, ...args) {
       return router.navigate(
         route, {
-          ...{ trigger: true },
+          trigger: true,
           ...options
         },
         ...args);

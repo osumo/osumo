@@ -14,10 +14,10 @@ const HeaderContainer = connect(
     onDropdown: actions.toggleHeaderDropdown,
     onFolders: (id) => window.open(`girder#user/${ id }`, '_blank'),
     onInfo: (id) => window.open(`girder#useraccount/${ id }/info`, '_blank'),
-    onLogin: () => router('login'),
+    onLogin: () => actions.openLoginDialog(),
     onLogout: actions.submitLogoutForm,
-    onRegister: () => router('register'),
-    onTitle: () => router('')
+    onRegister: () => actions.openRegisterDialog(),
+    onTitle: () => actions.setGlobalNavTarget('')
   })
 )(Header);
 

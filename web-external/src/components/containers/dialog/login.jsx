@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 
 import LoginDialog from '../../dialog/login';
 import actions from '../../../actions';
-import { router } from '../../../globals';
 
 const LoginDialogContainer = connect(
   (
@@ -19,8 +18,8 @@ const LoginDialogContainer = connect(
 
   () => ({
     onClose: () => actions.closeDialog(),
-    onForgottenPassword: () => router('forgot-password'),
-    onRegister: () => router('register'),
+    onForgottenPassword: () => actions.openResetPasswordDialog(),
+    onRegister: () => action.openRegisterDialog(),
     onSubmit: () => actions.submitLoginForm(),
     onUpdate: (data) => actions.updateDialogForm(data)
   })

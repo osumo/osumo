@@ -30,7 +30,6 @@ Promise.config({
   monitoring: !IN_PRODUCTION
 });
 
-export let routeStack = [];
 import makeRouter from './utils/router';
 export const router = makeRouter();
 router.base();
@@ -50,7 +49,6 @@ export default {
   store,
   rest,
   router,
-  routeStack,
   $backdropRootDiv,
   $dialogRootDiv,
   $mainRootDiv,

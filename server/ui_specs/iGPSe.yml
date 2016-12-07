@@ -3,7 +3,7 @@
 name: iGPSe
 description: "Interactive Genomics Patient Stratification explorer"
 notes: "Show a survival plot based on clustering of different data sets."
-main_action: process
+mainAction: process
 
 ui:
   - key: mrna_input_path
@@ -11,7 +11,7 @@ ui:
     description: mRNA data
     notes: "This must be a CSV file with one column per subject, one header \
             row, and one data row per gene."
-    type: file_selection
+    type: fileSelection
     options:
       onlyNames: "^mRNA.*csv$"
 
@@ -21,7 +21,7 @@ ui:
     notes: Clustering is performed via k-means.
     type: field
     options:
-      data_type: integer
+      dataType: integer
       default: 5
 
   - key: mirna_input_path
@@ -29,7 +29,7 @@ ui:
     description: miRNA data
     notes: "This must be a CSV file with one column per subject, one header \
             row, and one data row per micro RNA."
-    type: file_selection
+    type: fileSelection
     options:
       onlyNames: "^miRNA.*csv$"
 
@@ -39,7 +39,7 @@ ui:
     notes: Clustering is performed via k-means.
     type: field
     options:
-      data_type: integer
+      dataType: integer
       default: 5
 
   - key: clinical_input_path
@@ -47,7 +47,7 @@ ui:
     notes: "This must be a CSV file with a header row and one row per subject, \
             and columns containing the row description, survival duration, and \
             an indicator field."
-    type: file_selection
+    type: fileSelection
     options:
       onlyNames: "^time.*csv$"
 
@@ -56,7 +56,7 @@ ui:
     description: output data folder
     notes: "Location where the mRNA heatmap, miRNA heatmap, and cluster data \
             is stored."
-    type: folder_selection
+    type: folderSelection
 
   - type: button
     name: Process

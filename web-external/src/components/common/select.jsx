@@ -1,7 +1,6 @@
 import React from 'react';
 
 import actions from '../../actions';
-import { router } from '../../globals';
 
 export default class Select extends React.Component {
   componentWillMount () {
@@ -37,7 +36,7 @@ export default class Select extends React.Component {
                      this.addOption(item);
                      actions.closeDialog();
                    });
-                   router('file-select');
+                   actions.openFileSelectorDialog();
                  }}
                  className='btn btn-primary'
                  value='Add a file'/>

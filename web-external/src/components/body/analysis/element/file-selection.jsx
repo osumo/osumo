@@ -5,7 +5,17 @@ import TextField from '../../../common/text-field.jsx';
 
 class FileSelection extends React.Component {
   render () {
-    let { name, description, foldersOnly, notes, options } = this.props;
+    let {
+      description,
+      foldersOnly,
+      name,
+      notes,
+      onFileSelect,
+      onStateChange,
+      options,
+      state
+    } = this.props;
+
     options = options || {};
 
     let { selectedFiles } = options;
@@ -26,25 +36,20 @@ class FileSelection extends React.Component {
 
     if (!isUndefined(notes)) {
       childComponents.push(
-        <div className='control-notes' key='control-notes'>{ notes }</div>)
+        <div className='control-notes' key='control-notes'>{ notes }</div>);
     }
+
+    let { path } = state;
 
     childComponents.push(
       <div className='input-group control-file-select'
            key='control-file-select'>
-        <input type='text' className='form-control'/>
+        <input type='text' className='form-control' value={ path || '' }/>
         <div className='input-group-btn'>
           <button type='button'
                   className='btn btn-primary'
-                  onClick={() => {
-                    console.log('select file');
-                    // actions.setItemSelectedCallback((item) => {
-                    //   this.addOption(item);
-                    //   actions.closeDialog();
-                    // });
-                    // router('file-select');
-                  }}>
-            fileDisplay
+                  onClick={ onFileSelect }>
+            <span className='icon icon-folder-open'/>
           </button>
           <button type='button'
                   className='btn btn-info dropdown-toggle'
@@ -74,6 +79,18 @@ class FileSelection extends React.Component {
 
         : (<div className='function-control'>{ childComponents }</div>)
     );
+  }
+
+  static get propTypes () {
+    return {
+      description: React.PropTypes.string,
+      foldersOnly: React.PropTypes.bool,
+      name: React.PropTypes.string,
+      notes: React.PropTypes.string,
+      onStateChange: React.PropTypes.func,
+      options: React.PropTypes.object,
+      state: React.PropTypes.object
+    };
   }
 }
 

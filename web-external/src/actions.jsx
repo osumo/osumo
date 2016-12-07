@@ -1,9 +1,55 @@
 import { isNull, isString, isUndefined } from 'lodash';
+import URI from 'urijs';
 import globals from './globals';
 
-let { actionTypes, rest, router, routeStack, store } = globals;
+let { actionTypes, rest, store } = globals;
 
 const dispatch = store.dispatch.bind(store);
+
+export const _router_closeDialog = () => [
+  { type: actionTypes.header.dropdownOpened.clear },
+  { type: actionTypes.dialog.componentKey.clear },
+  { type: actionTypes.dialog.form.clearAll }
+].forEach(dispatch);
+
+export const _router_openFileSelectorDialog = () => [
+  { type: actionTypes.dialog.errorField.clear },
+  { type: actionTypes.dialog.errorMessage.clear },
+  { type: actionTypes.dialog.form.clearAll },
+  { type: actionTypes.dialog.componentKey.set, value: 'file-selector' },
+].forEach(dispatch);
+
+export const _router_openLoginDialog = () => [
+  { type: actionTypes.dialog.errorField.clear },
+  { type: actionTypes.dialog.errorMessage.clear },
+  { type: actionTypes.dialog.form.clearAll },
+  { type: actionTypes.dialog.componentKey.set, value: 'login' },
+  { type: actionTypes.dialog.focus.field.set, value: 'login' },
+  { type: actionTypes.dialog.focus.time.set, value: new Date() }
+].forEach(dispatch);
+
+export const _router_openResetPasswordDialog = () => [
+  { type: actionTypes.dialog.errorField.clear },
+  { type: actionTypes.dialog.errorMessage.clear },
+  { type: actionTypes.dialog.form.clearAll },
+  { type: actionTypes.dialog.componentKey.set, value: 'reset-password' },
+  { type: actionTypes.dialog.focus.field.set, value: 'email' },
+  { type: actionTypes.dialog.focus.time.set, value: new Date() }
+].forEach(dispatch);
+
+export const _router_openRegisterDialog = () => [
+  { type: actionTypes.dialog.errorField.clear },
+  { type: actionTypes.dialog.errorMessage.clear },
+  { type: actionTypes.dialog.form.clearAll },
+  { type: actionTypes.dialog.componentKey.set, value: 'register' },
+  { type: actionTypes.dialog.focus.field.set, value: 'login' },
+  { type: actionTypes.dialog.focus.time.set, value: new Date() }
+].forEach(dispatch);
+
+export const _router_setGlobalNavTarget = (target) => dispatch({
+  type: actionTypes.globalNavTarget.set,
+  value: target
+});
 
 export const addAnalysisElement = (element, pageId) => dispatch({
   type: actionTypes.analysis.addElement, element, pageId
@@ -18,56 +64,92 @@ export const clearCurrentUser = () => [
   { type: actionTypes.loginInfo.user.clear }
 ].forEach(dispatch);
 
-export const clearDialog = () => [
-  { type: actionTypes.header.dropdownOpened.clear },
-  { type: actionTypes.dialog.componentKey.clear },
-  { type: actionTypes.dialog.form.clearAll }
-].forEach(dispatch);
-
 export const closeDialog = () => {
-  clearDialog();
-  router(routeStack.pop());
+  let currentRoute = router();
+  let newRoute = (
+    URI(currentRoute)
+      .removeQuery('dialog')
+      .toString()
+  );
+
+  router.navigate(
+    (
+      URI(currentRoute)
+        .removeQuery('dialog')
+        .toString()
+    ),
+    {
+      replace: true
+    }
+  );
+  _router_closeDialog();
 };
 
 export const onItemSelect = (...args) => {
   if (globals.itemSelectedCallback) {
     return globals.itemSelectedCallback(...args);
   }
-}
+};
 
-export const openFileSelectorDialog = () => [
-  { type: actionTypes.dialog.errorField.clear },
-  { type: actionTypes.dialog.errorMessage.clear },
-  { type: actionTypes.dialog.form.clearAll },
-  { type: actionTypes.dialog.componentKey.set, value: 'file-selector' },
-].forEach(dispatch);
+export const openFileSelectorDialog = () => {
+  let currentRoute = router();
+  router.navigate(
+    (
+      URI(currentRoute)
+        .removeQuery('dialog')
+        .addQuery({ dialog: 'file-select' })
+        .toString()
+    ),
+    {
+      replace: true
+    }
+  );
+};
 
-export const openLoginDialog = () => [
-  { type: actionTypes.dialog.errorField.clear },
-  { type: actionTypes.dialog.errorMessage.clear },
-  { type: actionTypes.dialog.form.clearAll },
-  { type: actionTypes.dialog.componentKey.set, value: 'login' },
-  { type: actionTypes.dialog.focus.field.set, value: 'login' },
-  { type: actionTypes.dialog.focus.time.set, value: new Date() }
-].forEach(dispatch);
+export const openLoginDialog = () => {
+  let currentRoute = router();
+  router.navigate(
+    (
+      URI(currentRoute)
+        .removeQuery('dialog')
+        .addQuery({ dialog: 'login' })
+        .toString()
+    ),
+    {
+      replace: true
+    }
+  );
+};
 
-export const openResetPasswordDialog = () => [
-  { type: actionTypes.dialog.errorField.clear },
-  { type: actionTypes.dialog.errorMessage.clear },
-  { type: actionTypes.dialog.form.clearAll },
-  { type: actionTypes.dialog.componentKey.set, value: 'reset-password' },
-  { type: actionTypes.dialog.focus.field.set, value: 'email' },
-  { type: actionTypes.dialog.focus.time.set, value: new Date() }
-].forEach(dispatch);
+export const openResetPasswordDialog = () => {
+  let currentRoute = router();
+  router.navigate(
+    (
+      URI(currentRoute)
+        .removeQuery('dialog')
+        .addQuery({ dialog: 'forgot-password' })
+        .toString()
+    ),
+    {
+      replace: true
+    }
+  );
+};
 
-export const openRegisterDialog = () => [
-  { type: actionTypes.dialog.errorField.clear },
-  { type: actionTypes.dialog.errorMessage.clear },
-  { type: actionTypes.dialog.form.clearAll },
-  { type: actionTypes.dialog.componentKey.set, value: 'register' },
-  { type: actionTypes.dialog.focus.field.set, value: 'login' },
-  { type: actionTypes.dialog.focus.time.set, value: new Date() }
-].forEach(dispatch);
+export const openRegisterDialog = () => {
+  let currentRoute = router();
+  router.navigate(
+    (
+      URI(currentRoute)
+        .removeQuery('dialog')
+        .addQuery({ dialog: 'register' })
+        .toString()
+    ),
+    {
+      replace: true
+    }
+  );
+};
 
 export const removeAnalysisElement = (id, pageId) => dispatch({
   type: actionTypes.analysis.removeElement, pageId, id
@@ -77,21 +159,13 @@ export const removeAnalysisPage = (options) => dispatch({
   type: actionTypes.analysis.removePage, ...options
 });
 
-export const setAnalysisForm = (name, key, value) => (
-  isUndefined(value)
-    ? Object.entries(key).map(([k, v]) => dispatch({
-      type: actionTypes.analysis.setForm,
-      name,
-      key: k,
-      value: v
-    }))
-
-    : dispatch({
-      type: actionTypes.analysis.setForm,
-      name,
-      key,
-      value
-    })
+export const setAnalysisFormState = (name, key, state) => (
+  dispatch({
+    type: actionTypes.analysis.setFormState,
+    name,
+    key,
+    state
+  })
 );
 
 export const setCurrentUser = (user, token) => {
@@ -133,10 +207,11 @@ export const setFileNavigation = (parentType, parentId) => (
   }))
 );
 
-export const setGlobalNavTarget = (target) => {
-  dispatch({ type: actionTypes.globalNavTarget.set, value: target });
-  clearDialog();
-};
+export const setGlobalNavTarget = (target) => router.navigate(
+  [target, URI(router()).query()]
+    .filter((string) => string !== '')
+    .join('?')
+);
 
 export const setItemSelectedCallback = (callback) => (
   globals.itemSelectedCallback = callback
@@ -257,10 +332,15 @@ export const verifyCurrentUser = () => {
 };
 
 export default {
+  _router_closeDialog,
+  _router_openFileSelectorDialog,
+  _router_openLoginDialog,
+  _router_openRegisterDialog,
+  _router_openResetPasswordDialog,
+  _router_setGlobalNavTarget,
   addAnalysisElement,
   addAnalysisPage,
   clearCurrentUser,
-  clearDialog,
   closeDialog,
   onItemSelect,
   openFileSelectorDialog,
@@ -269,7 +349,7 @@ export default {
   openRegisterDialog,
   removeAnalysisElement,
   removeAnalysisPage,
-  setAnalysisForm,
+  setAnalysisFormState,
   setCurrentUser,
   setDialogError,
   setFileNavigation,

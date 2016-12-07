@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 
 import FileSelectorDialog from '../../dialog/file-selector';
 import actions from '../../../actions';
-import { router } from '../../../globals';
 
 const FileSelectorDialogContainer = connect(
   ({

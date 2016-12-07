@@ -203,19 +203,16 @@ const analysisReducer = compose({
     return state;
   },
 
-  setForm (state, action) {
-    let { name: formKey, key, value } = action;
+  setFormState (state, action) {
+    let { name: formKey, key, state: formState } = action;
 
-    let forms = state.forms || {};
-    let form = forms[formKey] || {};
-    let valueChanged = (value !== form[key]);
-
-    if (valueChanged) {
-      state = { ...state };
-      state.forms = { ...(state.forms || {}) };
-      state.forms[formKey] = { ...(state.forms[formKey] || {}) };
-      state.forms[formKey][key] = value;
-    }
+    state = { ...state };
+    state.forms = { ...(state.forms || {}) };
+    state.forms[formKey] = { ...(state.forms[formKey] || {}) };
+    state.forms[formKey][key] = {
+      ...(state.forms[formKey][key] || {}),
+      ...formState
+    };
 
     return state;
   }
