@@ -13,9 +13,6 @@ girder.templates.itemList = customItemListTemplate;
 import customHierarchyTemplate from './hierarchy-template.jade';
 girder.templates.hierarchyWidget = customHierarchyTemplate;
 
-// const FileSelectorView = girder.View.extend({
-console.log(girder.views.HierarchyWidget);
-
 const FileSelectorView = girder.View.extend({
   initialize: function (settings) {
     this.hierarchyView = new girder.views.HierarchyWidget({
