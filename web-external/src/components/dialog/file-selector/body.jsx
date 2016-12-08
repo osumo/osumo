@@ -5,11 +5,14 @@ import { setFileNavigation } from '../../../actions';
 import RootSelector from '../../common/root-selector';
 
 /* hacked to remove the download and view links */
-/* TODO(opadron): flags controlling these links should be upstreamed */
+/* TODO(opadron): replace this with flags from girder/girder#1688 once we
+ * migrate to Girder 2.0 */
 import customItemListTemplate from './item-list-template';
 girder.templates.itemList = customItemListTemplate;
 
 /* hacked to remove the metadata section */
+/* TODO(opadron): replace this with flags from girder/girder#1688 once we
+ * migrate to Girder 2.0 */
 import customHierarchyTemplate from './hierarchy-template.jade';
 girder.templates.hierarchyWidget = customHierarchyTemplate;
 
