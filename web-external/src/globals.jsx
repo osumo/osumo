@@ -38,10 +38,12 @@ router.pushState(false);
 export const $backdropRootDiv = $('<div>').attr('id', 'backdrop-root');
 export const $dialogRootDiv = $('<div>').attr('id', 'dialog-root');
 export const $mainRootDiv = $('<div>').attr('id', 'main-root');
+export let analysisActionTable = {};
 
 let itemSelectedCallback = null;
 
 export default {
+  analysisActionTable,
   apiRoot,
   actionTypes,
   IN_PRODUCTION,

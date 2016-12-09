@@ -151,6 +151,13 @@ export const openRegisterDialog = () => {
   );
 };
 
+export const registerAnalysisAction = (pageName, actionName, callback) => {
+  globals.analysisActionTable[pageName] = (
+    globals.analysisActionTable[pageName] || {});
+
+  globals.analysisActionTable[pageName][actionName] = callback;
+};
+
 export const removeAnalysisElement = (id, pageId) => dispatch({
   type: actionTypes.analysis.removeElement, pageId, id
 });
@@ -307,6 +314,17 @@ export const toggleHeaderDropdown = () => dispatch({
   type: actionTypes.header.dropdownOpened.toggle
 });
 
+export const triggerAnalysisAction = (forms, page, action, ...args) => {
+  let callback = globals.analysisActionTable[page.name];
+  if (callback) { callback = callback[action]; }
+  if (!callback) {
+    throw new Error(
+      `No such analysis action registered: ${ page.name }.${ action }`);
+  }
+
+  return callback(forms, page, action, ...args);
+};
+
 export const updateDialogForm = ({ key, value }) => dispatch({
   type: actionTypes.dialog.form.set,
   entries: { [key]: value }
@@ -347,6 +365,7 @@ export default {
   openLoginDialog,
   openResetPasswordDialog,
   openRegisterDialog,
+  registerAnalysisAction,
   removeAnalysisElement,
   removeAnalysisPage,
   setAnalysisFormState,
@@ -360,6 +379,7 @@ export default {
   submitResetPasswordForm,
   submitRegistrationForm,
   toggleHeaderDropdown,
+  triggerAnalysisAction,
   updateDialogForm,
   verifyCurrentUser
 };

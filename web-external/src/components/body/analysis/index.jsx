@@ -13,6 +13,7 @@ class Analysis extends React.Component {
     } = this.props;
 
     pages = (pages || []);
+    forms = (forms || {});
 
     return (
       <div className='analysis'>
@@ -20,7 +21,7 @@ class Analysis extends React.Component {
           <AnalysisPage { ...page }
                         form={ forms[page.name] || {} }
                         onAction={
-                          (action) => onAction(page, action)
+                          (action) => onAction(forms, page, action)
                         }
                         onFileSelect={
                           (key) => onFileSelect(page, key)

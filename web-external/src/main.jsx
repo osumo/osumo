@@ -11,6 +11,7 @@ import URI from 'urijs';
 import globals, { router, store } from './globals';
 import actions from './actions';
 import routes from './routes';
+import { aggregateForm } from './utils/analysis';
 
 import MainApp from './components/main-app';
 import DialogBackdrop from './components/dialog/backdrop';
@@ -93,13 +94,31 @@ $(() => {
     let { Promise } = require('./utils/promise');
     let { actionTypes } = globals;
 
+    actions.registerAnalysisAction('igpse', 'process', (forms, page) => {
+      let form = aggregateForm(forms, page);
+      return rest({
+        path: 'osumo/task/iGPSe/run?title=OSUMO Test Run',
+        type: 'POST',
+        data: {
+          'INPUT(mrna_input_path)': `FILE:${ form.mrna_input_path }`,
+          'INPUT(mirna_input_path)': `FILE:${ form.mirna_input_path }`,
+          'INPUT(clinical_input_path)': `FILE:${ form.clinical_input_path }`,
+          'INPUT(mrna_clusters)': `INTEGER:${ form.mrna_clusters }`,
+          'INPUT(mirna_clusters)': `INTEGER:${ form.mirna_clusters }`,
+
+          'OUTPUT(output_mrna_dim)': `FILE:${ form.output_dir }:mrna_dim.txt`,
+          'OUTPUT(output_mrna_heatmap)': `FILE:${ form.output_dir }`
+        }
+      }).then((result) => (console.log('JOB SUBMITTED!'), console.log(result)));
+    });
+
     const pagePromise = (page) => () => Promise.all([
       Promise.delay(500),
       actions.addAnalysisPage(page)
     ]);
 
     const elementPromise = (element) => () => Promise.all([
-      Promise.delay(500),
+      Promise.delay(10),
       actions.addAnalysisElement(element)
     ]);
 
@@ -183,23 +202,35 @@ $(() => {
           name: 'Process'
         }))
 
-        .then(elementPromise({
-          type: 'button',
-          name: 'Process',
-          action: 'somethingElse'
-        }))
+        .then(() => Promise.delay(1000))
 
-        .then(pagePromise('igpse2'))
+        .then(() => {
+          Object.entries({
+            mrna_input_path: {
+              name: 'mRNA.sample.csv',
+              path: '/users/osumopublicuser/OSUMO Inputs/mRNA.sample.csv',
+              value: '57a8b6247be3a054f8be9102'
+            },
 
-        .then(elementPromise({
-          key: 'mrna_input_path',
-          name: 'Gene Expression Profile',
-          description: 'mRNA data',
-          notes: ('This must be a CSV file with one column per ' +
-                  'subject, one header row, and one data row per gene.'),
-          type: 'fileSelection',
-          options: { onlyNames: '^mRNA.*csv$' }
-        }))
+            mirna_input_path: {
+              name: 'miRNA.sample.csv',
+              path: '/users/osumopublicuser/OSUMO Inputs/miRNA.sample.csv',
+              value: '57a8b6247be3a054f8be90fa'
+            },
+
+            clinical_input_path: {
+              name: 'time.cencer.csv',
+              path: '/users/osumopublicuser/OSUMO Inputs/time.cencer.csv',
+              value: '57a8b6247be3a054f8be9113'
+            },
+
+            mrna_clusters: { value: '5' },
+
+            mirna_clusters: { value: '3' },
+
+            output_dir: { value: '582bc1517be3a024f80ff17c' }
+          }).forEach((args) => actions.setAnalysisFormState('igpse', ...args))
+        })
     );
   }
 });

@@ -39,24 +39,50 @@ class FileSelection extends React.Component {
         <div className='control-notes' key='control-notes'>{ notes }</div>);
     }
 
-    let { path } = state;
+    let { path, value } = state;
+    let buttons = [
+      (
+        <button key='file-select'
+                type='button'
+                className='btn btn-primary'
+                onClick={ onFileSelect }>
+          <span className='icon icon-folder-open'/>
+        </button>
+      ),
+      (
+        <button key='dropdown'
+                type='button'
+                className='btn btn-info dropdown-toggle'
+                data-toggle='dropdown'>
+          <span className='caret'/>
+          <span className='sr-only'>Toggle Dropdown</span>
+        </button>
+      )
+    ];
+
+    if (foldersOnly) {
+      buttons[0] = (
+        <button key='file-select'
+                type='button'
+                className='btn btn-danger'
+                onClick={ (e) => e.preventDefault() }>
+          <span className='icon icon-folder-open'/>
+        </button>
+      );
+    }
 
     childComponents.push(
       <div className='input-group control-file-select'
            key='control-file-select'>
-        <input type='text' className='form-control' value={ path || '' }/>
+        <TextField className='form-control'
+                   value={ foldersOnly ? value : path }
+                   onChange={(
+                    foldersOnly
+                      ? (value) => onStateChange({ value })
+                      : function() { this.preventDefault(); }
+                   )}/>
         <div className='input-group-btn'>
-          <button type='button'
-                  className='btn btn-primary'
-                  onClick={ onFileSelect }>
-            <span className='icon icon-folder-open'/>
-          </button>
-          <button type='button'
-                  className='btn btn-info dropdown-toggle'
-                  data-toggle='dropdown'>
-            <span className='caret'/>
-            <span className='sr-only'>Toggle Dropdown</span>
-          </button>
+          { buttons }
           <ul className='dropdown-menu'>
             {selectedFiles.map(({ id, name }) => (
               <li key={ id }>

@@ -7,25 +7,11 @@ import { rest } from '../../globals';
 import objectReduce from '../../utils/object-reduce';
 
 const AnalysisContainer = connect(
-  ({ analysis: { forms, pages } }) => {
-    forms = forms || {};
-    const onAction = (page, action) => {
-      let pageForm = forms[page.name] || {};
-      let form = (
-        (page.elements || [])
-          .map(({ key }) => key)
-          .filter((key) => !isUndefined(key))
-          .map((key) => [key, (pageForm[key] || {}).value])
-          .reduce(objectReduce, {})
-      );
-      console.log('ACTION');
-      console.dir({ action, form, page });
-    };
-
-    return { forms, onAction, pages }
-  },
+  ({ analysis: { forms, pages } }) => ({ forms, pages }),
 
   () => ({
+    onAction: actions.triggerAnalysisAction,
+
     onFileSelect: (page, formKey) => {
       actions.setItemSelectedCallback((item) => (
 

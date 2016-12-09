@@ -42,6 +42,7 @@ class TextField extends React.Component {
     return (
       <input { ...props }
              onChange={ updateCallback }
+             type='text'
              value={ value || '' }
              ref='input'>
         { children }
