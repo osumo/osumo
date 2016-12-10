@@ -11,7 +11,7 @@ import URI from 'urijs';
 import globals, { router, store } from './globals';
 import actions from './actions';
 import routes from './routes';
-import { aggregateForm } from './utils/analysis';
+import { aggregateForm, runTask } from './utils/analysis';
 
 import MainApp from './components/main-app';
 import DialogBackdrop from './components/dialog/backdrop';
@@ -96,20 +96,61 @@ $(() => {
 
     actions.registerAnalysisAction('igpse', 'process', (forms, page) => {
       let form = aggregateForm(forms, page);
-      return rest({
-        path: 'osumo/task/iGPSe/run?title=OSUMO Test Run',
-        type: 'POST',
-        data: {
-          'INPUT(mrna_input_path)': `FILE:${ form.mrna_input_path }`,
-          'INPUT(mirna_input_path)': `FILE:${ form.mirna_input_path }`,
-          'INPUT(clinical_input_path)': `FILE:${ form.clinical_input_path }`,
-          'INPUT(mrna_clusters)': `INTEGER:${ form.mrna_clusters }`,
-          'INPUT(mirna_clusters)': `INTEGER:${ form.mirna_clusters }`,
+      return runTask(
+        'iGPSe',
+        {
+          inputs: {
+            mrna_input_path: `FILE:${ form.mrna_input_path }`,
+            mirna_input_path: `FILE:${ form.mirna_input_path }`,
+            clinical_input_path: `FILE:${ form.clinical_input_path }`,
+            mrna_clusters: `INTEGER:${ form.mrna_clusters }`,
+            mirna_clusters: `INTEGER:${ form.mirna_clusters }`
+          },
 
-          'OUTPUT(output_mrna_dim)': `FILE:${ form.output_dir }:mrna_dim.txt`,
-          'OUTPUT(output_mrna_heatmap)': `FILE:${ form.output_dir }`
+          outputs: {
+            output_mrna_dim: `FILE:${ form.output_dir }:mrna_dim.txt`,
+            output_mrna_heatmap: `FILE:${ form.output_dir }:mrna_heatmap.png`,
+            output_mirna_heatmap: `FILE:${ form.output_dir }:mirna_heatmap.png`
+          }
+        },
+        {
+          title: 'OSUMO Test Run',
+          maxPolls: 40
         }
-      }).then((result) => (console.log('JOB SUBMITTED!'), console.log(result)));
+      ).then((files) => {
+        let mRNAFileId;
+        let miRNAFileId;
+
+        files.forEach(({ fileId: fid, name }) => {
+          if (name === 'mrna_heatmap.png') { mRNAFileId = fid; }
+          if (name === 'mirna_heatmap.png') { miRNAFileId = fid; }
+        });
+
+        actions.addAnalysisPage({
+          name: 'igpse2',
+          description: ('Interactive Genomics Patient ' +
+                        'Stratification explorer (Step 2)'),
+          mainAction: 'process'
+        });
+
+        actions.addAnalysisElement({
+          name: 'mRNA Heatmap',
+          notes: ('The major groups show how the data was clustered.  ' +
+                  'The columns show different mRNA attributes, ' +
+                  'and the rows represent each subject.'),
+          type: 'image',
+          fileId: mRNAFileId
+        });
+
+        actions.addAnalysisElement({
+          name: 'miRNA Heatmap',
+          notes: ('The major groups show how the data was clustered.  ' +
+                  'The columns show different miRNA attributes, ' +
+                  'and the rows represent each subject.'),
+          type: 'image',
+          fileId: miRNAFileId
+        });
+      });
     });
 
     const pagePromise = (page) => () => Promise.all([
@@ -207,26 +248,26 @@ $(() => {
         .then(() => {
           Object.entries({
             mrna_input_path: {
-              name: 'mRNA.sample.csv',
-              path: '/users/osumopublicuser/OSUMO Inputs/mRNA.sample.csv',
-              value: '57a8b6247be3a054f8be9102'
+              name: 'mRNAnorm_pam50.csv',
+              path: '/users/osumopublicuser/OSUMO Inputs/mRNAnorm_pam50.csv',
+              value: '57a8b6247be3a054f8be9106'
             },
 
             mirna_input_path: {
-              name: 'miRNA.sample.csv',
-              path: '/users/osumopublicuser/OSUMO Inputs/miRNA.sample.csv',
-              value: '57a8b6247be3a054f8be90fa'
+              name: 'miRNAnorm_pre.csv',
+              path: '/users/osumopublicuser/OSUMO Inputs/miRNAnorm_pre.csv',
+              value: '57a8b6247be3a054f8be90fe'
             },
 
             clinical_input_path: {
-              name: 'time.cencer.csv',
-              path: '/users/osumopublicuser/OSUMO Inputs/time.cencer.csv',
-              value: '57a8b6247be3a054f8be9113'
+              name: 'time.sur.csv',
+              path: '/users/osumopublicuser/OSUMO Inputs/time.sur.csv',
+              value: '57a8b6247be3a054f8be9117'
             },
 
             mrna_clusters: { value: '5' },
 
-            mirna_clusters: { value: '3' },
+            mirna_clusters: { value: '5' },
 
             output_dir: { value: '582bc1517be3a024f80ff17c' }
           }).forEach((args) => actions.setAnalysisFormState('igpse', ...args))

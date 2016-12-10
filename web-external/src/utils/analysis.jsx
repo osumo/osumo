@@ -1,5 +1,8 @@
 import { isUndefined } from 'lodash';
+
+import { rest } from '../globals';
 import objectReduce from './object-reduce';
+import { Promise } from './promise';
 
 export const aggregateForm = (forms, page) => (
   (page.elements || [])
@@ -16,6 +19,78 @@ export const aggregateForm = (forms, page) => (
     .reduce(objectReduce, {})
 );
 
+export const pollJob = (
+  jobId, title, taskName, pollInterval, pollCounter, maxPolls
+) => (
+  Promise.delay(pollInterval)
+    .then(() => rest({ path: `osumo/results/${ jobId }` }))
+    .then(({ response: { status, files } }) => {
+      if (status === 4) {  /* error */
+        throw new Error(
+          `OSUMO task "${ title }" (${ taskName }/${ jobId })` +
+          ' failed with an error'
+        );
+      } else if (status === 5) {  /* canceled */
+        throw new Error(
+          `OSUMO task "${ title }" (${ taskName }/${ jobId }) was canceled`
+        );
+      } else if (status === 3) {  /* success */
+        return files;
+      }
+
+      if (maxPolls > 0) {
+        if (pollCounter === maxPolls) {  /* no more polls */
+          throw new Error(
+            `OSUMO task "${ title }" (${ taskName }/${ jobId }) ` +
+            `timed out after ${ maxPolls } tr${ maxPolls > 1 ? 'ies' : 'y' }`
+          );
+        }
+
+        ++pollCounter;
+      }
+
+      return pollJob(jobId, title, taskName, pollCounter, pollInterval);
+    })
+);
+
+export const runTask = (taskName, params, options={}) => {
+  let { maxPolls, pollInterval, title } = options;
+  if (isUndefined(pollInterval)) { pollInterval = 5000; }
+  if (isUndefined(maxPolls)) { maxPolls = 0; }
+
+  let path = `osumo/task/${ taskName }/run`
+  if (!isUndefined(title)) {
+    path = `${ path }?title=${ title }`;
+    title = 'untitled';
+  }
+
+  let { inputs, outputs } = params;
+  inputs = inputs || {};
+  outputs = outputs || {};
+
+  let data = (
+    Object.entries(inputs)
+      .map(([k, v]) => (['INPUT', k, v]))
+      .concat(
+        Object.entries(outputs)
+          .map(([k, v]) => (['OUTPUT', k, v]))
+      )
+      .map(([t, k, v]) => ([`${ t }(${ k })`, v]))
+      .reduce(objectReduce, {})
+  );
+
+  return (
+    rest({ path, type: 'POST', data })
+      .then(({
+        response: {
+          job: { _id: id }
+        }
+      }) => pollJob(id, title, taskName, pollInterval, 0, maxPolls))
+  );
+};
+
 export default {
-  aggregateForm
+  aggregateForm,
+  pollJob,
+  runTask
 };

@@ -1,7 +1,9 @@
 import React from 'react';
+
 import ButtonElement from './button';
 import FieldElement from './field';
 import FileSelectionElement from './file-selection';
+import ImageElement from './image';
 
 class Element extends React.Component {
   render () {
@@ -50,6 +52,10 @@ class Element extends React.Component {
                                 foldersOnly={ true }/>
         );
         break;
+
+      case 'image':
+        result = (<ImageElement { ...props }/>);
+        break
 
       default:
         result = (

@@ -1,0 +1,23 @@
+---
+
+name: iGPSePart2
+mode: r
+
+script: "@include(iGPSePart2.r)"
+
+inputs:
+  - name: transferData
+    target: memory
+    type: r
+    format: object
+
+  - name: groups
+    type: string
+    format: text
+
+outputs:
+  - name: dataplot
+    target: filepath
+    type: image
+    format: png
+
