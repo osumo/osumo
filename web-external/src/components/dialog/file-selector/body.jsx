@@ -95,8 +95,20 @@ export default class Body extends React.Component {
   }
 
   render () {
+    let { folder, parentType } = this.props;
+    let manageLink = [];
+    if (folder) {
+      const manageHref = `girder#${ parentType }/${ folder._id }`;
+      const manageText = (
+        `Manage this ${ parentType }${ '\'' }s data (opens a new window)`);
+
+      manageLink.push(
+        <a href={ manageHref } key='manage' target='_blank'>{ manageText }</a>);
+    }
+
     return (
       <div className='modal-body'>
+        { manageLink }
         <div className='g-hierarchy-root-container'>
           <RootSelector onRootSelect={
             ({ id, type }) => setFileNavigation(type, id)
