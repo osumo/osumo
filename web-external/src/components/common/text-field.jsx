@@ -26,7 +26,7 @@ class TextField extends React.Component {
   }
 
   render () {
-    let { children, onChange, value, ...props } = this.props;
+    let { children, onChange, type, value, ...props } = this.props;
     delete props.focusTime;
     delete props.defaultValue;
 
@@ -42,7 +42,7 @@ class TextField extends React.Component {
     return (
       <input { ...props }
              onChange={ updateCallback }
-             type='text'
+             type={ type || 'text' }
              value={ value || '' }
              ref='input'>
         { children }

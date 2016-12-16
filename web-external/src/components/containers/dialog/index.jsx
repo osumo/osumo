@@ -13,10 +13,10 @@ const DialogContainer = connect(
   }) => ({ enabled: !!filterKey, filterKey }),
 
   (dispatch) => ({
-    onClose: closeDialog,
+    onClose: () => dispatch(closeDialog()),
     children: [
-      <FileSelectorDialogContainer key='file-selector'
-                                   groupKey='file-selector'/>,
+      <FileSelectorDialogContainer key='file-select'
+                                   groupKey='file-select'/>,
       <LoginDialogContainer key='login' groupKey='login'/>,
       <RegisterDialogContainer key='register' groupKey='register'/>,
       <ResetPasswordDialogContainer key='reset-password'

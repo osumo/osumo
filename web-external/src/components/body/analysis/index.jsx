@@ -19,16 +19,12 @@ class Analysis extends React.Component {
       <div className='analysis'>
         {pages.map((page) => (
           <AnalysisPage { ...page }
-                        form={ forms[page.name] || {} }
+                        form={ forms[page.key] || {} }
                         onAction={
                           (action) => onAction(forms, page, action)
                         }
-                        onFileSelect={
-                          (key) => onFileSelect(page, key)
-                        }
-                        onStateChange={
-                          (key, state) => onStateChange(page, key, state)
-                        }
+                        onFileSelect={ onFileSelect }
+                        onStateChange={ onStateChange }
                         key={ page.id }/>
         ))}
       </div>

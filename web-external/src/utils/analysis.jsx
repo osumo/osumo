@@ -12,7 +12,7 @@ export const aggregateForm = (forms, page) => (
       key,
       (
         (
-          forms[page.name] || {}
+          forms[page.key] || {}
         )[key] || {}
       ).value
     ])

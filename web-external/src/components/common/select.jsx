@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { store } from '../../globals';
 import actions from '../../actions';
 
 export default class Select extends React.Component {
@@ -28,16 +29,23 @@ export default class Select extends React.Component {
     }
 
     if (folder) {
+      const itemCallback = (item) => {
+        this.addOption(item);
+        return store.dispatch(actions.closeDialog());
+      };
+
+      const onClick = (e) => {
+        e.preventDefault();
+        return (
+          store.dispatch(actions.setItemSelectedCallback(itemCallback))
+            .then(() => store.dispatch(actions.openFileSelectorDialog()))
+        );
+      }
+
       this.fileSelector = (
         <div className='file-selector'>
           <input type='button'
-                 onClick={() => {
-                   actions.setItemSelectedCallback((item) => {
-                     this.addOption(item);
-                     actions.closeDialog();
-                   });
-                   actions.openFileSelectorDialog();
-                 }}
+                 onClick={ onClick }
                  className='btn btn-primary'
                  value='Add a file'/>
         </div>

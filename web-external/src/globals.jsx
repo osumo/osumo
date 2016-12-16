@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { applyMiddleware, createStore } from 'redux';
 import createLogger from 'redux-logger';
+import thunk from 'redux-thunk';
 
 import restRequests from './utils/rest-requests';
 import events from './utils/events';
@@ -9,7 +10,6 @@ export const staticRoot = 'static';
 export const rest = restRequests({ events, apiRoot });
 
 import reducer from './reducer';
-export const actionTypes = reducer();
 
 export const IN_PRODUCTION = (
   process.env.NODE_ENV && process.env.NODE_ENV === 'production'
@@ -17,8 +17,8 @@ export const IN_PRODUCTION = (
 
 export const store = (
   IN_PRODUCTION
-  ? createStore(reducer)
-  : createStore(reducer, applyMiddleware(createLogger()))
+  ? createStore(reducer, applyMiddleware(thunk))
+  : createStore(reducer, applyMiddleware(thunk, createLogger()))
 );
 
 import Promise from 'bluebird';
@@ -45,7 +45,6 @@ let itemSelectedCallback = null;
 export default {
   analysisActionTable,
   apiRoot,
-  actionTypes,
   IN_PRODUCTION,
   staticRoot,
   store,

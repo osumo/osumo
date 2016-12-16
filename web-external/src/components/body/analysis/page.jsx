@@ -61,9 +61,9 @@ class Page extends React.Component {
                   <Element { ...element }
                            mainAction={ mainAction }
                            onAction={ onAction }
-                           onFileSelect={ () => onFileSelect(key) }
+                           onFileSelect={ () => onFileSelect(element) }
                            onStateChange={
-                             (state) => onStateChange(key, state)
+                             (state) => onStateChange(element, state)
                            }
                            state={ form[key] || {} }
                            key={ element.id }/>

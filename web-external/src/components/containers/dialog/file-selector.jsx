@@ -4,15 +4,17 @@ import FileSelectorDialog from '../../dialog/file-selector';
 import actions from '../../../actions';
 
 const FileSelectorDialogContainer = connect(
-  ({
-    dialog: {
-      fileNavigation: { folder, parentType }
-    }
-  }) => ({ folder, parentType }),
+  ({ dialog }) => {
+    let { fileNavigation } = dialog;
+    fileNavigation = fileNavigation || {};
+
+    let { modelType, root } = fileNavigation;
+    return { folder: root, parentType: modelType };
+  },
 
   (dispatch) => ({
-    onClose: () => actions.closeDialog(),
-    onFileSelect: (item) => actions.onItemSelect(item)
+    onClose: () => dispatch(actions.closeDialog()),
+    onFileSelect: (item) => dispatch(actions.onItemSelect(item))
   })
 )(FileSelectorDialog);
 

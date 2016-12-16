@@ -38,7 +38,12 @@ class Register extends React.Component {
 
     let { focusNeedsUpdate } = this.state;
 
-    let updateCallback = (key) => (value) => onUpdate({ key, value });
+    let updateCallback = (key) => (value) => {
+      let payload = {};
+      payload[key] = value;
+      return onUpdate(payload);
+    };
+
     let validationFailed = [];
     let formEntries = [
       {

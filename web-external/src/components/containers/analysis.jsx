@@ -6,14 +6,39 @@ import actions from '../../actions';
 import { rest } from '../../globals';
 import objectReduce from '../../utils/object-reduce';
 
+const assemblePages = (pages, objects, visitedSet={}) => (
+  pages
+    .map((page) => {
+      if (!visitedSet[page]) {
+        visitedSet[page] = { ...objects[page] };
+        visitedSet[page].elements = assemblePages(
+          visitedSet[page].elements || [],
+          objects,
+          visitedSet
+        );
+      }
+
+      return visitedSet[page];
+    })
+);
+
 const AnalysisContainer = connect(
-  ({ analysis: { forms, pages } }) => ({ forms, pages }),
+  ({ analysis: { forms, objects, pages } }) => {
+    forms = forms || {};
+    objects = objects || {};
+    pages = pages || [];
 
-  () => ({
-    onAction: actions.triggerAnalysisAction,
+    return {
+      forms,
+      pages: assemblePages(pages, objects)
+    };
+  },
 
-    onFileSelect: (page, formKey) => {
-      actions.setItemSelectedCallback((item) => (
+  (dispatch) => ({
+    onAction: (...args) => dispatch(actions.triggerAnalysisAction(...args)),
+
+    onFileSelect: (element) => (
+      dispatch(actions.setItemSelectedCallback((item) => (
 
         rest({
           path: `item/${ item._id }/rootpath`
@@ -30,22 +55,24 @@ const AnalysisContainer = connect(
         .reduce((a, b) => a + b)
 
         .then((path) => (
-          actions.setAnalysisFormState(page.name, formKey, {
-            value: item._id,
-            name: item.name,
-            path: `${ path }/${ item.name }`
-          })
+          dispatch(actions.updateAnalysisElementState(
+            element, {
+              value: item._id,
+              name: item.name,
+              path: `${ path }/${ item.name }`
+            }
+          ))
         ))
 
-        .then(actions.closeDialog)
-      ));
+        .then(() => dispatch(actions.closeDialog()))
+      )))
 
-      actions.openFileSelectorDialog();
-    },
+      .then(() => dispatch(actions.openFileSelectorDialog()))
+    ),
 
-    onStateChange: (page, formKey, newState) => {
-      actions.setAnalysisFormState(page.name, formKey, newState);
-    }
+    onStateChange: (element, newState) => dispatch(
+      actions.updateAnalysisElementState(element, newState)
+    )
   })
 )(Analysis);
 

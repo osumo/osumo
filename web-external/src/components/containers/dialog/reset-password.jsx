@@ -4,31 +4,30 @@ import ResetPasswordDialog from '../../dialog/reset-password';
 import actions from '../../../actions';
 
 const ResetPasswordDialogContainer = connect(
-  (
-    {
-      dialog: {
-        errorMessage,
-        errorField: errorKey,
-        focus: { field: focusField, time: focusTime },
-        form
-      }
-    },
-    { filterKey }
-  ) => ({
-    errorKey,
-    errorMessage,
-    filterKey,
-    focusField,
-    focusTime,
-    form
-  }),
+  ({ dialog: { error, focus, form } }, { filterKey }) => {
+    error = error || {};
+    focus = focus || {};
+    form = form || {};
 
-  () => ({
-    onClose: () => actions.closeDialog(),
-    onLogin: () => actions.openLoginDialog(),
-    onRegister: () => actions.openRegisterDialog(),
-    onSubmit: () => actions.submitResetPasswordForm(),
-    onUpdate: (data) => actions.updateDialogForm(data)
+    let { field: errorKey, message: errorMessage } = error;
+    let { field: focusField, time: focusTime } = focus;
+
+    return {
+      errorKey,
+      errorMessage,
+      filterKey,
+      focusField,
+      focusTime,
+      form
+    };
+  },
+
+  (dispatch) => ({
+    onClose: () => dispatch(actions.closeDialog()),
+    onLogin: () => dispatch(actions.openLoginDialog()),
+    onRegister: () => dispatch(actions.openRegisterDialog()),
+    onSubmit: () => dispatch(actions.submitResetPasswordForm()),
+    onUpdate: (data) => dispatch(actions.updateDialogForm(data))
   })
 )(ResetPasswordDialog);
 

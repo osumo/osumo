@@ -7,6 +7,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { connect, Provider } from 'react-redux';
 import URI from 'urijs';
+import { isUndefined } from 'lodash';
 
 import globals, { router, store } from './globals';
 import actions from './actions';
@@ -27,7 +28,7 @@ $(() => {
                   .append(globals.$dialogRootDiv)
                   .append(globals.$backdropRootDiv);
 
-  actions.verifyCurrentUser();
+  store.dispatch(actions.verifyCurrentUser());
 
   /* create main application component and render */
   let App = connect(
@@ -92,9 +93,8 @@ $(() => {
     });
 
     let { Promise } = require('./utils/promise');
-    let { actionTypes } = globals;
 
-    actions.registerAnalysisAction('igpse', 'process', (forms, page) => {
+    const igpseProcess = function (forms, page) {
       let form = aggregateForm(forms, page);
       return runTask(
         'iGPSe',
@@ -126,54 +126,79 @@ $(() => {
           if (name === 'mirna_heatmap.png') { miRNAFileId = fid; }
         });
 
-        actions.addAnalysisPage({
-          name: 'igpse2',
-          description: ('Interactive Genomics Patient ' +
-                        'Stratification explorer (Step 2)'),
-          mainAction: 'process'
-        });
+        return (
+          this.dispatch(actions.addAnalysisPage({
+            key: 'igpse2',
+            name: 'iGPSe Part 2',
+            description: ('Interactive Genomics Patient ' +
+                          'Stratification explorer (Step 2)'),
+            mainAction: 'process'
+          }))
 
-        actions.addAnalysisElement({
-          name: 'mRNA Heatmap',
-          notes: ('The major groups show how the data was clustered.  ' +
-                  'The columns show different mRNA attributes, ' +
-                  'and the rows represent each subject.'),
-          type: 'image',
-          fileId: mRNAFileId
-        });
+          .then(() => this.dispatch(actions.addAnalysisElement({
+            name: 'mRNA Heatmap',
+            notes: ('The major groups show how the data was clustered.  ' +
+                    'The columns show different mRNA attributes, ' +
+                    'and the rows represent each subject.'),
+            type: 'image',
+            fileId: mRNAFileId
+          })))
 
-        actions.addAnalysisElement({
-          name: 'miRNA Heatmap',
-          notes: ('The major groups show how the data was clustered.  ' +
-                  'The columns show different miRNA attributes, ' +
-                  'and the rows represent each subject.'),
-          type: 'image',
-          fileId: miRNAFileId
-        });
+          .then(() => this.dispatch(actions.addAnalysisElement({
+            name: 'miRNA Heatmap',
+            notes: ('The major groups show how the data was clustered.  ' +
+                    'The columns show different miRNA attributes, ' +
+                    'and the rows represent each subject.'),
+            type: 'image',
+            fileId: miRNAFileId
+          })))
+        );
       });
-    });
+    };
 
-    const pagePromise = (page) => () => Promise.all([
-      Promise.delay(500),
-      actions.addAnalysisPage(page)
-    ]);
+    store.dispatch(
+      actions.registerAnalysisAction('igpse', 'process', igpseProcess));
 
-    const elementPromise = (element) => () => Promise.all([
-      Promise.delay(10),
-      actions.addAnalysisElement(element)
-    ]);
+    const pagePromise = (page) => () => {
+      let result;
+
+      return Promise.all([
+        Promise.delay(500),
+        store.dispatch(actions.addAnalysisPage(page))
+          .then((page) => (result = page))
+      ]).then(() => result);
+    };
+
+    const elementPromise = (element) => (map) => {
+      if (isUndefined(map)) { map = {}; }
+
+      return Promise.all([
+        Promise.delay(10),
+        store.dispatch(actions.addAnalysisElement(element))
+          .then((element) => {
+            if (!isUndefined(element.key)) {
+              map[element.key] = element;
+            }
+          })
+      ]).then(() => {
+        return map;
+      });
+    };
 
     (
       Promise
         .delay(1000)
         .then(pagePromise({
-          name: 'igpse',
+          key: 'igpse',
+          name: 'iGPSe',
           description: 'Interactive Genomics Patient Stratification explorer',
           notes: (
             'Show a survival plot based on clustering of different data sets.'),
           mainAction: 'process'
         }))
 
+        /* so the element promises don't operate on the page */
+        .then(() => undefined)
 
         .then(elementPromise({
           key: 'mrna_input_path',
@@ -243,10 +268,12 @@ $(() => {
           name: 'Process'
         }))
 
-        .then(() => Promise.delay(1000))
+        .then((map) => {
+          return Promise.delay(1000).then(() => map);
+        })
 
-        .then(() => {
-          Object.entries({
+        .then((map) => {
+          let states = {
             mrna_input_path: {
               name: 'mRNAnorm_pam50.csv',
               path: '/users/osumopublicuser/OSUMO Inputs/mRNAnorm_pam50.csv',
@@ -270,7 +297,24 @@ $(() => {
             mirna_clusters: { value: '5' },
 
             output_dir: { value: '582bc1517be3a024f80ff17c' }
-          }).forEach((args) => actions.setAnalysisFormState('igpse', ...args))
+          };
+
+          let result;
+          (
+            Object.entries(map)
+              .forEach(([key, element]) => {
+                let p = store.dispatch(
+                  actions.updateAnalysisElementState(element, states[key]));
+
+                if (result) {
+                  result = result.then(() => p);
+                } else {
+                  result = p;
+                }
+              })
+          )
+
+          return result;
         })
     );
   }

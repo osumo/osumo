@@ -7,7 +7,7 @@ import RootSelector from '../../common/root-selector';
 /* hacked to remove the download and view links */
 /* TODO(opadron): replace this with flags from girder/girder#1688 once we
  * migrate to Girder 2.0 */
-import customItemListTemplate from './item-list-template';
+import customItemListTemplate from './item-list-template.jade';
 girder.templates.itemList = customItemListTemplate;
 
 /* hacked to remove the metadata section */
