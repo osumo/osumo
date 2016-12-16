@@ -12,8 +12,8 @@ const HeaderContainer = connect(
 
   (dispatch) => ({
     onDropdown: actions.toggleHeaderDropdown,
-    onFolders: (id) => router(`user/${id}`),
-    onInfo: (id) => router(`useraccount/${id}/info`),
+    onFolders: (id) => window.open(`girder#user/${ id }`, '_blank'),
+    onInfo: (id) => window.open(`girder#useraccount/${ id }/info`, '_blank'),
     onLogin: () => router('login'),
     onLogout: actions.submitLogoutForm,
     onRegister: () => router('register'),
