@@ -14,7 +14,10 @@ const FileSelectorDialogContainer = connect(
 
   (dispatch) => ({
     onClose: () => dispatch(actions.closeDialog()),
-    onFileSelect: (item) => dispatch(actions.onItemSelect(item))
+    onFileSelect: (item) => dispatch(actions.onItemSelect(item)),
+    onRootSelect: (id, type) => dispatch(
+      actions.setFileNavigationRoot(id, type)
+    )
   })
 )(FileSelectorDialog);
 

@@ -42,7 +42,7 @@ export default class RootSelector extends React.Component {
     this.rootSelector = new RootSelectorView({
       el: $root,
       parentView: null,
-      onItemSelect: onRootSelect
+      onItemSelect: ({ id, type }) => onRootSelect(id, type)
     });
   }
 

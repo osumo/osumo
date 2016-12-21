@@ -1,7 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
 
-import { setFileNavigation } from '../../../actions';
 import RootSelector from '../../common/root-selector';
 
 /* hacked to remove the download and view links */
@@ -95,7 +94,7 @@ export default class Body extends React.Component {
   }
 
   render () {
-    let { folder, parentType } = this.props;
+    let { folder, onRootSelect, parentType } = this.props;
     let manageLink = [];
     if (folder) {
       const manageHref = `girder#${ parentType }/${ folder._id }`;
@@ -110,9 +109,7 @@ export default class Body extends React.Component {
       <div className='modal-body'>
         { manageLink }
         <div className='g-hierarchy-root-container'>
-          <RootSelector onRootSelect={
-            ({ id, type }) => setFileNavigation(type, id)
-          }/>
+          <RootSelector onRootSelect={ onRootSelect }/>
           <div className='im-hierarchy-widget' ref='modalRoot'/>
         </div>
       </div>

@@ -304,17 +304,19 @@ export const setDialogError = (field, message) => promiseAction(
   }
 );
 
-export const setFileNavigationRoot = (root) => promiseAction(
+export const setFileNavigationRoot = (root, type) => promiseAction(
   (D, S) => {
     if (isString(root)) {
       let promise;
 
       (
-        [ 'user', 'collection', 'folder' ]
+        (
+          isString(type) ? [ type ] : [ 'user', 'collection', 'folder' ]
+        )
           .forEach((modelType) => {
             let query = { path: `${ modelType }/${ root }` };
-            let p = rest(p).then(({ response }) => response);
-            promise = (promise ? promise.catch(p) : p);
+            let p = rest(query).then(({ response }) => response);
+            promise = (promise ? promise.catch(() => p) : p);
           })
       )
 
