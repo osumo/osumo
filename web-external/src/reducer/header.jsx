@@ -1,5 +1,5 @@
 import { isNil } from 'lodash';
-import ACTION_TYPES from './new-action-types';
+import ACTION_TYPES from './action-types';
 
 const ensure = (x, def) => (isNil(x) ? def : x);
 

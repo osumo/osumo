@@ -1,34 +1,12 @@
 
-/*
-import { compose } from '../utils/reducer';
-import { bool, object, string } from '../utils/common-reducers';
-import dialog from './dialog';
-import analysis from './analysis';
-
-const rootReducer = compose().children({
-  analysis,
-  dialog,
-  globalNavTarget: string,
-  header: compose().children({
-    dropdownOpened: bool
-  }),
-  loginInfo: compose().children({
-    token: string,
-    user: object
-  })
-});
-
-export default rootReducer;
-*/
-
 import { combineReducers } from 'redux';
-import ACTION_TYPES from './new-action-types';
+import ACTION_TYPES from './action-types';
 
-import analysis from './new-analysis';
-import dialog from './new-dialog';
-import globalNavTarget from './new-global-nav-target';
-import header from './new-header';
-import loginInfo from './new-login-info';
+import analysis from './analysis';
+import dialog from './dialog';
+import globalNavTarget from './global-nav-target';
+import header from './header';
+import loginInfo from './login-info';
 
 const rootReducer = combineReducers({
   analysis,

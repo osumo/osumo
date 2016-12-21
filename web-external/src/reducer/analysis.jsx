@@ -1,11 +1,13 @@
-import { compose } from '../utils/reducer';
+import { isArray, isNil, isNumber, isString, isUndefined } from 'lodash';
+import ACTION_TYPES from './action-types';
 import objectReduce from '../utils/object-reduce';
 
-import { isArray, isUndefined } from 'lodash';
+const isScalar = (x) => (isNumber(x) || isString(x));
+const ensure = (x, def) => (isNil(x) ? def : x);
 
 const allocateId = (allocator = {}) => {
   let { maxId, freeList } = allocator;
-  if (isUndefined(maxId)) { maxId = -1; }
+  if (isNil(maxId)) { maxId = -1; }
   freeList = freeList || [];
 
   let newId = maxId + 1;
@@ -35,187 +37,457 @@ const returnId = (idList, allocator = {}) => {
   };
 };
 
-const analysisReducer = compose({
-  addPage (state, action) {
-    let { page } = action;
-    let { idAllocator, pages } = state;
-    pages = pages || [];
+const addAnalysisElement = (analysis, element, parent) => {
+  let { idAllocator, lastPageId, objects, parents } = analysis;
+  idAllocator = ensure(idAllocator, {});
+  objects = ensure(objects, {});
+  parents = ensure(parents, {});
 
+  parent = ensure(parent, lastPageId);
+  parent = ensure(parent, 'no-parent');
+  if (parent === 'no-parent') { return analysis; }
+
+  if (isScalar(parent)) { parent = ensure(objects[parent], 'no-parent'); }
+  if (parent === 'no-parent') { return analysis; }
+
+  if (isNil(element.id)) {
     idAllocator = allocateId(idAllocator);
-    let { id } = idAllocator;
+    element = { ...element, id: idAllocator.id };
 
-    pages = [
-      ...pages,
-      { ...page, id, elements: [] }
-    ];
+    analysis = { ...analysis, idAllocator };
+  }
 
-    return {
-      ...state,
-      idAllocator,
-      lastPageId: id,
-      pages
+  if (objects[element.id] !== element) {
+    objects = { ...objects };
+    objects[element.id] = element;
+
+    analysis = { ...analysis, objects };
+  }
+
+  objects = { ...objects };
+  objects[parent.id] = {
+    ...parent,
+    elements: [ ...ensure(parent.elements, []), Number(element.id) ]
+  };
+
+  parents = { ...parents };
+  parents[element.id] = parent.id;
+
+  analysis = { ...analysis, objects, parents };
+
+  return analysis;
+};
+
+const addAnalysisPage = (analysis, page) => {
+  page = ensure(page, 'no-page');
+  if (page === 'no-page') { return analysis; }
+
+  let { idAllocator, objects, pages } = analysis;
+  idAllocator = ensure(idAllocator, {});
+  objects = ensure(objects, {});
+  pages = ensure(pages, []);
+
+  if (isNil(page.id)) {
+    idAllocator = allocateId(idAllocator);
+    page = { ...page, id: idAllocator.id };
+
+    analysis = { ...analysis, idAllocator };
+  }
+
+  if (isNil(page.elements)) {
+    page = { ...page, elements: [] };
+  }
+
+  objects = { ...objects };
+  objects[page.id] = page;
+
+  analysis = {
+    ...analysis,
+    objects,
+    pages: [ ...pages, Number(page.id) ],
+    lastPageId: page.id
+  };
+
+  return analysis;
+};
+
+const removeAnalysisElement = (analysis, element) => {
+  let { idAllocator, objects, parents } = analysis;
+  idAllocator = ensure(idAllocator, {});
+  objects = ensure(objects, {});
+
+  element = ensure(element, 'no-element');
+  if (element === 'no-element') { return analysis; }
+
+  if (!isArray(element)) { element = [element]; }
+
+  /* normalize the list of provided elements to just their ids */
+  let failedValidation = false;
+  element = element.map((e) => {
+    if (failedValidation) { return; }
+    if (isScalar(e)) { e = ensure(objects[e], 'no-element'); }
+    if (e === 'no-element') {
+      failedValidation = true;
+      return;
+    }
+
+    return e.id;
+  });
+  if (failedValidation) { return analysis; }
+
+  /* ensure that none of the provided elements are actually pages! */
+  failedValidation = element.some((e) => {
+    let p = ensure(objects[parents[e]], 'no-parent');
+    return (p === 'no-parent');
+  });
+  if (failedValidation) { return analysis; }
+
+  /*
+   * construct the initial set of ids that are to be freed
+   * this set will be expanded recursively
+   */
+  let idSet = (
+    element
+      .map((id) => [id, true])
+      .reduce(objectReduce, {})
+  );
+
+  /* this is the function that will recursively expand the id set */
+  const excludeChildren = (parent) => {
+    let { elements } = parent;
+
+    elements = ensure(elements, []);
+
+    /* already excluded */
+    let ids = elements.filter((id) => !idSet[id]);
+    elements = ids.map((id) => objects[id]);
+
+    idSet = {
+      ...idSet,
+      ...(
+        ids
+          .map((id) => [id, true])
+          .reduce(objectReduce, {})
+      )
     };
-  },
 
-  removePage (state, action) {
-    let { id, form } = action;
-    let predicates = [];
+    elements.forEach(excludeChildren);
+  };
 
-    if (!isUndefined(id)) {
-      if (!isArray(id)) { id = [id]; }
-      predicates.push((page) => id.indexOf(page.id) >= 0);
-    }
+  /* first pass: expand the id set (no modifications) */
+  (
+    Object.entries(objects)
+      .filter(([id, ]) => Boolean(idSet[id]))
+      .map(([, obj]) => obj)
+      .forEach(excludeChildren)
+  );
 
-    if (!isUndefined(form)) {
-      if (!isArray(form)) { form = [form]; }
-      predicates.push((page) => form.indexOf(page.form) >= 0);
-    }
+  /*
+   * second pass: remove the filtered objects and their
+   *              entries from any parent objects
+   */
+  objects = (
+    Object.entries(objects)
+      .filter(([id, ]) => !idSet[id])
+      .map(([id, obj]) => {
+        let { elements } = obj;
+        elements = ensure(elements, []).filter((id) => !idSet[id]);
+        obj = { ...obj, elements };
+        return [id, obj];
+      })
+      .reduce(objectReduce, {})
+  );
 
-    let freedIds = [];
-    let freedForms = {};
+  analysis = { ...analysis, objects };
 
-    const predicate = (page) => {
-      let result = predicates.every((P) => !P(page));
+  /*
+   * if some ids should be freed,
+   *     return them to the allocator
+   *     and remove their parent entries, if any
+   */
+  let freedIds = Object.keys(idSet);
+  if (freedIds.length) {
+    let { idAllocator } = analysis;
+    idAllocator = ensure(idAllocator, {});
+    idAllocator = returnId(freedIds, idAllocator);
 
-      /* an a side-effect, count this page towards the form counts */
-      let { form } = page;
-      freedForms[form] = (freedForms[form] || 0) + Number(result);
-
-      if (!result) {
-        /* as a side-effect, record the ids that need to be freed */
-        freedIds = [
-          ...freedIds,
-          page.id,
-          ...page.elements.map(({ id }) => id)
-        ];
-      }
-
-      return result;
-    };
-
-    let { pages } = state;
-    pages = pages.filter(predicate);
-
-    /* if some ids got freed, return them to the allocator */
-    if (freedIds.length) {
-      let idAllocator = returnId(freedIds, state.idAllocator);
-      state = { ...state, pages, idAllocator };
-    }
-
-    /* if a form no longer has any pages referencing it, clear the form */
-    freedForms = new Set(
-      Object.entries(freedForms)
-        .filter(([ , count]) => !count)
-        .map(([form, ]) => form)
+    parents = (
+      Object.entries(parents)
+        .filter(([id, ]) => !idSet[id])
+        .reduce(objectReduce, {})
     );
 
-    if (freedForms.size) {
-      let { forms } = state;
-      forms = (
-        Object.entries(forms || {})
-          .filter(([form, ]) => !freedForms.has(form))
+    analysis = { ...analysis, idAllocator, parents };
+  }
+
+  return analysis;
+};
+
+const removeAnalysisPage = (analysis, page) => {
+  let { lastPageId, objects, pages, parents } = analysis;
+  objects = ensure(objects, []);
+  pages = ensure(pages, []);
+  parents = ensure(parents, {});
+
+  page = ensure(page, lastPageId);
+  page = ensure(page, 'no-page');
+  if (page === 'no-page') { return analysis; }
+
+  if (!isArray(page)) { page = [page]; }
+
+  let clearLastPageId = false;
+  let failedValidation = false;
+  page = page.map((p) => {
+    if (failedValidation) { return; }
+    if (isScalar(p)) { p = ensure(objects[p], 'no-page'); }
+    if (p === 'no-page') {
+      failedValidation = true;
+      return;
+    }
+
+    clearLastPageId = clearLastPageId || lastPageId === p.id;
+
+    return p.id;
+  });
+  if (failedValidation) { return analysis; }
+
+  if (clearLastPageId) {
+    ({ lastPageId, ...analysis } = analysis);
+  }
+
+  /*
+   * construct the initial set of ids that are to be freed
+   * this set will be expanded recursively
+   */
+  let idSet = (
+    page
+      .map((id) => [id, true])
+      .reduce(objectReduce, {})
+  );
+
+  let referencedForms = {};
+
+  /* this is the function that will recursively expand the id set */
+  const excludeChildren = (parent) => {
+    let { elements } = parent;
+    elements = ensure(elements, []);
+
+    /* already excluded */
+    let ids = elements.filter((id) => !idSet[id]);
+    elements = ids.map((id) => objects[id]);
+
+    idSet = {
+      ...idSet,
+      ...(
+        ids
+          .map((id) => [id, true])
           .reduce(objectReduce, {})
-      );
-      state = { ...state, forms };
-    }
-
-    return state;
-  },
-
-  addElement (state, action) {
-    let { pageId, element } = action;
-
-    if (isUndefined(pageId)) {
-      ({ lastPageId: pageId } = state);
-    }
-
-    if (isUndefined(pageId)) /* (still) */ { return state; }
-
-    let { pages } = state;
-
-    let pageModified = false;
-
-    pages = pages.map((page) => {
-      if (page.id === pageId) {
-        if (isUndefined(element.id)) {
-          let idAllocator = allocateId(state.idAllocator);
-          element.id = idAllocator.id;
-          state = { ...state, idAllocator };
-        }
-
-        page = {
-          ...page,
-          elements: [
-            ...page.elements,
-            element
-          ]
-        };
-
-        pageModified = true;
-      }
-
-      return page;
-    });
-
-    if (pageModified) {
-      state = { ...state, pages };
-    }
-
-    return state;
-  },
-
-  removeElement (state, action) {
-    let { pageId, id } = action;
-
-    if (isUndefined(pageId)) {
-      ({ lastPageId: pageId } = state);
-    }
-
-    if (isUndefined(pageId)) /* (still) */ { return state; }
-
-    let { pages } = state;
-
-    let pageModified = false;
-
-    pages = pages.map((page) => {
-      if (page.id === pageId) {
-        page = {
-          ...page,
-          elements: page.elements.filter(({ id: _id }) => {
-            let result = (_id !== id);
-            if (!result) { pageModified = true; }
-            return result;
-          })
-        };
-      }
-
-      return page;
-    });
-
-    if (pageModified) {
-      state = {
-        ...state,
-        pages,
-        idAllocator: returnId(id, state.idAllocator)
-      };
-    }
-
-    return state;
-  },
-
-  setFormState (state, action) {
-    let { name: formKey, key, state: formState } = action;
-
-    state = { ...state };
-    state.forms = { ...(state.forms || {}) };
-    state.forms[formKey] = { ...(state.forms[formKey] || {}) };
-    state.forms[formKey][key] = {
-      ...(state.forms[formKey][key] || {}),
-      ...formState
+      )
     };
 
-    return state;
-  }
-}).defaultState({});
+    elements.forEach(excludeChildren);
+  };
 
-export default analysisReducer;
+  /* first pass: expand the id set (no modifications) */
+  (
+    pages
+      .filter((id) => Boolean(idSet[id]))
+      .map((id) => objects[id])
+      .forEach(excludeChildren)
+  );
+
+  /* second pass: remove the filtered pages */
+  pages = pages.filter((id) => {
+
+    let { key } = objects[id];
+    let excluded = Boolean(idSet[id]);
+
+    /*
+     * As a side-effect, determine whether the form for this page should be
+     * removed.
+     *
+     * Criteria:
+     *   - If this page should remain, the form it uses should not be cleared.
+     *   - If this page should be removed, the form it uses should go as well.
+     *     - ... **unless** it's needed for another page.
+     */
+    referencedForms[key] = referencedForms[key] || !excluded;
+    return !excluded;
+  });
+
+  /*
+   * third pass: remove the filtered objects and their
+   *             entries from any parent objects
+   */
+  objects = (
+    Object.entries(objects)
+      .filter(([id, ]) => !idSet[id])
+      .map(([id, obj]) => {
+        let { elements } = obj;
+        elements = ensure(elements, []).filter((id) => !idSet[id]);
+        obj = { ...obj, elements };
+        return [id, obj];
+      })
+      .reduce(objectReduce, {})
+  );
+
+  analysis = { ...analysis, objects, pages };
+
+  /*
+   * if some ids should be freed,
+   *     return them to the allocator
+   *     and remove their parent entries, if any
+   */
+  let freedIds = Object.keys(idSet);
+  if (freedIds.length) {
+    let { idAllocator } = analysis;
+    idAllocator = ensure(idAllocator, {});
+    idAllocator = returnId(freedIds, idAllocator);
+
+    parents = { ...parents };
+    freedIds.forEach((id) => { delete parents[id]; });
+
+    analysis = { ...analysis, idAllocator, parents };
+  }
+
+  /* remove any forms that no longer have any pages using them */
+  let thereAreFormsToFree = (
+    Object.entries(referencedForms)
+      .some(([, keep]) => !keep)
+  );
+
+  if (thereAreFormsToFree) {
+    let { forms } = analysis;
+    forms = ensure(forms, {});
+    forms = (
+      Object.entries(forms)
+        .filter(([form, ]) => referencedForms[form])
+        .reduce(objectReduce, {})
+    );
+
+    analysis = { ...analysis, forms };
+  }
+
+  return analysis;
+};
+
+const removeAnalysisPageByKey = (analysis, key) => {
+  let { objects, pages } = analysis;
+  objects = ensure(objects, {});
+  pages = ensure(pages, []);
+
+  key = ensure(key, 'no-key');
+  if (key === 'no-key') { return analysis; }
+
+  if (!isArray(key)) { key = [key]; }
+
+  let keySet = (
+    key
+      .map((k) => [k, true])
+      .reduce(objectReduce, {})
+  );
+
+  let failedValidation = false;
+  let idSet = pages.map((page) => {
+    if (failedValidation) { return; }
+    if (isScalar(page)) { page = ensure(objects[page], 'no-page'); }
+    if (page === 'no-page') {
+      failedValidation = true;
+      return;
+    }
+
+    return [page.id, page.key];
+  });
+
+  if (failedValidation) { return analysis; }
+
+  idSet = (
+    idSet
+      .filter(([, k]) => (keySet[k]))
+      .map(([id, ]) => id)
+  );
+
+  if (idSet.length) { analysis = removeAnalysisPage(analysis, idSet); }
+
+  return analysis;
+}
+
+const updateAnalysisElementState = (analysis, element, state) => {
+  let { forms, objects, parents } = analysis;
+  forms = ensure(forms, {});
+  objects = ensure(objects, {});
+  parents = ensure(parents, {});
+
+  element = ensure(element, 'no-element');
+  if (element === 'no-element') { return analysis; }
+
+  if (isScalar(element)) { element = ensure(objects[element], 'no-element'); }
+  if (element === 'no-element') { return analysis; }
+
+  state = ensure(state, 'no-state');
+  if (state === 'no-state') { return analysis; }
+
+  let keys = [];
+
+  const walk = (e) => {
+    let parent = ensure(objects[parents[e.id]], 'no-parent');
+    keys.push(e.key);
+    if (parent !== 'no-parent') { walk(parent); }
+  };
+
+  walk(element);
+
+  let n = keys.length;
+  if (n === 0) { return analysis; }
+  forms = { ...forms };
+
+  let currentForm = forms;
+
+  for(;n--;) {
+    currentForm[keys[n]] = {
+      ...ensure(currentForm[keys[n]], {}),
+      ...(n === 0 ? state : {})
+    };
+
+    currentForm = currentForm[keys[n]];
+  }
+
+  analysis = { ...analysis, forms };
+
+  return analysis;
+};
+
+const analysis = (state={}, action) => {
+  const { type } = action;
+  if (type === ACTION_TYPES.ADD_ANALYSIS_ELEMENT) {
+    const { element, parent } = action;
+    state = addAnalysisElement(state, element, parent);
+
+  } else if (type === ACTION_TYPES.ADD_ANALYSIS_PAGE) {
+    const { page } = action;
+    state = addAnalysisPage(state, page);
+
+  } else if (type === ACTION_TYPES.REMOVE_ANALYSIS_ELEMENT) {
+    const { element } = action;
+    state = removeAnalysisElement(state, element);
+
+  } else if (type === ACTION_TYPES.REMOVE_ANALYSIS_PAGE) {
+    const { key, page } = action;
+    if (!isUndefined(key)) {
+      state = removeAnalysisPageByKey(state, key);
+      if (!isUndefined(page)) {
+        state = removeAnalysisPage(state, page);
+      }
+    } else {
+      state = removeAnalysisPage(state, page);
+    }
+
+  } else if (type === ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT_STATE) {
+    const { element, state: newState } = action;
+    state = updateAnalysisElementState(state, element, newState);
+  }
+
+  return state;
+};
+
+export default analysis;

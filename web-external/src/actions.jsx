@@ -2,7 +2,7 @@ import { isString, isUndefined } from 'lodash';
 import URI from 'urijs';
 import globals from './globals';
 import { Promise } from './utils/promise';
-import ACTION_TYPES from './reducer/new-action-types';
+import ACTION_TYPES from './reducer/action-types';
 
 let { rest } = globals;
 

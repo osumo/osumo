@@ -1,4 +1,4 @@
-import ACTION_TYPES from './new-action-types';
+import ACTION_TYPES from './action-types';
 
 const setGlobalNavTarget = (globalNavTarget, target) => (
   globalNavTarget === target ? globalNavTarget : target
