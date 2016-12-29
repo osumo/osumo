@@ -108,7 +108,7 @@ $(() => {
           },
 
           outputs: {
-            output_mrna_dim: `FILE:${ form.output_dir }:mrna_dim.txt`,
+            clustersJSON: `FILE:${ form.output_dir }:clusters.json`,
             output_mrna_heatmap: `FILE:${ form.output_dir }:mrna_heatmap.png`,
             output_mirna_heatmap: `FILE:${ form.output_dir }:mirna_heatmap.png`
           }
@@ -120,202 +120,156 @@ $(() => {
       ).then((files) => {
         let mRNAFileId;
         let miRNAFileId;
+        let clustersId;
 
         files.forEach(({ fileId: fid, name }) => {
           if (name === 'mrna_heatmap.png') { mRNAFileId = fid; }
           if (name === 'mirna_heatmap.png') { miRNAFileId = fid; }
+          if (name === 'clusters.json') { clustersId = fid; }
         });
 
-        return (
-          this.dispatch(actions.addAnalysisPage({
-            key: 'igpse2',
-            name: 'iGPSe Part 2',
-            description: ('Interactive Genomics Patient ' +
-                          'Stratification explorer (Step 2)'),
-            mainAction: 'process'
-          }))
+        return Promise.all([
+          (
+            this.dispatch(actions.addAnalysisPage({
+              key: 'igpse2',
+              name: 'iGPSe Part 2',
+              description: ('Interactive Genomics Patient ' +
+                            'Stratification explorer (Step 2)'),
+              mainAction: 'process'
+            }))
 
-          .then(() => this.dispatch(actions.addAnalysisElement({
-            name: 'mRNA Heatmap',
-            notes: ('The major groups show how the data was clustered.  ' +
-                    'The columns show different mRNA attributes, ' +
-                    'and the rows represent each subject.'),
-            type: 'image',
-            fileId: mRNAFileId
-          })))
+            .then(
+              (parent) => this.dispatch(actions.addAnalysisElement({
+                parent,
+                name: 'mRNA Heatmap',
+                notes: ('The major groups show how the data was ' +
+                        'clustered.  The columns show different mRNA ' +
+                        'attributes, and the rows represent each subject.'),
+                type: 'image',
+                fileId: mRNAFileId
+              }))
 
-          .then(() => this.dispatch(actions.addAnalysisElement({
-            name: 'miRNA Heatmap',
-            notes: ('The major groups show how the data was clustered.  ' +
-                    'The columns show different miRNA attributes, ' +
-                    'and the rows represent each subject.'),
-            type: 'image',
-            fileId: miRNAFileId
-          })))
-        );
+              .then(() => this.dispatch(actions.addAnalysisElement({
+                parent,
+                name: 'miRNA Heatmap',
+                notes: ('The major groups show how the data was ' +
+                        'clustered.  The columns show different miRNA ' +
+                        'attributes, and the rows represent each subject.'),
+                type: 'image',
+                fileId: miRNAFileId
+              })))
+
+              .then(() => parent)
+            )
+          ),
+
+          (
+            globals.rest({ path: `file/${ clustersId }/download` })
+              .then(({ response }) => response)
+          )
+        ])
+
+        .then(([parent, clusterData]) => this.dispatch(
+          actions.addAnalysisElement({
+            parent,
+            name: 'parallel sets',
+            key: 'pSets',
+            notes: 'Parallel Sets',
+            type: 'parallelSets',
+            inputData: clusterData
+          })
+        ))
       });
     };
 
     store.dispatch(
-      actions.registerAnalysisAction('igpse', 'process', igpseProcess));
+      actions.registerAnalysisAction('igpse', 'process', igpseProcess)
+    )
 
-    const pagePromise = (page) => () => {
-      let result;
+    .then(() => store.dispatch(actions.addAnalysisPage({
+      key: 'igpse',
+      name: 'iGPSe',
+      description: 'Interactive Genomics Patient Stratification explorer',
+      notes: (
+        'Show a survival plot based on clustering of different data sets.'),
+      mainAction: 'process'
+    })))
 
-      return Promise.all([
-        Promise.delay(500),
-        store.dispatch(actions.addAnalysisPage(page))
-          .then((page) => (result = page))
-      ]).then(() => result);
-    };
+    .then(
+      (parent) => store.dispatch(actions.addAnalysisElement({
+        parent,
+        key: 'mrna_input_path',
+        name: 'Gene Expression Profile',
+        description: 'mRNA data',
+        notes: ('This must be a CSV file with one column per ' +
+                'subject, one header row, and one data row per gene.'),
+        type: 'fileSelection',
+        options: { onlyNames: '^mRNA.*csv$' }
+      }))
 
-    const elementPromise = (element) => (map) => {
-      if (isUndefined(map)) { map = {}; }
+      .then(() => store.dispatch(actions.addAnalysisElement({
+        parent,
+        key: 'mrna_clusters',
+        name: 'mRNA Number of Clusters (k)',
+        description: 'The number (k) of clusters used in calculations',
+        notes: 'Clustering is performed via k-means.',
+        type: 'field',
+        options: {
+          dataType: 'integer',
+          default: 5
+        }
+      })))
 
-      return Promise.all([
-        Promise.delay(10),
-        store.dispatch(actions.addAnalysisElement(element))
-          .then((element) => {
-            if (!isUndefined(element.key)) {
-              map[element.key] = element;
-            }
-          })
-      ]).then(() => {
-        return map;
-      });
-    };
+      .then(() => store.dispatch(actions.addAnalysisElement({
+        parent,
+        key: 'mirna_input_path',
+        name: 'MicroRNA Expression Profile',
+        description: 'miRNA data',
+        notes: ('This must be a CSV file with one column per ' +
+                'subject, one header row, and one data row per micro RNA.'),
+        type: 'fileSelection',
+        options: { onlyNames: '^miRNA.*csv$' }
+      })))
 
-    (
-      Promise
-        .delay(1000)
-        .then(pagePromise({
-          key: 'igpse',
-          name: 'iGPSe',
-          description: 'Interactive Genomics Patient Stratification explorer',
-          notes: (
-            'Show a survival plot based on clustering of different data sets.'),
-          mainAction: 'process'
-        }))
+      .then(() => store.dispatch(actions.addAnalysisElement({
+        parent,
+        key: 'mirna_clusters',
+        name: 'miRNA Number of Clusters (k)',
+        description: 'The number (k) of clusters used in calculations',
+        notes: 'Clustering is performed via k-means.',
+        type: 'field',
+        options: {
+          dataType: 'integer',
+          default: 5
+        }
+      })))
 
-        /* so the element promises don't operate on the page */
-        .then(() => undefined)
+      .then(() => store.dispatch(actions.addAnalysisElement({
+        parent,
+        key: 'clinical_input_path',
+        name: 'Clinical Profile',
+        notes: ('This must be a CSV file with a header row and one row ' +
+                'per subject and columns containing the row description, ' +
+                'survival duration, and an indicator field.'),
+        type: 'fileSelection',
+        options: { onlyNames: '^time.*csv$' }
+      })))
 
-        .then(elementPromise({
-          key: 'mrna_input_path',
-          name: 'Gene Expression Profile',
-          description: 'mRNA data',
-          notes: ('This must be a CSV file with one column per ' +
-                  'subject, one header row, and one data row per gene.'),
-          type: 'fileSelection',
-          options: { onlyNames: '^mRNA.*csv$' }
-        }))
+      .then(() => store.dispatch(actions.addAnalysisElement({
+        parent,
+        key: 'output_dir',
+        name: 'Output Location',
+        description: 'output data folder',
+        notes: ('Location where the mRNA heatmap, miRNA ' +
+                'heatmap, and cluster data is stored.'),
+        type: 'folderSelection'
+      })))
 
-        .then(elementPromise({
-          key: 'mrna_clusters',
-          name: 'mRNA Number of Clusters (k)',
-          description: 'The number (k) of clusters used in calculations',
-          notes: 'Clustering is performed via k-means.',
-          type: 'field',
-          options: {
-            dataType: 'integer',
-            default: 5
-          }
-        }))
-
-        .then(elementPromise({
-          key: 'mirna_input_path',
-          name: 'MicroRNA Expression Profile',
-          description: 'miRNA data',
-          notes: ('This must be a CSV file with one column per ' +
-                  'subject, one header row, and one data row per micro RNA.'),
-          type: 'fileSelection',
-          options: { onlyNames: '^miRNA.*csv$' }
-        }))
-
-        .then(elementPromise({
-          key: 'mirna_clusters',
-          name: 'miRNA Number of Clusters (k)',
-          description: 'The number (k) of clusters used in calculations',
-          notes: 'Clustering is performed via k-means.',
-          type: 'field',
-          options: {
-            dataType: 'integer',
-            default: 5
-          }
-        }))
-
-        .then(elementPromise({
-          key: 'clinical_input_path',
-          name: 'Clinical Profile',
-          notes: ('This must be a CSV file with a header row and one row ' +
-                  'per subject and columns containing the row description, ' +
-                  'survival duration, and an indicator field.'),
-          type: 'fileSelection',
-          options: { onlyNames: '^time.*csv$' }
-        }))
-
-        .then(elementPromise({
-          key: 'output_dir',
-          name: 'Output Location',
-          description: 'output data folder',
-          notes: ('Location where the mRNA heatmap, miRNA ' +
-                  'heatmap, and cluster data is stored.'),
-          type: 'folderSelection'
-        }))
-
-        .then(elementPromise({
-          type: 'button',
-          name: 'Process'
-        }))
-
-        .then((map) => {
-          return Promise.delay(1000).then(() => map);
-        })
-
-        .then((map) => {
-          let states = {
-            mrna_input_path: {
-              name: 'mRNAnorm_pam50.csv',
-              path: '/users/osumopublicuser/OSUMO Inputs/mRNAnorm_pam50.csv',
-              value: '57a8b6247be3a054f8be9106'
-            },
-
-            mirna_input_path: {
-              name: 'miRNAnorm_pre.csv',
-              path: '/users/osumopublicuser/OSUMO Inputs/miRNAnorm_pre.csv',
-              value: '57a8b6247be3a054f8be90fe'
-            },
-
-            clinical_input_path: {
-              name: 'time.sur.csv',
-              path: '/users/osumopublicuser/OSUMO Inputs/time.sur.csv',
-              value: '57a8b6247be3a054f8be9117'
-            },
-
-            mrna_clusters: { value: '5' },
-
-            mirna_clusters: { value: '5' },
-
-            output_dir: { value: '582bc1517be3a024f80ff17c' }
-          };
-
-          let result;
-          (
-            Object.entries(map)
-              .forEach(([key, element]) => {
-                let p = store.dispatch(
-                  actions.updateAnalysisElementState(element, states[key]));
-
-                if (result) {
-                  result = result.then(() => p);
-                } else {
-                  result = p;
-                }
-              })
-          )
-
-          return result;
-        })
+      .then(() => store.dispatch(actions.addAnalysisElement({
+        parent,
+        type: 'button',
+        name: 'Process'
+      })))
     );
   }
 });

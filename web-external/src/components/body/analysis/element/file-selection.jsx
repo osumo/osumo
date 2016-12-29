@@ -26,19 +26,6 @@ class FileSelection extends React.Component {
       { id: 2, name: 'three'}
     ];
 
-    let childComponents = [];
-
-    if (!isUndefined(name)) {
-      childComponents.push(
-        <label className='control-label' key='control-label'>{ name }</label>
-      );
-    }
-
-    if (!isUndefined(notes)) {
-      childComponents.push(
-        <div className='control-notes' key='control-notes'>{ notes }</div>);
-    }
-
     let { path, value } = state;
     let buttons = [
       (
@@ -71,7 +58,7 @@ class FileSelection extends React.Component {
       );
     }
 
-    childComponents.push(
+    return (
       <div className='input-group control-file-select'
            key='control-file-select'>
         <TextField className='form-control'
@@ -92,18 +79,6 @@ class FileSelection extends React.Component {
           </ul>
         </div>
       </div>
-    );
-
-    return (
-      !isUndefined(description)
-        ?  (
-          <div className='function-control'
-               title={ description }>
-            { childComponents }
-          </div>
-        )
-
-        : (<div className='function-control'>{ childComponents }</div>)
     );
   }
 

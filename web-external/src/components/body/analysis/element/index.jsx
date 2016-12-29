@@ -1,9 +1,11 @@
 import React from 'react';
+import { isUndefined } from 'lodash';
 
 import ButtonElement from './button';
 import FieldElement from './field';
 import FileSelectionElement from './file-selection';
 import ImageElement from './image';
+import ParallelSetsElement from './parallel-sets';
 
 class Element extends React.Component {
   render () {
@@ -18,10 +20,12 @@ class Element extends React.Component {
     } = this.props;
 
     let result;
+    let wrapResult = true;
 
     switch (type) {
       case 'button':
         result = (<ButtonElement onAction={ onAction } { ...props }/>);
+        wrapResult = false;
         break;
 
       case 'field':
@@ -34,6 +38,7 @@ class Element extends React.Component {
 
       case 'fileSelection':
       case 'file_selection':
+      case 'file-selection':
         result = (
           <FileSelectionElement onStateChange={ onStateChange }
                                 onFileSelect={ onFileSelect }
@@ -44,6 +49,7 @@ class Element extends React.Component {
 
       case 'folderSelection':
       case 'folder_selection':
+      case 'folder-selection':
         result = (
           <FileSelectionElement onStateChange={ onStateChange }
                                 onFileSelect={ onFileSelect }
@@ -57,6 +63,16 @@ class Element extends React.Component {
         result = (<ImageElement { ...props }/>);
         break
 
+      case 'parallelSets':
+      case 'parallel_sets':
+      case 'parallel-sets':
+        result = (
+          <ParallelSetsElement onStateChange={ onStateChange }
+                               state={ state }
+                               { ...props }/>
+        );
+        break;
+
       default:
         result = (
           <div className='.g-analysis-element'>
@@ -64,6 +80,35 @@ class Element extends React.Component {
             { JSON.stringify(this.props) }
           </div>
         );
+        wrapResult = false;
+    }
+
+    if (wrapResult) {
+      let elements = [];
+      let { description, name, notes } = this.props;
+      let extraProps = {};
+
+      if (!isUndefined(name)) {
+        elements.push(
+          <label className='control-label' key='control-label'>{ name }</label>
+        );
+      }
+
+      if (!isUndefined(notes)) {
+        elements.push(
+          <div className='control-notes' key='control-notes'>{ notes }</div>
+        );
+      }
+
+      if (!isUndefined(description)) {
+        extraProps.title = description;
+      }
+
+      elements.push(result);
+
+      result = (
+        <div className='function-control' { ...extraProps }>{ elements }</div>
+      );
     }
 
     return result;
@@ -71,7 +116,10 @@ class Element extends React.Component {
 
   static get propTypes () {
     return {
+      description: React.PropTypes.string,
       id: React.PropTypes.number,
+      name: React.PropTypes.string,
+      notes: React.PropTypes.string,
       onAction: React.PropTypes.func,
       onFileSelect: React.PropTypes.func,
       onStateChange: React.PropTypes.func,
