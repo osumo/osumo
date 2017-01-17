@@ -2,12 +2,16 @@
 name: OSUMO
 version: 0.0.1
 description: "Multi-Omics Data Analytics @ OSU"
-grunt:
-    autobuild: false
-    dependencies:
-        "webpack": 2.1.0-beta.25
-    file: Gruntfile.js
+npm:
+  file: package.json
+  fields:
+    - dependencies
+    - devDependencies
+webpack:
+  configHelper: webpack.helper.js
+  main: web_client/main.jsx
+  output: index
 dependencies:
-    - worker
-    - jobs
+  - worker
+  - jobs
 

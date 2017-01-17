@@ -1,9 +1,12 @@
 import React from 'react';
 import $ from 'jquery';
 
-const RootSelectorView = girder.View.extend({
+import View from 'girder/views/View';
+import RootSelectorWidget from 'girder/views/widgets/RootSelectorWidget';
+
+const RootSelectorView = View.extend({
   initialize: function (settings) {
-    this.rootSelectorView = new girder.views.RootSelectorWidget({
+    this.rootSelectorView = new RootSelectorWidget({
       ...settings,
       parentView: this
     });

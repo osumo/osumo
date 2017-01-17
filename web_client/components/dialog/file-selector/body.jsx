@@ -1,27 +1,38 @@
 import React from 'react';
 import $ from 'jquery';
 
+import View from 'girder/views/View';
+import HierarchyWidget from 'girder/views/widgets/HierarchyWidget';
+import CollectionModel from 'girder/models/CollectionModel';
+import UserModel from 'girder/models/UserModel';
+import FolderModel from 'girder/models/FolderModel';
+
 import RootSelector from '../../common/root-selector';
 
 /* hacked to remove the download and view links */
 /* TODO(opadron): replace this with flags from girder/girder#1688 once we
  * migrate to Girder 2.0 */
-import customItemListTemplate from './item-list-template.jade';
-girder.templates.itemList = customItemListTemplate;
+// import customItemListTemplate from './item-list-template.jade';
+// girder.templates.itemList = customItemListTemplate;
 
 /* hacked to remove the metadata section */
 /* TODO(opadron): replace this with flags from girder/girder#1688 once we
  * migrate to Girder 2.0 */
-import customHierarchyTemplate from './hierarchy-template.jade';
-girder.templates.hierarchyWidget = customHierarchyTemplate;
+// import customHierarchyTemplate from './hierarchy-template.jade';
+// girder.templates.hierarchyWidget = customHierarchyTemplate;
 
-const FileSelectorView = girder.View.extend({
+
+const FileSelectorView = View.extend({
   initialize: function (settings) {
-    this.hierarchyView = new girder.views.HierarchyWidget({
+    this.hierarchyView = new HierarchyWidget({
       parentView: this,
       parentModel: settings.folder,
       showActions: false,
+      showMetadata: false,
       showItems: true,
+      downloadLinks: false,
+      showSizes: false,
+      viewLinks: false,
       checkboxes: false,
       routing: false,
       onItemClick: function (item) {
@@ -59,13 +70,13 @@ export default class Body extends React.Component {
           itemSelected: onFileSelect,
           folder: new (
             parentType === 'collection' ?
-              girder.models.CollectionModel
+              CollectionModel
 
             : parentType === 'user' ?
-              girder.models.UserModel
+              UserModel
 
             :
-              girder.models.FolderModel
+              FolderModel
           )(folder)
         })
 

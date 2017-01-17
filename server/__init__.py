@@ -15,7 +15,7 @@ from girder.api.describe import Description, describeRoute
 from girder.api.rest import Resource, RestException
 from girder.constants import AccessType, TokenScope
 from girder.utility.model_importer import ModelImporter
-
+from girder.utility.plugin_utilities import registerPluginWebroot
 from girder.plugins.worker import utils as workerUtils
 
 from .job_specs import job_specs
@@ -369,23 +369,9 @@ class Osumo(Resource):
 
 
 def load(info):
-    Osumo._cp_config['tools.staticdir.dir'] = os.path.join(
-        os.path.relpath(info['pluginRootDir'],
-                        info['config']['/']['tools.staticdir.root']),
-        'web-external')
+    Osumo._cp_config['tools.staticdir.dir'] = (
+        os.path.join(info['pluginRootDir'], 'web_client'))
+    osumo = Osumo()
+    registerPluginWebroot(osumo, info['name'])
 
-    # Move girder app to /girder, serve sumo app from /
-    info['apiRoot'].osumo = Osumo()
-
-    (
-        info['serverRoot'],
-        info['serverRoot'].girder
-    ) = (
-        info['apiRoot'].osumo,
-        info['serverRoot']
-    )
-
-    info['serverRoot'].api = info['serverRoot'].girder.api
-    info['serverRoot'].girder.api
-
-    events.bind('data.process', 'osumo', info['apiRoot'].osumo.dataProcess)
+    events.bind('data.process', 'osumo', osumo.dataProcess)

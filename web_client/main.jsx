@@ -18,7 +18,7 @@ import MainApp from './components/main-app';
 import DialogBackdrop from './components/dialog/backdrop';
 import DialogContainer from './components/containers/dialog';
 
-import './style/full-viewport';
+import './style/full-viewport.styl';
 
 $(() => {
   /* disable girder's router navigation as it clashes with our router */

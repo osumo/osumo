@@ -24,13 +24,18 @@ class Element extends React.Component {
 
     switch (type) {
       case 'button':
-        result = (<ButtonElement onAction={ onAction } { ...props }/>);
+        result = (
+          <ButtonElement key='result'
+                         onAction={ onAction }
+                         { ...props }/>
+        );
         wrapResult = false;
         break;
 
       case 'field':
         result = (
-          <FieldElement onStateChange={ onStateChange }
+          <FieldElement key='result'
+                        onStateChange={ onStateChange }
                         state={ state }
                         { ...props }/>
         );
@@ -40,7 +45,8 @@ class Element extends React.Component {
       case 'file_selection':
       case 'file-selection':
         result = (
-          <FileSelectionElement onStateChange={ onStateChange }
+          <FileSelectionElement key='result'
+                                onStateChange={ onStateChange }
                                 onFileSelect={ onFileSelect }
                                 state={ state }
                                 { ...props }/>
@@ -51,7 +57,8 @@ class Element extends React.Component {
       case 'folder_selection':
       case 'folder-selection':
         result = (
-          <FileSelectionElement onStateChange={ onStateChange }
+          <FileSelectionElement key='result'
+                                onStateChange={ onStateChange }
                                 onFileSelect={ onFileSelect }
                                 state={ state }
                                 { ...props }
@@ -60,14 +67,15 @@ class Element extends React.Component {
         break;
 
       case 'image':
-        result = (<ImageElement { ...props }/>);
+        result = (<ImageElement key='result' { ...props }/>);
         break
 
       case 'parallelSets':
       case 'parallel_sets':
       case 'parallel-sets':
         result = (
-          <ParallelSetsElement onStateChange={ onStateChange }
+          <ParallelSetsElement key='result'
+                               onStateChange={ onStateChange }
                                state={ state }
                                { ...props }/>
         );
@@ -75,7 +83,7 @@ class Element extends React.Component {
 
       default:
         result = (
-          <div className='.g-analysis-element'>
+          <div key='result' className='.g-analysis-element'>
             { id }
             { JSON.stringify(this.props) }
           </div>

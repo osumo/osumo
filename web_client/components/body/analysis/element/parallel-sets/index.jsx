@@ -6,7 +6,7 @@ import d3Shape from 'd3-shape';
 
 import LinkGroup from './link-group';
 import NodeGroup from './node-group';
-import './style';
+import './style.styl';
 
 class ParallelSets extends React.Component {
   render () {
