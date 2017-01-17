@@ -6,9 +6,12 @@ import Body from './body';
 export default class FileSelector extends React.Component {
   render () {
     let {
+      folderSelectMode,
+      itemFilter,
       onClose,
-      onFileSelect,
+      onItemSelect,
       onRootSelect,
+      showItems,
       folder,
       parentType
     } = this.props;
@@ -18,9 +21,12 @@ export default class FileSelector extends React.Component {
         <div className='modal-content'>
           <Header onClose={ onClose }>Select an item</Header>
           <Body folder={ folder }
+                itemFilter={ itemFilter }
+                folderSelectMode={ folderSelectMode }
+                onItemSelect={ onItemSelect }
                 onRootSelect={ onRootSelect }
-                parentType={ parentType }
-                onFileSelect={ onFileSelect }/>
+                showItems={ showItems }
+                parentType={ parentType }/>
         </div>
       </div>
     );

@@ -53,15 +53,54 @@ const setDialogFocus = (dialog, field, time) => {
 };
 
 const setFileNavigationRoot = (dialog, modelType, root) => {
-  let { fileNavigation } = dialog;
-  fileNavigation = ensure(fileNavigation, {});
+  let { fileSelect } = dialog;
+  fileSelect = ensure(
+    fileSelect, {
+      folderSelectMode: false,
+      showItems: true,
+    }
+  );
 
   if (
-    fileNavigation.root !== root ||
-    fileNavigation.modelType !== modelType
+    fileSelect.root !== root ||
+    fileSelect.modelType !== modelType
   ) {
-    fileNavigation = { ...fileNavigation, root, modelType };
-    dialog = { ...dialog, fileNavigation };
+    fileSelect = { ...fileSelect, root, modelType };
+    dialog = { ...dialog, fileSelect };
+  }
+
+  return dialog;
+};
+
+const setFileNavigationFolderSelectMode = (dialog, mode) => {
+  let { fileSelect } = dialog;
+  fileSelect = ensure(
+    fileSelect, {
+      folderSelectMode: false,
+      showItems: true,
+    }
+  );
+
+  if (fileSelect.folderSelectMode !== mode) {
+    fileSelect = { ...fileSelect, folderSelectMode: mode };
+    dialog = { ...dialog, fileSelect };
+  }
+
+  return dialog;
+};
+
+const setFileNavigationShowItems = (dialog, showItems) => {
+  let { fileSelect } = dialog;
+  fileSelect = ensure(
+    fileSelect, {
+      folderSelectMode: false,
+      showItems: true,
+    }
+  );
+
+  if (fileSelect.showItems !== showItems) {
+    fileSelect = { ...fileSelect, showItems: showItems };
+    dialog = { ...dialog, fileSelect };
   }
 
   return dialog;
@@ -133,6 +172,14 @@ const dialog = (state={}, action) => {
   } else if (type === ACTION_TYPES.SET_FILE_NAVIGATION_ROOT) {
     const { modelType, root } = action;
     state = setFileNavigationRoot(state, modelType, root);
+
+  } else if (type === ACTION_TYPES.SET_FILE_NAVIGATION_FOLDER_SELECT_MODE) {
+    const { mode } = action;
+    state = setFileNavigationFolderSelectMode(state, mode);
+
+  } else if (type === ACTION_TYPES.SET_FILE_NAVIGATION_SHOW_ITEMS) {
+    const { showItems } = action;
+    state = setFileNavigationShowItems(state, showItems);
   }
 
   return state;

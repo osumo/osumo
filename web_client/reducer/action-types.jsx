@@ -20,6 +20,8 @@ export default ([
   /* field and time */
   'SET_DIALOG_FOCUS',
   'SET_FILE_NAVIGATION_ROOT',
+  'SET_FILE_NAVIGATION_FOLDER_SELECT_MODE',
+  'SET_FILE_NAVIGATION_SHOW_ITEMS',
   'SET_GLOBAL_NAV_TARGET',
   /* user and token */
   'SET_LOGIN_INFO',

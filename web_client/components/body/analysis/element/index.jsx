@@ -61,8 +61,7 @@ class Element extends React.Component {
                                 onStateChange={ onStateChange }
                                 onFileSelect={ onFileSelect }
                                 state={ state }
-                                { ...props }
-                                foldersOnly={ true }/>
+                                { ...props }/>
         );
         break;
 

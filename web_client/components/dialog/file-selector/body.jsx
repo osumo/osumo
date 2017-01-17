@@ -22,53 +22,40 @@ import RootSelector from '../../common/root-selector';
 // girder.templates.hierarchyWidget = customHierarchyTemplate;
 
 
-const FileSelectorView = View.extend({
-  initialize: function (settings) {
-    this.hierarchyView = new HierarchyWidget({
-      parentView: this,
-      parentModel: settings.folder,
-      showActions: false,
-      showMetadata: false,
-      showItems: true,
-      downloadLinks: false,
-      showSizes: false,
-      viewLinks: false,
-      checkboxes: false,
-      routing: false,
-      onItemClick: function (item) {
-        settings.itemSelected(item.attributes);
-      }
-    });
-
-    return this;
-  },
-
-  render: function () {
-    this.hierarchyView.setElement(this.el).render();
-    return this;
-  }
-});
-
-const DUMMY_MODAL = { off: () => null, render: () => null };
+const DUMMY_MODAL = {
+  off: () => null,
+  render: () => null,
+  stopListening: () => null,
+  undelegateEvents: () => null
+};
 
 export default class Body extends React.Component {
   clearModal () {
     const $modalRoot = $( this.refs.modalRoot );
 
+    this.modal.undelegateEvents();
     this.modal.off();
+    $modalRoot.removeData().unbind();
     $modalRoot.empty();
+    this.modal.stopListening();
   }
 
   setModal () {
-    let { folder, onFileSelect, parentType } = this.props;
+    let {
+      folder,
+      folderSelectMode,
+      itemFilter,
+      onItemSelect,
+      showItems,
+      parentType
+    } = this.props;
 
     this.modal = (
-      folder ?
-        new FileSelectorView({
-          el: $( this.refs.modalRoot ),
-          parentView: null,
-          itemSelected: onFileSelect,
-          folder: new (
+      folder ? new HierarchyWidget({
+        el: $( this.refs.modalRoot ),
+        parentView: null,
+        parentModel: (
+          new (
             parentType === 'collection' ?
               CollectionModel
 
@@ -78,7 +65,23 @@ export default class Body extends React.Component {
             :
               FolderModel
           )(folder)
-        })
+        ),
+        showActions: false,
+        showMetadata: false,
+        showItems: showItems,
+        downloadLinks: false,
+        showSizes: false,
+        viewLinks: false,
+        checkboxes: false,
+        routing: false,
+        itemFilter,
+        onFolderSelect: (
+          folderSelectMode
+            ? (folder) => onItemSelect(folder.attributes)
+            : null
+        ),
+        onItemClick: (item) => onItemSelect(item.attributes)
+      })
 
       :
         DUMMY_MODAL

@@ -40,6 +40,7 @@ export const $dialogRootDiv = $('<div>').attr('id', 'dialog-root');
 export const $mainRootDiv = $('<div>').attr('id', 'main-root');
 export let analysisActionTable = {};
 
+let itemFilter = null;
 let itemSelectedCallback = null;
 
 export default {
@@ -53,5 +54,6 @@ export default {
   $backdropRootDiv,
   $dialogRootDiv,
   $mainRootDiv,
+  itemFilter,
   itemSelectedCallback
 };

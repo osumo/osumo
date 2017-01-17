@@ -7,7 +7,6 @@ class FileSelection extends React.Component {
   render () {
     let {
       description,
-      foldersOnly,
       name,
       notes,
       onFileSelect,
@@ -47,45 +46,39 @@ class FileSelection extends React.Component {
       )
     ];
 
-    if (foldersOnly) {
-      buttons[0] = (
-        <button key='file-select'
-                type='button'
-                className='btn btn-danger'
-                onClick={ (e) => e.preventDefault() }>
-          <span className='icon icon-folder-open'/>
-        </button>
-      );
-    }
+    /* TODO(opadron): add "recently chosen" dropdown */
+    buttons.pop();
+
+    /*
+     * TODO(opadron): this will go after
+     * ... { buttons } ...
+     *
+     *    <ul className='dropdown-menu'>
+     *      {selectedFiles.map(({ id, name }) => (
+     *        <li key={ id }>
+     *          <a onClick={(e) => e.preventDefault()}>{ name }</a>
+     *        </li>
+     *      ))}
+     *    </ul>
+     */
 
     return (
       <div className='input-group control-file-select'
            key='control-file-select'>
         <TextField className='form-control'
-                   value={ foldersOnly ? value : path }
-                   onChange={(
-                    foldersOnly
-                      ? (value) => onStateChange({ value })
-                      : function() { this.preventDefault(); }
-                   )}/>
+                   value={ path }
+                   onChange={ function() { this.preventDefault(); } }/>
         <div className='input-group-btn'>
           { buttons }
-          <ul className='dropdown-menu'>
-            {selectedFiles.map(({ id, name }) => (
-              <li key={ id }>
-                <a onClick={(e) => e.preventDefault()}>{ name }</a>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     );
+
   }
 
   static get propTypes () {
     return {
       description: React.PropTypes.string,
-      foldersOnly: React.PropTypes.bool,
       name: React.PropTypes.string,
       notes: React.PropTypes.string,
       onStateChange: React.PropTypes.func,

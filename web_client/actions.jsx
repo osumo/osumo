@@ -304,6 +304,28 @@ export const setDialogError = (field, message) => promiseAction(
   }
 );
 
+export const setFileNavigationFolderSelectMode = (mode) => promiseAction(
+  (D, S) => {
+    D({
+      type: ACTION_TYPES.SET_FILE_NAVIGATION_FOLDER_SELECT_MODE,
+      mode
+    });
+
+    return S().dialog.fileSelect.folderSelectMode;
+  }
+);
+
+export const setFileNavigationShowItems = (showItems) => promiseAction(
+  (D, S) => {
+    D({
+      type: ACTION_TYPES.SET_FILE_NAVIGATION_SHOW_ITEMS,
+      showItems
+    });
+
+    return S().dialog.fileSelect.showItems;
+  }
+);
+
 export const setFileNavigationRoot = (root, type) => promiseAction(
   (D, S) => {
     if (isString(root)) {
@@ -329,7 +351,7 @@ export const setFileNavigationRoot = (root, type) => promiseAction(
       root
     });
 
-    return { ...S().dialog.fileNavigation.root };
+    return { ...S().dialog.fileSelect.root };
   }
 );
 
@@ -351,6 +373,10 @@ export const setGlobalNavTarget = (target, byRouter = false) => promiseAction(
 
     return D(setGlobalNavTarget(target, true));
   }
+);
+
+export const setItemFilter = (filter) => promiseAction(
+  () => (globals.itemFilter = filter)
 );
 
 export const setItemSelectedCallback = (callback) => promiseAction(
@@ -507,8 +533,11 @@ export default {
   setCurrentUser,
   setDialogError,
   setFileNavigationRoot,
+  setFileNavigationFolderSelectMode,
+  setFileNavigationShowItems,
   setGlobalNavTarget,
   setItemSelectedCallback,
+  setItemFilter,
   submitLoginForm,
   submitLogoutForm,
   submitResetPasswordForm,
