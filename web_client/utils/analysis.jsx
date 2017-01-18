@@ -1,8 +1,9 @@
-import { isUndefined } from 'lodash';
+import { isString, isUndefined } from 'lodash';
 
 import { rest } from '../globals';
 import objectReduce from './object-reduce';
 import { Promise } from './promise';
+import actions from '../actions';
 
 export const aggregateForm = (forms, page) => (
   (page.elements || [])
@@ -89,8 +90,87 @@ export const runTask = (taskName, params, options={}) => {
   );
 };
 
+const {
+  addAnalysisElement: addElem,
+  addAnalysisPage: addPage
+} = actions;
+
+export const processAnalysisPage = (dispatch, params) => {
+  let { ui: uiSpec, postprocess } = params;
+  let { ui, tags, ...pageData } = uiSpec;
+
+  let parent;
+  let promiseChain = dispatch(addPage(pageData));
+  if (postprocess) {
+    promiseChain = promiseChain.then(
+      (p) => (
+        Promise.resolve(postprocess('page', p)).then(
+          (newP) => (newP ? newP : p)
+        )
+      )
+    );
+  }
+
+  promiseChain = promiseChain.then((p) => parent = p);
+
+  ui.forEach((elem) => {
+    promiseChain = promiseChain.then(() => dispatch(addElem(elem, parent)));
+
+    if (postprocess) {
+      promiseChain = promiseChain.then(
+        (elem) => (
+          Promise.resolve(postprocess('element', elem)).then(
+            (newElem) => (newElem ? newElem : elem)
+          )
+        )
+      );
+    }
+  });
+
+  return promiseChain;
+};
+
+export const fetchAndProcessAnalysisPage = (dispatch, params) => {
+  if (isString(params)) {
+    params = { key: params };
+  }
+
+  let {
+    key,
+    index,
+    preprocess,
+    postprocess
+  } = params;
+
+  let path = [`osumo/ui/${ key }`];
+  if (!isUndefined(index)) {
+    path.push(`index=${ index }`);
+  }
+
+  path = path.join('?');
+
+  let promiseChain = rest({ path }).then(({ response }) => response);
+  if (!isUndefined(preprocess)) {
+    promiseChain = promiseChain.then(
+      (ui) => (
+        Promise.resolve(preprocess(ui)).then(
+          (newUI) => (newUI ? newUI : ui)
+        )
+      )
+    );
+  }
+
+  promiseChain = promiseChain.then((ui) => processAnalysisPage(dispatch, {
+    ui, postprocess
+  }));
+
+  return promiseChain;
+};
+
 export default {
   aggregateForm,
+  fetchAndProcessAnalysisPage,
   pollJob,
+  processAnalysisPage,
   runTask
 };

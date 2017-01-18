@@ -10,16 +10,15 @@ class Button extends React.Component {
     let displayText = name;
     let onClick;
     if (!isUndefined(action)) {
-      displayText = `${ displayText } (${ action })`;
+      if (!displayText) {
+        displayText = action;
+      }
       onClick = (e) => (e.preventDefault(), onAction(action));
     }
 
     return (
       <button className='btn btn-default'
-              onClick={ (e) => {
-                e.preventDefault();
-                onAction(action);
-              } }>
+              onClick={ onClick }>
         { displayText }
       </button>
     );

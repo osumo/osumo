@@ -495,6 +495,13 @@ export const triggerAnalysisAction = (forms, page, action, ...args) => (
   )
 );
 
+export const truncateAnalysisPages = (count) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.TRUNCATE_ANALYSIS_PAGES, count });
+    return S().analysis.pages
+  }
+);
+
 export const updateDialogForm = (form) => promiseAction(
   (D, S) => {
     D({ type: ACTION_TYPES.UPDATE_DIALOG_FORM, form });
@@ -544,6 +551,7 @@ export default {
   submitRegistrationForm,
   toggleHeaderDropdown,
   triggerAnalysisAction,
+  truncateAnalysisPages,
   updateDialogForm,
   verifyCurrentUser
 };

@@ -20,7 +20,7 @@
 import os.path
 
 from glob import iglob
-import yaml_loader
+from .. import yaml_loader
 
 ui_specs = {  # dictionary
 
@@ -33,3 +33,11 @@ ui_specs = {  # dictionary
     for spec_path in iglob(os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '*.yml'))
 }
+
+for key in ui_specs:
+    if 'tags' in ui_specs[key]:
+        ui_specs[key]['tags'] = set(
+                filter(bool, (
+                    x.lower().strip() for x in ui_specs[key]['tags'])))
+
+    ui_specs[key]['key'] = key.lower()

@@ -20,7 +20,7 @@ class Page extends React.Component {
       onStateChange
     } = this.props;
 
-    let descriptionText = `(${ id }) ` + (
+    let descriptionText = (
       [name, description]
         .map((text) => text || '')
         .filter((text) => text !== '')
@@ -55,20 +55,25 @@ class Page extends React.Component {
                   e.preventDefault();
                   onAction(mainAction);
                 }}>
-              {elements.map((element) => {
-                let key = isUndefined(element.key) ? element.id : element.key;
-                return (
-                  <Element { ...element }
-                           mainAction={ mainAction }
-                           onAction={ onAction }
-                           onFileSelect={ () => onFileSelect(element) }
-                           onStateChange={
-                             (state) => onStateChange(element, state)
-                           }
-                           state={ form[key] || {} }
-                           key={ element.id }/>
-                );
-              })}
+              {
+                elements
+                  .filter((element) => element.type !== 'hidden')
+                  .map((element) => {
+                    let key = (
+                      isUndefined(element.key) ? element.id : element.key);
+                    return (
+                      <Element { ...element }
+                               mainAction={ mainAction }
+                               onAction={ onAction }
+                               onFileSelect={ () => onFileSelect(element) }
+                               onStateChange={
+                                 (state) => onStateChange(element, state)
+                               }
+                               state={ form[key] || {} }
+                               key={ element.id }/>
+                    );
+                  })
+              }
           </form>
         </div>
       </div>

@@ -47,7 +47,9 @@ const addAnalysisElement = (analysis, element, parent) => {
   parent = ensure(parent, 'no-parent');
   if (parent === 'no-parent') { return analysis; }
 
-  if (isScalar(parent)) { parent = ensure(objects[parent], 'no-parent'); }
+  if (!isScalar(parent)) { parent = parent.id; }
+  parent = ensure(objects[parent], 'no-parent');
+
   if (parent === 'no-parent') { return analysis; }
 
   if (isNil(element.id)) {
@@ -410,7 +412,19 @@ const removeAnalysisPageByKey = (analysis, key) => {
   if (idSet.length) { analysis = removeAnalysisPage(analysis, idSet); }
 
   return analysis;
-}
+};
+
+const truncateAnalysisPages = (analysis, numPages) => {
+  let { pages } = analysis;
+  pages = ensure(pages, []);
+
+  let pagesToRemove = pages.slice(numPages, pages.length);
+  if (pagesToRemove.length) {
+    analysis = removeAnalysisPage(analysis, pagesToRemove);
+  }
+
+  return analysis;
+};
 
 const updateAnalysisElementState = (analysis, element, state) => {
   let { forms, objects, parents } = analysis;
@@ -481,6 +495,10 @@ const analysis = (state={}, action) => {
     } else {
       state = removeAnalysisPage(state, page);
     }
+
+  } else if (type === ACTION_TYPES.TRUNCATE_ANALYSIS_PAGES) {
+    const { count } = action;
+    state = truncateAnalysisPages(state, count);
 
   } else if (type === ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT_STATE) {
     const { element, state: newState } = action;

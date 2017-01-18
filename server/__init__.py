@@ -20,6 +20,7 @@ from girder.plugins.worker import utils as workerUtils
 
 from .job_specs import job_specs
 from .task_specs import task_specs
+from .ui_specs import ui_specs
 
 
 class Osumo(Resource):
@@ -34,6 +35,8 @@ class Osumo(Resource):
         self.route('GET', ('task',), self.getTaskSpecs)
         self.route('POST', ('task', ':name', 'run'), self.runTaskSpec)
         self.route('GET', ('results', ':jobId'), self.getTaskResults)
+        self.route('GET', ('ui', ':key'), self.getUISpecByKey)
+        self.route('GET', ('ui',), self.getUISpecs)
 
     @describeRoute(
         Description('Return job status and list of output files.')
@@ -71,7 +74,7 @@ class Osumo(Resource):
     )
     @access.public
     def getTaskSpecByName(self, name, params, **kwargs):
-        index = int(params['index'])
+        index = int(params.get('index', 0))
         name = name.lower()
 
         task_list = [
@@ -90,6 +93,42 @@ class Osumo(Resource):
             return task_list[index]
 
         raise RestException('Task not found.', 404)
+
+    @describeRoute(
+        Description('Fetch UI spec with the given key.')
+        .param('key', 'Key of the UI', paramType='path')
+        .param(
+            'index',
+            (
+                'Index to use in the case of multiple'
+                ' UI specs with the same key'
+            ),
+            default='0',
+            required=False
+        )
+        .errorResponse('UI not found.', 404)
+    )
+    @access.public
+    def getUISpecByKey(self, key, params, **kwargs):
+        index = int(params.get('index', 0))
+        key = key.lower()
+
+        ui_list = [
+            c for (a, b, c) in sorted(
+                (
+                    ui.get('key', k).lower(),
+                    ui.get('key', k),
+                    ui
+                )
+                for k, ui in ui_specs.items()
+            )
+            if a == key
+        ]
+
+        if ui_list[index:]:
+            return ui_list[index]
+
+        raise RestException('UI not found.', 404)
 
     @describeRoute(
         Description('Find task specs that match the given parameters.')
@@ -112,6 +151,37 @@ class Osumo(Resource):
                 for key, task in task_specs.items()
             )
             if (not name or a == name) and (not mode or d == mode)
+        ]
+
+    @describeRoute(
+        Description('Find UI specs that match the given parameters.')
+        .param('key', 'Key of the UI', required=False)
+        .param('name', 'Name of the UI', required=False)
+        .param('tags', 'Tags to search for', required=False)
+    )
+    @access.public
+    def getUISpecs(self, params, **kwargs):
+        key = params.get('key', '').lower()
+        name = params.get('name', '').lower()
+        tags = params.get('tags', '').lower()
+        tags = set(filter(bool, (x.strip() for x in tags.split(','))))
+
+        return [
+            d for (a, b, c, d, e) in sorted(
+                (
+                    key,
+                    ui.get('name', key).lower(),
+                    ui.get('name', key),
+                    ui,
+                    ui.get('tags', set())
+                )
+                for key, ui in ui_specs.items()
+            )
+            if (
+                (not key or a == key) and
+                (not name or b == name) and
+                (not tags or e.intersection(tags))
+            )
         ]
 
     @access.public
@@ -242,6 +312,7 @@ class Osumo(Resource):
                 job_input['data'] = float(value)
 
             elif input_type == 'STRING':
+                value = ':'.join(pos_args[1:])
                 job_input['type'] = 'string'
                 job_input['format'] = 'text'
                 job_input['mode'] = 'inline'
@@ -373,5 +444,6 @@ def load(info):
         os.path.join(info['pluginRootDir'], 'web_client'))
     osumo = Osumo()
     registerPluginWebroot(osumo, info['name'])
+    info['apiRoot'].osumo = osumo
 
     events.bind('data.process', 'osumo', osumo.dataProcess)

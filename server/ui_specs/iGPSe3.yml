@@ -1,0 +1,11 @@
+---
+
+name: iGPSe Part 3
+key: igpse3
+description: Interactive Genomics Patient Stratification explorer (Step 3)
+
+ui:
+  - name: Survival Plot
+    type: image
+    fileId: 0 # TO BE FILLED IN
+

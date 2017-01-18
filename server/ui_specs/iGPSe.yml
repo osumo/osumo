@@ -1,9 +1,12 @@
 ---
 
 name: iGPSe
+key: igpse
 description: "Interactive Genomics Patient Stratification explorer"
 notes: "Show a survival plot based on clustering of different data sets."
 mainAction: process
+tags:
+  - baseUI
 
 ui:
   - key: mrna_input_path

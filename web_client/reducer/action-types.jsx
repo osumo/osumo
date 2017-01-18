@@ -26,6 +26,7 @@ export default ([
   /* user and token */
   'SET_LOGIN_INFO',
   'TOGGLE_HEADER_DROPDOWN',
+  'TRUNCATE_ANALYSIS_PAGES',
   'UPDATE_ANALYSIS_ELEMENT_STATE',
   'UPDATE_DIALOG_FORM'
 ]
