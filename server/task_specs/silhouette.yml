@@ -1,0 +1,26 @@
+---
+
+name: silhouette
+mode: r
+
+script: "@include(silhouette.r)"
+
+inputs:
+  - name: input_path
+    type: string
+    format: text
+
+  - name: num_clusters
+    type: number
+    format: number
+
+outputs:
+  - name: dataplot1
+    target: filepath
+    type: image
+    format: png
+
+  - name: dataplot2
+    target: filepath
+    type: image
+    format: png

@@ -1,0 +1,31 @@
+---
+
+name: Survival Plot
+key: surv
+description: Create a survival plot
+
+mainAction: process
+
+tags:
+  - baseUI
+
+ui:
+  - key: input_rdata
+    name: "Input Data"
+    description: "A set of rdata."
+    type: fileSelection
+    options:
+      onlyNames: "\\.rdata$"
+
+  - key: num_clusters
+    name: "Num. Clusters"
+    description: "The number (k) of clusters used in calculations"
+    type: field
+
+  - key: output_dir
+    name: Output Location
+    type: folderSelection
+
+  - type: button
+    name: Process
+    action: process

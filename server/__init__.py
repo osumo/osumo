@@ -249,7 +249,7 @@ class Osumo(Resource):
             pos_args, extra_args = m.group(1), m.group(3)
             pos_args = pos_args.split(':')
             if extra_args:
-                extra_args = json.loads(extra_args)
+                extra_args = json.loads('{{{}}}'.format(extra_args))
             else:
                 extra_args = {}
 
@@ -295,6 +295,13 @@ class Osumo(Resource):
                 job_input['format'] = 'text'
                 job_input['mode'] = 'inline'
                 job_input['data'] = value
+
+            elif input_type == 'BOOLEAN':
+                value = pos_args[1]
+                job_input['type'] = 'boolean'
+                job_input['format'] = 'json'
+                job_input['mode'] = 'inline'
+                job_input['data'] = 'true' if int(value) else 'false'
 
             else:
                 raise NotImplementedError(

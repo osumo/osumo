@@ -1,0 +1,44 @@
+---
+
+name: K Means
+key: kmeans
+
+description: "Calculate k mean values for a set of n-dimensional data points."
+
+notes: "Uses Lloyd's algorithm to partition the data set into k clusters."
+
+mainAction: process
+
+tags:
+  - baseUI
+
+ui:
+  - key: input_path
+    name: Input Data
+    description: "A list of points, all with the same number of dimensions."
+    notes: "This is a CSV file containing one row per \
+            data point and one column per dimension."
+    type: fileSelection
+    options:
+      onlyNames: ".*csv$"
+
+  - key: has_header
+    name: Header in Data
+    description: "If set, skip the first line of the input file."
+    notes: "Select this if the input data has a header row"
+    type: field
+
+  - key: num_clusters
+    name: Number of Clusters
+    description: "The number (k) of clusters to calculate means for"
+    notes: "The data will be partitioned into this many clusters"
+    type: field
+
+  - key: output_dir
+    name: Output Location
+    type: folderSelection
+
+  - type: button
+    name: Process
+    action: process
+
