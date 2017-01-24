@@ -102,28 +102,22 @@ export const processAnalysisPage = (dispatch, params) => {
   let parent;
   let promiseChain = dispatch(addPage(pageData));
   if (postprocess) {
-    promiseChain = promiseChain.then(
-      (p) => (
-        Promise.resolve(postprocess('page', p)).then(
-          (newP) => (newP ? newP : p)
-        )
-      )
-    );
+    promiseChain = promiseChain.then((page) => {
+      postprocess('page', page);
+      return page;
+    });
   }
 
-  promiseChain = promiseChain.then((p) => parent = p);
+  promiseChain = promiseChain.then((page) => parent = page);
 
   ui.forEach((elem) => {
     promiseChain = promiseChain.then(() => dispatch(addElem(elem, parent)));
 
     if (postprocess) {
-      promiseChain = promiseChain.then(
-        (elem) => (
-          Promise.resolve(postprocess('element', elem)).then(
-            (newElem) => (newElem ? newElem : elem)
-          )
-        )
-      );
+      promiseChain = promiseChain.then((elem) => {
+        postprocess('element', elem);
+        return elem;
+      });
     }
   });
 
@@ -137,27 +131,18 @@ export const fetchAndProcessAnalysisPage = (dispatch, params) => {
 
   let {
     key,
-    index,
     preprocess,
     postprocess
   } = params;
 
-  let path = [`osumo/ui/${ key }`];
-  if (!isUndefined(index)) {
-    path.push(`index=${ index }`);
-  }
-
-  path = path.join('?');
+  const path = `osumo/ui/${ key }`;
 
   let promiseChain = rest({ path }).then(({ response }) => response);
   if (!isUndefined(preprocess)) {
-    promiseChain = promiseChain.then(
-      (ui) => (
-        Promise.resolve(preprocess(ui)).then(
-          (newUI) => (newUI ? newUI : ui)
-        )
-      )
-    );
+    promiseChain = promiseChain.then((page) => {
+      preprocess(page);
+      return page;
+    });
   }
 
   promiseChain = promiseChain.then((ui) => processAnalysisPage(dispatch, {

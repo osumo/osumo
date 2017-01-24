@@ -18,10 +18,8 @@ from girder.utility.model_importer import ModelImporter
 from girder.utility.plugin_utilities import registerPluginWebroot
 from girder.plugins.worker import utils as workerUtils
 
-from .job_specs import job_specs
 from .task_specs import task_specs
 from .ui_specs import ui_specs
-
 
 class Osumo(Resource):
     # NOTE(opadron): 'tools.staticdir.dir' is set in load()
@@ -31,9 +29,9 @@ class Osumo(Resource):
     def __init__(self):
         super(Osumo, self).__init__()
         self.resourceName = 'osumo'
-        self.route('GET', ('task', ':name'), self.getTaskSpecByName)
+        self.route('GET', ('task', ':key'), self.getTaskSpecByKey)
         self.route('GET', ('task',), self.getTaskSpecs)
-        self.route('POST', ('task', ':name', 'run'), self.runTaskSpec)
+        self.route('POST', ('task', ':key', 'run'), self.runTaskSpec)
         self.route('GET', ('results', ':jobId'), self.getTaskResults)
         self.route('GET', ('ui', ':key'), self.getUISpecByKey)
         self.route('GET', ('ui',), self.getUISpecs)
@@ -60,57 +58,37 @@ class Osumo(Resource):
 
     @describeRoute(
         Description('Fetch task spec with the given name.')
-        .param('name', 'Name of the task', paramType='path')
-        .param(
-            'index',
-            (
-                'Index to use in the case of multiple'
-                ' task specs with the same name'
-            ),
-            default='0',
-            required=False
-        )
+        .param('key', 'Key of the task', paramType='path')
         .errorResponse('Task not found.', 404)
     )
     @access.public
-    def getTaskSpecByName(self, name, params, **kwargs):
-        index = int(params.get('index', 0))
-        name = name.lower()
+    def getTaskSpecByKey(self, key, params, **kwargs):
+        key = key.lower()
 
         task_list = [
             c for (a, b, c) in sorted(
                 (
-                    task.get('name', key).lower(),
-                    task.get('name', key),
+                    task.get('key', k).lower(),
+                    task.get('key', k),
                     task
                 )
-                for key, task in task_specs.items()
+                for k, task in task_specs.items()
             )
-            if a == name
+            if a == key
         ]
 
-        if task_list[index:]:
-            return task_list[index]
+        if task_list:
+            return task_list[0]
 
         raise RestException('Task not found.', 404)
 
     @describeRoute(
         Description('Fetch UI spec with the given key.')
         .param('key', 'Key of the UI', paramType='path')
-        .param(
-            'index',
-            (
-                'Index to use in the case of multiple'
-                ' UI specs with the same key'
-            ),
-            default='0',
-            required=False
-        )
         .errorResponse('UI not found.', 404)
     )
     @access.public
     def getUISpecByKey(self, key, params, **kwargs):
-        index = int(params.get('index', 0))
         key = key.lower()
 
         ui_list = [
@@ -125,8 +103,8 @@ class Osumo(Resource):
             if a == key
         ]
 
-        if ui_list[index:]:
-            return ui_list[index]
+        if ui_list:
+            return ui_list[0]
 
         raise RestException('UI not found.', 404)
 
@@ -189,13 +167,13 @@ class Osumo(Resource):
         Description('Create a job from the given task spec')
         .notes('Each task takes a variety of input parameters.  See the '
                'appropriate task specification.')
-        .param('name', 'Name of the task', paramType='path')
+        .param('key', 'Key of the task', paramType='path')
         .param('title', 'Title of the job', required=False)
     )
-    def runTaskSpec(self, name, params, **kwargs):
-        task_spec = task_specs.get(name)
+    def runTaskSpec(self, key, params, **kwargs):
+        task_spec = task_specs.get(key)
         if task_spec is None:
-            raise RestException('No task named %s.' % name)
+            raise RestException('No task named %s.' % key)
 
         # validate input bindings
         for input_spec in task_spec['inputs']:

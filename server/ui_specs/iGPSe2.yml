@@ -1,8 +1,6 @@
 ---
 
-name: iGPSe Part 2
-key: igpse2
-description: Interactive Genomics Patient Stratification explorer (Step 2)
+# key: igpse2
 mainAction: process
 
 ui:

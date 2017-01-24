@@ -1,8 +1,6 @@
 ---
 
-name: iGPSe Part 3
 key: igpse3
-description: Interactive Genomics Patient Stratification explorer (Step 3)
 
 ui:
   - name: Survival Plot

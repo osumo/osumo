@@ -33,3 +33,7 @@ task_specs = {  # dictionary
     for spec_path in iglob(os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '*.yml'))
 }
+
+for key in task_specs:
+    task_specs[key]['key'] = key.lower()
+

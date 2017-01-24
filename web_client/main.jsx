@@ -97,7 +97,7 @@ $(() => {
     });
 
     let { default: igpse } = require('./analysis-modules/igpse');
-    igpse();
+    // igpse();
   }
 });
 

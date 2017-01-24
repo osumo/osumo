@@ -1,6 +1,5 @@
 require(jsonlite)
 require(pheatmap)
-# require(factoextra)
 require(survival)
 
 
@@ -21,7 +20,7 @@ miRNACluster.b <- as.numeric(miRNACluster.cl$cluster)
 # generate heatmap
 render_heatmap <- function(data, cl){
   localdir = Sys.getenv('tempdir', unset=tempdir())
-  output_plot = tempfile('plot', tmpdir=tempdir, fileext='.png')
+  output_plot = tempfile('plot', tmpdir=localdir, fileext='.png')
   png(filename=output_plot, width=314, height=400, units="px")
   k <- max(cl)
 
@@ -111,3 +110,4 @@ clustersJSON <- toJSON(clusters)
 # Make a single output object.  This will get passed to the second half of the
 # job along with the user selections from the parallel sets.
 transferData = list("clusters"=list("cl1"=mRNACluster.cl, "cl2"=miRNACluster.cl, "combine"=clusters), "mRNACluster"=mRNACluster.cl, "miRNACluster"=miRNACluster.cl, "clinical"=clinical.m)
+transferData = rawToChar(serialize(transferData, NULL, ascii=TRUE))

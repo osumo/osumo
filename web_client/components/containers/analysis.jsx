@@ -7,6 +7,8 @@ import { rest } from '../../globals';
 import objectReduce from '../../utils/object-reduce';
 import { Promise } from '../../utils/promise';
 
+import baseAnalysisModules from '../../analysis-modules/base-listing';
+
 const assemblePages = (pages, objects, visitedSet={}) => (
   pages
     .map((page) => {
@@ -46,6 +48,12 @@ const getFolderRootpath = (folder) => {
     ]);
 };
 
+const modules = (
+  baseAnalysisModules
+    .map(({ key, module }) => [key, module])
+    .reduce(objectReduce, {})
+);
+
 const AnalysisContainer = connect(
   ({ analysis: { forms, objects, pages } }) => {
     forms = forms || {};
@@ -59,6 +67,14 @@ const AnalysisContainer = connect(
   },
 
   (dispatch) => ({
+    baseAnalysisModules,
+
+    onBaseAnalysis: (key) => (
+      dispatch(actions.truncateAnalysisPages(0))
+        .then(() => modules[key])
+        .then((mod) => (mod ? mod() : null))
+    ),
+
     onAction: (...args) => dispatch(actions.triggerAnalysisAction(...args)),
 
     onFileSelect: (element) => (

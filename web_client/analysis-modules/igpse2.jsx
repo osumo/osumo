@@ -15,7 +15,10 @@ const actionProcess = (forms, page) => {
   const task = 'iGPSe2';
   const inputs = {
     transferData: `FILE:${ form.hidden.transferData }`,
-    groups: `STRING:${ JSON.stringify(form.pSets) }`
+    groups: `STRING:${ JSON.stringify({
+      GROUP1: form.pSets[0],
+      GROUP2: form.pSets[1]
+    }) }`
   };
   const outputs = {
     dataplot: `FILE:${ form.hidden.outputDir }:dataplot.png`

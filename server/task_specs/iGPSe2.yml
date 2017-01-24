@@ -8,8 +8,8 @@ script: "@include(iGPSe2.r)"
 inputs:
   - name: transferData
     target: memory
-    type: r
-    format: object
+    type: string
+    format: text
 
   - name: groups
     type: string
