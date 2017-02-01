@@ -25,7 +25,7 @@ const LoginDialogContainer = connect(
   (dispatch) => ({
     onClose: () => dispatch(actions.closeDialog()),
     onForgottenPassword: () => dispatch(actions.openResetPasswordDialog()),
-    onRegister: () => dispatch(action.openRegisterDialog()),
+    onRegister: () => dispatch(actions.openRegisterDialog()),
     onSubmit: () => dispatch(actions.submitLoginForm()),
     onUpdate: (data) => dispatch(actions.updateDialogForm(data))
   })

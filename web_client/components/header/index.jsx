@@ -18,18 +18,20 @@ class Header extends React.Component {
     return (
       <div id='g-app-header-container'>
         <div className='g-header-wrapper'>
-          <div className='g-app-title' onClick={ onTitle }>
+          <div className='g-app-title' onClick={onTitle}>
             SUMO
           </div>
-          <User currentUser={ currentUser }
-                dropdownOpened={ dropdownOpened }
-                onDropdown={ onDropdown }
-                onFolders={ onFolders }
-                onInfo={ onInfo }
-                onLogout={ onLogout }
-                onLogin={ onLogin }
-                onRegister={ onRegister }/>
-          <div className='g-clear-both'/>
+          <User
+            currentUser={currentUser}
+            dropdownOpened={dropdownOpened}
+            onDropdown={onDropdown}
+            onFolders={onFolders}
+            onInfo={onInfo}
+            onLogout={onLogout}
+            onLogin={onLogin}
+            onRegister={onRegister}
+          />
+          <div className='g-clear-both' />
         </div>
       </div>
     );

@@ -1,6 +1,8 @@
 import { Router, history } from 'backbone';
 import { zip, isFunction } from 'lodash';
 
+/* global location */
+
 const PARSE_PARAM = 0;
 const PARSE_IDENTIFIER = 1;
 
@@ -83,11 +85,11 @@ const router = () => {
       return result.navigate(filter, callbacks[0]);
     }
 
-    let callbackName = `cb${ counter++ }`;
+    let callbackName = `cb${counter++}`;
     let paramList = parseFilter(filter);
 
     router.route(filter, callbackName);
-    return router.on(`route:${ callbackName }`, (...params) => {
+    return router.on(`route:${callbackName}`, (...params) => {
       let ctx = (
         zip(paramList, params)
           .reduce((partial, [key, value]) => {

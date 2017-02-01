@@ -21,7 +21,7 @@ class FormEntry extends React.Component {
       className = (() => {
         let tmp = new Array(classes.size);
         let counter = 0;
-        classes.forEach(klass => tmp[counter++] = klass);
+        classes.forEach((klass) => { tmp[counter++] = klass; });
         return tmp;
       })().join(' ');
     } else {
@@ -29,17 +29,19 @@ class FormEntry extends React.Component {
     }
 
     return (
-      <div className={ className } id={ groupId }>
-        <label className='control-label' htmlFor={ id }>
-          { children }
+      <div className={className} id={groupId}>
+        <label className='control-label' htmlFor={id}>
+          {children}
         </label>
-        <TextField className='input-sm form-control'
-                   id={ id }
-                   focusTime={ focusTime }
-                   type={ type }
-                   placeholder={ placeholder }
-                   onChange={ onChange }
-                   value={ value }/>
+        <TextField
+          className='input-sm form-control'
+          id={id}
+          focusTime={focusTime}
+          type={type}
+          placeholder={placeholder}
+          onChange={onChange}
+          value={value}
+        />
       </div>
     );
   }

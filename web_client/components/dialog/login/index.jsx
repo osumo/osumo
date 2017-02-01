@@ -71,16 +71,18 @@ class Login extends React.Component {
       let fTime = ((key === focusField && focusNeedsUpdate) ? focusTime : null);
 
       return (
-        <FormEntry className={ className }
-                   groupId={ `g-group-${key}` }
-                   id={ `g-${key}` }
-                   placeholder={ placeholder }
-                   key={ key }
-                   onChange={ updateCallback(key) }
-                   value={ form[key] }
-                   focusTime={ fTime }
-                   {...rest}>
-          { text }
+        <FormEntry
+          className={className}
+          groupId={`g-group-${key}`}
+          id={`g-${key}`}
+          placeholder={placeholder}
+          key={key}
+          onChange={updateCallback(key)}
+          value={form[key]}
+          focusTime={fTime}
+          {...rest}
+        >
+          {text}
         </FormEntry>
       );
     });
@@ -96,20 +98,24 @@ class Login extends React.Component {
     return (
       <div className='modal-dialog'>
         <div className='modal-content'>
-          <form className='modal-form'
-                id='g-login-form'
-                role='form'
-                onSubmit={ (event) => event.preventDefault() }>
-            <Header onClose={ onClose }>Log in</Header>
+          <form
+            className='modal-form'
+            id='g-login-form'
+            role='form'
+            onSubmit={(event) => { event.preventDefault(); }}
+          >
+            <Header onClose={onClose}>Log in</Header>
             <Body>
-              { formEntries }
-              { validationFailed }
-              <RegisterInvitation key='register-invitation'
-                                  onRegister={ onRegister }
-                                  onForgottenPassword={ onForgottenPassword }/>
+              {formEntries}
+              {validationFailed}
+              <RegisterInvitation
+                key='register-invitation'
+                onRegister={onRegister}
+                onForgottenPassword={onForgottenPassword}
+              />
             </Body>
 
-            <Footer onClose={ onClose } onSubmit={ onSubmit }/>
+            <Footer onClose={onClose} onSubmit={onSubmit} />
           </form>
         </div>
       </div>

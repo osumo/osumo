@@ -40,14 +40,16 @@ export default class Select extends React.Component {
           store.dispatch(actions.setItemSelectedCallback(itemCallback))
             .then(() => store.dispatch(actions.openFileSelectorDialog()))
         );
-      }
+      };
 
       this.fileSelector = (
         <div className='file-selector'>
-          <input type='button'
-                 onClick={ onClick }
-                 className='btn btn-primary'
-                 value='Add a file'/>
+          <input
+            type='button'
+            onClick={onClick}
+            className='btn btn-primary'
+            value='Add a file'
+          />
         </div>
       );
     }
@@ -77,11 +79,15 @@ export default class Select extends React.Component {
         value={selected}
         data-reference={inpspec.key}
         key={inpspec.key}
-        ref={c => this.component = c}>
-          {
-            options.map(item => inpspec.onlyNames && !item.matched ? undefined :
-              <option key={item._id} value={item._id}>{item.name}</option>)
-          }
+        ref={(c) => { this.component = c; }}
+      >
+        {
+          options.map((item) => (
+            inpspec.onlyNames && !item.matched
+              ? undefined
+              : <option key={item._id} value={item._id}>{item.name}</option>
+          ))
+        }
       </select>
 
       {this.fileSelector}

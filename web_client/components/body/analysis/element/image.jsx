@@ -7,10 +7,10 @@ class Image extends React.Component {
   render () {
     let { fileId, src } = this.props;
     if (isUndefined(src)) {
-      src = `${ apiRoot }/file/${ fileId }/download?image=.png`;
+      src = `${apiRoot}/file/${fileId}/download?image=.png`;
     }
 
-    return (<img src={ src } key={ 'form-control' }/>);
+    return (<img src={src} key={'form-control'} />);
   }
 
   static get propTypes () {

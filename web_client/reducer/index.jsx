@@ -20,8 +20,8 @@ const wrappedReducer = (state, action) => {
   const { type } = action;
   if (type === ACTION_TYPES.DISPATCH_COMPOUND_ACTION) {
     (action.actions || []).forEach(
-      (act) => (state = wrappedReducer(state, act))
-    )
+      (act) => { state = wrappedReducer(state, act); }
+    );
   } else {
     state = rootReducer(state, action);
   }

@@ -20,9 +20,9 @@ class RegisterAndLoginInvitation extends React.Component {
 
     return (
       <div className='g-bottom-message'>
-        <a className='g-register-link' onClick={ onRegisterClick }>Register</a>
-        { NBSP }|{ NBSP }
-        <a className='g-login-link' onClick={ onLoginClick }>Login</a>
+        <a className='g-register-link' onClick={onRegisterClick}>Register</a>
+        {NBSP}|{NBSP}
+        <a className='g-login-link' onClick={onLoginClick}>Login</a>
       </div>
     );
   }

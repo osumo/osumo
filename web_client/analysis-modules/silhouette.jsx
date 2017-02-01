@@ -14,12 +14,12 @@ const actionProcess = (forms, page) => {
   const form = analysisUtils.aggregateForm(forms, page);
   const task = 'silhouette';
   const inputs = {
-    input_path: `FILE:${ form.input_path }`,
-    num_clusters: `INTEGER:${ form.num_clusters }`
+    input_path: `FILE:${form.input_path}`,
+    num_clusters: `INTEGER:${form.num_clusters}`
   };
   const outputs = {
-    dataplot1: `FILE:${ form.output_dir }:dataplot1.png`,
-    dataplot2: `FILE:${ form.output_dir }:dataplot2.png`
+    dataplot1: `FILE:${form.output_dir}:dataplot1.png`,
+    dataplot2: `FILE:${form.output_dir}:dataplot2.png`
   };
   const title = 'silhouette plot';
   const maxPolls = 40;

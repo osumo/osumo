@@ -114,8 +114,7 @@ const addAnalysisPage = (analysis, page) => {
 };
 
 const removeAnalysisElement = (analysis, element) => {
-  let { idAllocator, objects, parents } = analysis;
-  idAllocator = ensure(idAllocator, {});
+  let { objects, parents } = analysis;
   objects = ensure(objects, {});
 
   element = ensure(element, 'no-element');
@@ -179,7 +178,7 @@ const removeAnalysisElement = (analysis, element) => {
   /* first pass: expand the id set (no modifications) */
   (
     Object.entries(objects)
-      .filter(([id, ]) => Boolean(idSet[id]))
+      .filter(([id]) => Boolean(idSet[id]))
       .map(([, obj]) => obj)
       .forEach(excludeChildren)
   );
@@ -190,7 +189,7 @@ const removeAnalysisElement = (analysis, element) => {
    */
   objects = (
     Object.entries(objects)
-      .filter(([id, ]) => !idSet[id])
+      .filter(([id]) => !idSet[id])
       .map(([id, obj]) => {
         let { elements } = obj;
         elements = ensure(elements, []).filter((id) => !idSet[id]);
@@ -215,7 +214,7 @@ const removeAnalysisElement = (analysis, element) => {
 
     parents = (
       Object.entries(parents)
-        .filter(([id, ]) => !idSet[id])
+        .filter(([id]) => !idSet[id])
         .reduce(objectReduce, {})
     );
 
@@ -300,7 +299,6 @@ const removeAnalysisPage = (analysis, page) => {
 
   /* second pass: remove the filtered pages */
   pages = pages.filter((id) => {
-
     let { key } = objects[id];
     let excluded = Boolean(idSet[id]);
 
@@ -323,7 +321,7 @@ const removeAnalysisPage = (analysis, page) => {
    */
   objects = (
     Object.entries(objects)
-      .filter(([id, ]) => !idSet[id])
+      .filter(([id]) => !idSet[id])
       .map(([id, obj]) => {
         let { elements } = obj;
         elements = ensure(elements, []).filter((id) => !idSet[id]);
@@ -363,7 +361,7 @@ const removeAnalysisPage = (analysis, page) => {
     forms = ensure(forms, {});
     forms = (
       Object.entries(forms)
-        .filter(([form, ]) => referencedForms[form])
+        .filter(([form]) => referencedForms[form])
         .reduce(objectReduce, {})
     );
 
@@ -406,7 +404,7 @@ const removeAnalysisPageByKey = (analysis, key) => {
   idSet = (
     idSet
       .filter(([, k]) => (keySet[k]))
-      .map(([id, ]) => id)
+      .map(([id]) => id)
   );
 
   if (idSet.length) { analysis = removeAnalysisPage(analysis, idSet); }
@@ -457,7 +455,7 @@ const updateAnalysisElementState = (analysis, element, state) => {
 
   let currentForm = forms;
 
-  for(;n--;) {
+  for (;n--;) {
     currentForm[keys[n]] = {
       ...ensure(currentForm[keys[n]], {}),
       ...(n === 0 ? state : {})
@@ -471,20 +469,17 @@ const updateAnalysisElementState = (analysis, element, state) => {
   return analysis;
 };
 
-const analysis = (state={}, action) => {
+const analysis = (state = {}, action) => {
   const { type } = action;
   if (type === ACTION_TYPES.ADD_ANALYSIS_ELEMENT) {
     const { element, parent } = action;
     state = addAnalysisElement(state, element, parent);
-
   } else if (type === ACTION_TYPES.ADD_ANALYSIS_PAGE) {
     const { page } = action;
     state = addAnalysisPage(state, page);
-
   } else if (type === ACTION_TYPES.REMOVE_ANALYSIS_ELEMENT) {
     const { element } = action;
     state = removeAnalysisElement(state, element);
-
   } else if (type === ACTION_TYPES.REMOVE_ANALYSIS_PAGE) {
     const { key, page } = action;
     if (!isUndefined(key)) {
@@ -495,11 +490,9 @@ const analysis = (state={}, action) => {
     } else {
       state = removeAnalysisPage(state, page);
     }
-
   } else if (type === ACTION_TYPES.TRUNCATE_ANALYSIS_PAGES) {
     const { count } = action;
     state = truncateAnalysisPages(state, count);
-
   } else if (type === ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT_STATE) {
     const { element, state: newState } = action;
     state = updateAnalysisElementState(state, element, newState);

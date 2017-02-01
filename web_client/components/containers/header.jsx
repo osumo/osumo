@@ -11,8 +11,8 @@ const HeaderContainer = connect(
 
   (dispatch) => ({
     onDropdown: () => dispatch(actions.toggleHeaderDropdown()),
-    onFolders: (id) => window.open(`girder#user/${ id }`, '_blank'),
-    onInfo: (id) => window.open(`girder#useraccount/${ id }/info`, '_blank'),
+    onFolders: (id) => window.open(`girder#user/${id}`, '_blank'),
+    onInfo: (id) => window.open(`girder#useraccount/${id}/info`, '_blank'),
     onLogin: () => dispatch(actions.openLoginDialog()),
     onLogout: () => dispatch(actions.submitLogoutForm()),
     onRegister: () => dispatch(actions.openRegisterDialog()),

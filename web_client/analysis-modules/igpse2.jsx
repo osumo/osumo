@@ -2,7 +2,7 @@
 import actions from '../actions';
 import analysisUtils from '../utils/analysis';
 import { Promise } from '../utils/promise';
-import { store, rest } from '../globals';
+import { store } from '../globals';
 
 import igpse3 from './igpse3';
 
@@ -14,14 +14,14 @@ const actionProcess = (forms, page) => {
   const form = analysisUtils.aggregateForm(forms, page);
   const task = 'iGPSe2';
   const inputs = {
-    transferData: `FILE:${ form.hidden.transferData }`,
-    groups: `STRING:${ JSON.stringify({
+    transferData: `FILE:${form.hidden.transferData}`,
+    groups: `STRING:${JSON.stringify({
       GROUP1: form.pSets[0],
       GROUP2: form.pSets[1]
-    }) }`
+    })}`
   };
   const outputs = {
-    dataplot: `FILE:${ form.hidden.outputDir }:dataplot.png`
+    dataplot: `FILE:${form.hidden.outputDir}:dataplot.png`
   };
 
   const title = 'iGPSe Part 2';
@@ -48,7 +48,7 @@ const actionProcess = (forms, page) => {
   );
 };
 
-const main = ((data) => (
+const main = (data) => (
   D(actions.registerAnalysisAction('igpse2', 'process', actionProcess))
     .then(() => analysisUtils.fetchAndProcessAnalysisPage(
       D, {
@@ -68,13 +68,13 @@ const main = ((data) => (
                     outputDir: data.outputDirId
                   }
                 })
-              ).then(() => obj)
+              ).then(() => obj);
             }
           }
         }
       }
     ))
-));
+);
 
 export default main;
 

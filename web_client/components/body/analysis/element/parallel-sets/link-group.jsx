@@ -14,15 +14,19 @@ class LinkGroup extends React.Component {
     } = this.props;
 
     return (
-      <g className='group'
-         transform={ `translate(${ horizontalOffset }, 0)` }>
+      <g
+        className='group'
+        transform={`translate(${horizontalOffset}, 0)`}
+      >
         {
           links.map((link, i) => (
-            <Link groupMembership={ groupMembership(link, i) }
-                  onClick={ (e) => onClick(link, e) }
-                  pathString={ pathString(link, i) }
-                  strokeWidth={ strokeWidth(link, i) }
-                  key={ i }/>
+            <Link
+              groupMembership={groupMembership(link, i)}
+              onClick={(e) => onClick(link, e)}
+              pathString={pathString(link, i)}
+              strokeWidth={strokeWidth(link, i)}
+              key={i}
+            />
           ))
         }
       </g>

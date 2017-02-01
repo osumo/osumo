@@ -57,7 +57,7 @@ const setFileNavigationRoot = (dialog, modelType, root) => {
   fileSelect = ensure(
     fileSelect, {
       folderSelectMode: false,
-      showItems: true,
+      showItems: true
     }
   );
 
@@ -77,7 +77,7 @@ const setFileNavigationFolderSelectMode = (dialog, mode) => {
   fileSelect = ensure(
     fileSelect, {
       folderSelectMode: false,
-      showItems: true,
+      showItems: true
     }
   );
 
@@ -94,7 +94,7 @@ const setFileNavigationShowItems = (dialog, showItems) => {
   fileSelect = ensure(
     fileSelect, {
       folderSelectMode: false,
-      showItems: true,
+      showItems: true
     }
   );
 
@@ -118,16 +118,16 @@ const updateDialogForm = (dialog, form) => {
   return dialog;
 };
 
-const dialog = (state={}, action) => {
+const dialog = (state = {}, action) => {
   const { type } = action;
 
   if (
-    type === ACTION_TYPES.CLEAR_LOGIN_INFO           ||
-    type === ACTION_TYPES.CLOSE_DIALOG               ||
-    type === ACTION_TYPES.OPEN_FILE_SELECTOR_DIALOG  ||
-    type === ACTION_TYPES.OPEN_LOGIN_DIALOG          ||
+    type === ACTION_TYPES.CLEAR_LOGIN_INFO ||
+    type === ACTION_TYPES.CLOSE_DIALOG ||
+    type === ACTION_TYPES.OPEN_FILE_SELECTOR_DIALOG ||
+    type === ACTION_TYPES.OPEN_LOGIN_DIALOG ||
     type === ACTION_TYPES.OPEN_RESET_PASSWORD_DIALOG ||
-    type === ACTION_TYPES.OPEN_REGISTER_DIALOG       ||
+    type === ACTION_TYPES.OPEN_REGISTER_DIALOG ||
     type === ACTION_TYPES.SET_LOGIN_INFO
   ) {
     state = (
@@ -144,39 +144,29 @@ const dialog = (state={}, action) => {
     );
   }
 
-
   if (type === ACTION_TYPES.OPEN_FILE_SELECTOR_DIALOG) {
     state = setDialogComponent(state, 'file-select');
-
   } else if (type === ACTION_TYPES.OPEN_LOGIN_DIALOG) {
     state = setDialogComponent(state, 'login');
-
   } else if (type === ACTION_TYPES.OPEN_RESET_PASSWORD_DIALOG) {
     state = setDialogComponent(state, 'reset-password');
-
   } else if (type === ACTION_TYPES.OPEN_REGISTER_DIALOG) {
     state = setDialogComponent(state, 'register');
-
   } else if (type === ACTION_TYPES.SET_DIALOG_ERROR) {
     const { field, message } = action;
     state = setDialogError(state, field, message);
-
   } else if (type === ACTION_TYPES.SET_DIALOG_FOCUS) {
     const { field, time } = action;
     state = setDialogFocus(state, field, time);
-
   } else if (type === ACTION_TYPES.UPDATE_DIALOG_FORM) {
     const { form } = action;
     state = updateDialogForm(state, form);
-
   } else if (type === ACTION_TYPES.SET_FILE_NAVIGATION_ROOT) {
     const { modelType, root } = action;
     state = setFileNavigationRoot(state, modelType, root);
-
   } else if (type === ACTION_TYPES.SET_FILE_NAVIGATION_FOLDER_SELECT_MODE) {
     const { mode } = action;
     state = setFileNavigationFolderSelectMode(state, mode);
-
   } else if (type === ACTION_TYPES.SET_FILE_NAVIGATION_SHOW_ITEMS) {
     const { showItems } = action;
     state = setFileNavigationShowItems(state, showItems);

@@ -4,7 +4,7 @@ import { store } from '../globals';
 
 const D = store.dispatch.bind(store);
 
-const main = ((data) => (
+const main = (data) => (
   analysisUtils.fetchAndProcessAnalysisPage(
     D, {
       key: 'surv2',
@@ -13,7 +13,7 @@ const main = ((data) => (
       }
     }
   )
-));
+);
 
 export default main;
 

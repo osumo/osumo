@@ -17,13 +17,15 @@ class Dialog extends React.Component {
     };
 
     return (
-      <Group className={ className }
-             id='g-dialog-container'
-             backupKey={ backupKey }
-             filterKey={ filterKey }
-             style={ style }
-             onKeyDown={ onKeyDown }>
-        { children }
+      <Group
+        className={className}
+        id='g-dialog-container'
+        backupKey={backupKey}
+        filterKey={filterKey}
+        style={style}
+        onKeyDown={onKeyDown}
+      >
+        {children}
       </Group >
     );
   }

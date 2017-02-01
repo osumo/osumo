@@ -2,7 +2,7 @@
 import actions from '../actions';
 import analysisUtils from '../utils/analysis';
 import { Promise } from '../utils/promise';
-import { store, rest } from '../globals';
+import { store } from '../globals';
 
 import surv2 from './surv2';
 
@@ -14,13 +14,13 @@ const actionProcess = (forms, page) => {
   const form = analysisUtils.aggregateForm(forms, page);
   const task = 'surv';
   const inputs = {
-    input_rdata: `FILE:${ form.input_rdata }`,
-    num_clusters: `INTEGER:${ form.num_clusters }`
+    input_rdata: `FILE:${form.input_rdata}`,
+    num_clusters: `INTEGER:${form.num_clusters}`
   };
   const outputs = {
-    fit: `FILE:${ form.output_dir }:fit.rdata`,
-    sdf: `FILE:${ form.output_dir }:sdf.rdata`,
-    dataplot: `FILE:${ form.output_dir }:survivor-plot.png`
+    fit: `FILE:${form.output_dir}:fit.rdata`,
+    sdf: `FILE:${form.output_dir}:sdf.rdata`,
+    dataplot: `FILE:${form.output_dir}:survivor-plot.png`
   };
   const title = 'survivor plot';
   const maxPolls = 40;

@@ -11,7 +11,6 @@ class Page extends React.Component {
       description,
       elements,
       form,
-      id,
       mainAction,
       name,
       notes,
@@ -50,30 +49,34 @@ class Page extends React.Component {
         <div className='.g-analysis-page-header'>
           { descriptionComponent }
           { notesComponent }
-          <form className='function-control'
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  onAction(mainAction);
-                }}>
-              {
-                elements
-                  .filter((element) => element.type !== 'hidden')
-                  .map((element) => {
-                    let key = (
-                      isUndefined(element.key) ? element.id : element.key);
-                    return (
-                      <Element { ...element }
-                               mainAction={ mainAction }
-                               onAction={ onAction }
-                               onFileSelect={ () => onFileSelect(element) }
-                               onStateChange={
-                                 (state) => onStateChange(element, state)
-                               }
-                               state={ form[key] || {} }
-                               key={ element.id }/>
-                    );
-                  })
+          <form
+            className='function-control'
+            onSubmit={
+              (e) => {
+                e.preventDefault();
+                onAction(mainAction);
               }
+            }
+          >
+            {
+              elements
+                .filter(({ type }) => type !== 'hidden')
+                .map((element) => {
+                  let key = (
+                    isUndefined(element.key) ? element.id : element.key);
+                  return (
+                    <Element
+                      {...element}
+                      mainAction={mainAction}
+                      onAction={onAction}
+                      onFileSelect={() => onFileSelect(element)}
+                      onStateChange={(state) => onStateChange(element, state)}
+                      state={form[key] || {}}
+                      key={element.id}
+                    />
+                  );
+                })
+            }
           </form>
         </div>
       </div>
@@ -85,7 +88,6 @@ class Page extends React.Component {
       description: React.PropTypes.string,
       elements: React.PropTypes.arrayOf(React.PropTypes.object),
       form: React.PropTypes.object,
-      id: React.PropTypes.number,
       mainAction: React.PropTypes.string,
       name: React.PropTypes.string,
       notes: React.PropTypes.string,

@@ -31,15 +31,12 @@ class ProcessPage extends React.Component {
         : (<div className='task-notes'>{ notesText }</div>)
     );
 
-
     return (
       <div className='process-page'>
         { descriptionComponent }
         { notesComponent }
         {
-          ui.map(({ key }) => (
-            <div key={ key }>{ key }</div>
-          ))
+          ui.map(({ key }) => (<div key={key}>{key}</div>))
         }
       </div>
     );

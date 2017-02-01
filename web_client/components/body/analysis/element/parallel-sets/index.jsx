@@ -1,5 +1,5 @@
 import React from 'react';
-import { isArray, isUndefined } from 'lodash';
+import { isArray } from 'lodash';
 import d3Array from 'd3-array';
 import d3Scale from 'd3-scale';
 import d3Shape from 'd3-shape';
@@ -25,14 +25,14 @@ class ParallelSets extends React.Component {
       value: groupSelections
     } = state;
 
-    gapRatio  = gapRatio  ||  0.8;
-    height    = height    ||  450;
-    inputData = inputData ||   [];
-    padding   = padding   ||    5;
-    width     = width     ||  800;
+    gapRatio = gapRatio || 0.8;
+    height = height || 450;
+    inputData = inputData || [];
+    padding = padding || 5;
+    width = width || 800;
 
     groupSelections = groupSelections || [];
-    for (let i=0; i<2; ++i) {
+    for (let i = 0; i < 2; ++i) {
       groupSelections[i] = groupSelections[i] || {};
       groupSelections[i].node = groupSelections[i].node || [];
       groupSelections[i].link = groupSelections[i].link || [];
@@ -46,7 +46,7 @@ class ParallelSets extends React.Component {
       d3Scale
         .scaleBand()
         .domain(d3Array.range(N))
-        .range([0, width + width/(N - 1)])
+        .range([0, width + width / (N - 1)])
         .padding(gapRatio)
     );
 
@@ -90,7 +90,7 @@ class ParallelSets extends React.Component {
 
     const returnObject = (i, flag) => {
       let m;
-      for (m=0; m<inputData[flag].length; m++) {
+      for (m = 0; m < inputData[flag].length; m++) {
         if (parseInt(inputData[flag][m].key, 10) === i) {
           return inputData[flag][m];
         }
@@ -108,16 +108,16 @@ class ParallelSets extends React.Component {
       }
       let sourcey = (
         y(source.offsetValue) +
-        source.order*padding +
+        source.order * padding +
         y(l.outOffset) +
-        0.5*y(l.count)
+        0.5 * y(l.count)
       );
 
       let targety = (
         y(target.offsetValue) +
-        target.order*padding +
+        target.order * padding +
         y(l.inOffset) +
-        0.5*y(l.count)
+        0.5 * y(l.count)
       );
 
       var points = (
@@ -130,10 +130,10 @@ class ParallelSets extends React.Component {
           ]
 
           : [
-            { x: startx               , y: sourcey },
-            { x: startx + 0.5*gapWidth, y: sourcey },
-            { x: startx + 0.5*gapWidth, y: targety },
-            { x:                    -3, y: targety }
+            { x: startx, y: sourcey },
+            { x: startx + 0.5 * gapWidth, y: sourcey },
+            { x: startx + 0.5 * gapWidth, y: targety },
+            { x: -3, y: targety }
           ]
       );
 
@@ -174,7 +174,7 @@ class ParallelSets extends React.Component {
     const horizontalOffset = [0, x(1) - x(0)];
 
     const verticalOffset = (node, index) => (
-      y(node.offsetValue) + index*padding
+      y(node.offsetValue) + index * padding
     );
 
     const _width = ((w) => () => w)(x.bandwidth());
@@ -183,12 +183,9 @@ class ParallelSets extends React.Component {
       e.preventDefault();
 
       let entryList = (
-        currentGroupSelection === 1
-          ? groupSelections[0].node
-        : currentGroupSelection === 2
-          ? groupSelections[1].node
-        :
-          null
+        currentGroupSelection === 1 ? groupSelections[0].node
+          : currentGroupSelection === 2 ? groupSelections[1].node
+           : null
       );
 
       if (!entryList) { return; }
@@ -221,12 +218,9 @@ class ParallelSets extends React.Component {
       e.preventDefault();
 
       let entryList = (
-        currentGroupSelection === 1
-          ? groupSelections[0].link
-        : currentGroupSelection === 2
-          ? groupSelections[1].link
-        :
-          null
+        currentGroupSelection === 1 ? groupSelections[0].link
+          : currentGroupSelection === 2 ? groupSelections[1].link
+            : null
       );
 
       if (!entryList) { return; }
@@ -285,33 +279,39 @@ class ParallelSets extends React.Component {
 
         /* place all node entries before link entries */
         .sort(([typeA, , iA], [typeB, , iB]) => (
-          typeA > typeB ?  1 :
-          typeA < typeB ? -1 :
-          iA    >    iB ?  1 :
-          iA    <    iB ? -1 : 0
+          typeA > typeB ? 1
+            : typeA < typeB ? -1
+              : iA > iB ? 1
+                : iA < iB ? -1
+                  : 0
         ))
 
         /* render */
         .map(([type, data, i]) => (
           type === 0 ? (
-            <NodeGroup  fill={ fill(i) }
-                        groupMembership={ nodeGroupMembership(i) }
-                        height={ _height }
-                        horizontalOffset={ horizontalOffset[i] }
-                        key={ i }
-                        onClick={ onNodeClick }
-                        nodes={ data }
-                        verticalOffset={ verticalOffset }
-                        width={ _width }/>
-          ) : (
-            <LinkGroup groupMembership={ linkGroupMembership(i) }
-                        horizontalOffset={ horizontalOffset[i] }
-                        key={ `path-${ i }` }
-                        links={ data }
-                        onClick={ onLinkClick }
-                        pathString={ pathString }
-                        strokeWidth={ strokeWidth }/>
+            <NodeGroup
+              fill={fill(i)}
+              groupMembership={nodeGroupMembership(i)}
+              height={_height}
+              horizontalOffset={horizontalOffset[i]}
+              key={i}
+              onClick={onNodeClick}
+              nodes={data}
+              verticalOffset={verticalOffset}
+              width={_width}
+            />
           )
+            : (
+              <LinkGroup
+                groupMembership={linkGroupMembership(i)}
+                horizontalOffset={horizontalOffset[i]}
+                key={`path-${i}`}
+                links={data}
+                onClick={onLinkClick}
+                pathString={pathString}
+                strokeWidth={strokeWidth}
+              />
+            )
         ))
     );
 
@@ -319,23 +319,29 @@ class ParallelSets extends React.Component {
       <div className='parallelsets'>
         <div className='controls'>
           <div className='btn-group alignment' data-toggle='buttons-radio'>
-            <input type='button'
-                    className='btn'
-                    onClick={ onGroupClick(1) }
-                    value='Group 1'/>
-            <input type='button'
-                    className='btn'
-                    onClick={ onGroupClick(2) }
-                    value='Group 2'/>
+            <input
+              type='button'
+              className='btn'
+              onClick={onGroupClick(1)}
+              value='Group 1'
+            />
+            <input
+              type='button'
+              className='btn'
+              onClick={onGroupClick(2)}
+              value='Group 2'
+            />
           </div>
-          <input type='button'
-                  className='btn btn-primary'
-                  onClick={ onReset }
-                  value='Reset'/>
+          <input
+            type='button'
+            className='btn btn-primary'
+            onClick={onReset}
+            value='Reset'
+          />
         </div>
         <div id='brick'>
-          <svg width={ width } height={ height }>
-          { children }
+          <svg width={width} height={height}>
+            {children}
           </svg>
         </div>
       </div>

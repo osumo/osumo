@@ -15,12 +15,16 @@ const DialogContainer = connect(
   (dispatch) => ({
     onClose: () => dispatch(closeDialog()),
     children: [
-      <FileSelectorDialogContainer key='file-select'
-                                   groupKey='file-select'/>,
-      <LoginDialogContainer key='login' groupKey='login'/>,
-      <RegisterDialogContainer key='register' groupKey='register'/>,
-      <ResetPasswordDialogContainer key='reset-password'
-                                    groupKey='reset-password'/>
+      <FileSelectorDialogContainer
+        key='file-select'
+        groupKey='file-select'
+      />,
+      <LoginDialogContainer key='login' groupKey='login' />,
+      <RegisterDialogContainer key='register' groupKey='register' />,
+      <ResetPasswordDialogContainer
+        key='reset-password'
+        groupKey='reset-password'
+      />
     ]
   })
 )(Dialog);

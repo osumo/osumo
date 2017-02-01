@@ -1,5 +1,4 @@
 import React from 'react';
-import { isUndefined } from 'lodash';
 
 import TextField from '../../../common/text-field.jsx';
 
@@ -11,10 +10,12 @@ class Field extends React.Component {
     } = this.props;
 
     return (
-      <TextField className='form-control'
-                 value={ state.value || '' }
-                 onChange={ (value) => onStateChange({ value }) }
-                 key={ 'form-control' }/>
+      <TextField
+        className='form-control'
+        value={state.value || ''}
+        onChange={(value) => onStateChange({ value })}
+        key={'form-control'}
+      />
     );
   }
 

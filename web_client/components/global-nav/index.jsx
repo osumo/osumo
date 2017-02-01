@@ -11,11 +11,13 @@ class GlobalNav extends React.Component {
     } = this.props;
 
     return (
-      <Group root={ <Root/> }
-             filterKey={ filterKey }
-             onChildClick={ onChildClick }
-             onlyMatching={ false }>
-        { children }
+      <Group
+        root={<Root />}
+        filterKey={filterKey}
+        onChildClick={onChildClick}
+        onlyMatching={false}
+      >
+        {children}
       </Group>
     );
   }

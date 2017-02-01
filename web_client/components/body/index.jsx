@@ -6,11 +6,13 @@ class Body extends React.Component {
     let { backupKey, children, filterKey } = this.props;
 
     return (
-      <Group className='g-default-layout'
-             id='g-app-body-container'
-             backupKey={ backupKey }
-             filterKey={ filterKey }>
-        { children }
+      <Group
+        className='g-default-layout'
+        id='g-app-body-container'
+        backupKey={backupKey}
+        filterKey={filterKey}
+      >
+        {children}
       </Group>
     );
   }

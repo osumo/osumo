@@ -9,8 +9,8 @@ class Footer extends React.Component {
 
     return (
       <div id='g-app-footer-container'>
-        <Links apiRoot={ apiRoot }/>
-        <Info/>
+        <Links apiRoot={apiRoot} />
+        <Info />
       </div>
     );
   }

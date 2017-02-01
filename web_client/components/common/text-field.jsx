@@ -40,12 +40,14 @@ class TextField extends React.Component {
     );
 
     return (
-      <input { ...props }
-             onChange={ updateCallback }
-             type={ type || 'text' }
-             value={ value || '' }
-             ref='input'>
-        { children }
+      <input
+        {...props}
+        onChange={updateCallback}
+        type={type || 'text'}
+        value={value || ''}
+        ref='input'
+      >
+        {children}
       </input>
     );
   }

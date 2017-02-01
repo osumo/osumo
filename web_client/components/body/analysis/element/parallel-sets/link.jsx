@@ -20,10 +20,12 @@ class Link extends React.Component {
     );
 
     return (
-      <path className={ className }
-            style={{ strokeWidth }}
-            d={ pathString }
-            onClick={ onClick }/>
+      <path
+        className={className}
+        style={{ strokeWidth }}
+        d={pathString}
+        onClick={onClick}
+      />
     );
   }
 

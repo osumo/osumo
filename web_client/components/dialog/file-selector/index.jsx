@@ -19,14 +19,16 @@ export default class FileSelector extends React.Component {
     return (
       <div className='modal-dialog'>
         <div className='modal-content'>
-          <Header onClose={ onClose }>Select an item</Header>
-          <Body folder={ folder }
-                itemFilter={ itemFilter }
-                folderSelectMode={ folderSelectMode }
-                onItemSelect={ onItemSelect }
-                onRootSelect={ onRootSelect }
-                showItems={ showItems }
-                parentType={ parentType }/>
+          <Header onClose={onClose}>Select an item</Header>
+          <Body
+            folder={folder}
+            itemFilter={itemFilter}
+            folderSelectMode={folderSelectMode}
+            onItemSelect={onItemSelect}
+            onRootSelect={onRootSelect}
+            showItems={showItems}
+            parentType={parentType}
+          />
         </div>
       </div>
     );

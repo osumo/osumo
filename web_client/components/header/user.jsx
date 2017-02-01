@@ -29,35 +29,39 @@ class User extends React.Component {
             <a
               data-toggle='dropdown'
               data-target='#g-user-action-menu'
-              aria-expanded={ dropdownOpened }
-              onClick={ onDropdown }
+              aria-expanded={dropdownOpened}
+              onClick={onDropdown}
             >
-              { currentUser.firstName } { currentUser.lastName }
-              <i className='icon-down-open'/>
+              {currentUser.firstName} {currentUser.lastName}
+              <i className='icon-down-open' />
             </a>
             <div
               id='g-user-action-menu'
-              className={ 'dropdown' + (dropdownOpened ? ' open' : '') }
+              className={'dropdown' + (dropdownOpened ? ' open' : '')}
             >
               <ul className='dropdown-menu' role='menu'>
                 <li role='presentation'>
-                  <a className='g-my-folders' onClick={ onFolders }>
-                    <i className='icon-folder'/>
+                  <a className='g-my-folders' onClick={onFolders}>
+                    <i className='icon-folder' />
                     My folders
                   </a>
                 </li>
                 <li role='presentation'>
-                  <a className='g-my-settings'
-                     onClick={ onInfo }>
-                    <i className='icon-cog'/>
+                  <a
+                    className='g-my-settings'
+                    onClick={onInfo}
+                  >
+                    <i className='icon-cog' />
                     My account
                   </a>
                 </li>
-                <li className='divider' role='presentation'/>
+                <li className='divider' role='presentation' />
                 <li role='presentation'>
-                  <a className='g-logout'
-                     onClick={ onLogout }>
-                    <i className='icon-logout'/>
+                  <a
+                    className='g-logout'
+                    onClick={onLogout}
+                  >
+                    <i className='icon-logout' />
                     Log out
                   </a>
                 </li>
@@ -70,15 +74,11 @@ class User extends React.Component {
       result = (
         <div className='g-current-user-wrapper'>
           <div className='g-user-text'>
-            <a className='g-register'
-               onClick={ onRegister }>
-               Register
-            </a>
+            <a className='g-register' onClick={onRegister}>Register</a>
             <span> or </span>
-            <a className='g-login'
-               onClick={ onLogin }>
+            <a className='g-login' onClick={onLogin}>
               Log In
-              <i className='icon-login'/>
+              <i className='icon-login' />
             </a>
           </div>
         </div>

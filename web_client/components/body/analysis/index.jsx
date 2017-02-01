@@ -1,7 +1,6 @@
 import React from 'react';
 
 import AnalysisPage from './page';
-import objectReduce from '../../../utils/object-reduce';
 import { NBSP } from '../../../constants';
 
 class Analysis extends React.Component {
@@ -19,24 +18,29 @@ class Analysis extends React.Component {
     pages = (pages || []);
     forms = (forms || {});
 
+    const emptyAnalysisPageStyle = {
+      textAlign: 'center',
+      position: 'relative',
+      top: 50,
+      color: '#505050'
+    };
+
     let analysisPageContents = (
-      <h3 style={{
-        textAlign: 'center',
-        position: 'relative',
-          top: 50
-      }}>Use the dropdown menu above to select an analysis.</h3>
+      <h3 style={emptyAnalysisPageStyle}>
+        Use the dropdown menu above to select an analysis.
+      </h3>
     );
 
     if (pages.length > 0) {
       analysisPageContents = pages.map((page) => (
-        <AnalysisPage { ...page }
-                      form={ forms[page.key] || {} }
-                      onAction={
-                        (action) => onAction(forms, page, action)
-                      }
-                      onFileSelect={ onFileSelect }
-                      onStateChange={ onStateChange }
-                      key={ page.id }/>
+        <AnalysisPage
+          {...page}
+          form={forms[page.key] || {}}
+          onAction={(action) => onAction(forms, page, action)}
+          onFileSelect={onFileSelect}
+          onStateChange={onStateChange}
+          key={page.id}
+        />
       ));
     }
 
@@ -44,16 +48,18 @@ class Analysis extends React.Component {
       <div className='analysis'>
         <div className='analysis-selector'>
           <h4>Select analysis</h4>
-          { NBSP }
-          <select onChange={ ({ target: { value } }) => onBaseAnalysis(value) }>
-            <option key={ null } value={ "" }>- none -</option>
-            {baseAnalysisModules.map(({ name, key, module }) => (
-              <option key={ key } value={ key }>{ name }</option>
-            ))}
+          {NBSP}
+          <select onChange={({ target: { value } }) => onBaseAnalysis(value)}>
+            <option key={null} value={''}>- none -</option>
+            {
+              baseAnalysisModules.map(({ name, key, module }) => (
+                <option key={key} value={key}>{name}</option>
+              ))
+            }
           </select>
         </div>
         <div className='analysis-pages'>
-          { analysisPageContents }
+          {analysisPageContents}
         </div>
       </div>
     );

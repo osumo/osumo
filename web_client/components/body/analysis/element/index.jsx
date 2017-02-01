@@ -25,19 +25,23 @@ class Element extends React.Component {
     switch (type) {
       case 'button':
         result = (
-          <ButtonElement key='result'
-                         onAction={ onAction }
-                         { ...props }/>
+          <ButtonElement
+            key='result'
+            onAction={onAction}
+            {...props}
+          />
         );
         wrapResult = false;
         break;
 
       case 'field':
         result = (
-          <FieldElement key='result'
-                        onStateChange={ onStateChange }
-                        state={ state }
-                        { ...props }/>
+          <FieldElement
+            key='result'
+            onStateChange={onStateChange}
+            state={state}
+            {...props}
+          />
         );
         break;
 
@@ -45,11 +49,13 @@ class Element extends React.Component {
       case 'file_selection':
       case 'file-selection':
         result = (
-          <FileSelectionElement key='result'
-                                onStateChange={ onStateChange }
-                                onFileSelect={ onFileSelect }
-                                state={ state }
-                                { ...props }/>
+          <FileSelectionElement
+            key='result'
+            onStateChange={onStateChange}
+            onFileSelect={onFileSelect}
+            state={state}
+            {...props}
+          />
         );
         break;
 
@@ -57,26 +63,30 @@ class Element extends React.Component {
       case 'folder_selection':
       case 'folder-selection':
         result = (
-          <FileSelectionElement key='result'
-                                onStateChange={ onStateChange }
-                                onFileSelect={ onFileSelect }
-                                state={ state }
-                                { ...props }/>
+          <FileSelectionElement
+            key='result'
+            onStateChange={onStateChange}
+            onFileSelect={onFileSelect}
+            state={state}
+            {...props}
+          />
         );
         break;
 
       case 'image':
-        result = (<ImageElement key='result' { ...props }/>);
-        break
+        result = (<ImageElement key='result' {...props} />);
+        break;
 
       case 'parallelSets':
       case 'parallel_sets':
       case 'parallel-sets':
         result = (
-          <ParallelSetsElement key='result'
-                               onStateChange={ onStateChange }
-                               state={ state }
-                               { ...props }/>
+          <ParallelSetsElement
+            key='result'
+            onStateChange={onStateChange}
+            state={state}
+            {...props}
+          />
         );
         break;
 
@@ -114,7 +124,7 @@ class Element extends React.Component {
       elements.push(result);
 
       result = (
-        <div className='function-control' { ...extraProps }>{ elements }</div>
+        <div className='function-control' {...extraProps}>{elements}</div>
       );
     }
 

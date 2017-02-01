@@ -18,13 +18,15 @@ class Entry extends React.Component {
     }
 
     return (
-      <li className={ className }>
-        <a className='g-nav-link'
-           data-g-target={ groupKey }
-           data-g-name={ name }
-           onClick={ onClick } >
-          <i className={ icon }></i>
-          <span>{ name }</span>
+      <li className={className}>
+        <a
+          className='g-nav-link'
+          data-g-target={groupKey}
+          data-g-name={name}
+          onClick={onClick}
+        >
+          <i className={icon} />
+          <span>{name}</span>
         </a>
       </li>
     );

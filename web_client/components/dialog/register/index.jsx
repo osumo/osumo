@@ -96,16 +96,18 @@ class Register extends React.Component {
       let fTime = ((key === focusField && focusNeedsUpdate) ? focusTime : null);
 
       return (
-        <FormEntry className={ className }
-                   groupId={ `g-group-${key}` }
-                   id={ `g-${key}` }
-                   placeholder={ placeholder }
-                   key={ key }
-                   onChange={ updateCallback(key) }
-                   value={ form[key] }
-                   focusTime={ fTime }
-                   {...rest}>
-          { text }
+        <FormEntry
+          className={className}
+          groupId={`g-group-${key}`}
+          id={`g-${key}`}
+          placeholder={placeholder}
+          key={key}
+          onChange={updateCallback(key)}
+          value={form[key]}
+          focusTime={fTime}
+          {...rest}
+        >
+          {text}
         </FormEntry>
       );
     });
@@ -113,7 +115,7 @@ class Register extends React.Component {
     if (errorMessage) {
       validationFailed = [
         <div key='validation-failed' className='g-validation-failed-message'>
-          { errorMessage }
+          {errorMessage}
         </div>
       ];
     }
@@ -121,20 +123,24 @@ class Register extends React.Component {
     return (
       <div className='modal-dialog'>
         <div className='modal-content'>
-          <form className='modal-form'
-                id='g-register-form'
-                role='form'
-                onSubmit={ (event) => event.preventDefault() }>
-            <Header onClose={ onClose }>Sign up</Header>
+          <form
+            className='modal-form'
+            id='g-register-form'
+            role='form'
+            onSubmit={(event) => { event.preventDefault(); }}
+          >
+            <Header onClose={onClose}>Sign up</Header>
             <Body>
-              { formEntries }
-              { validationFailed }
-              <LoginInvitation currentUser={ currentUser }
-                               key='login-invitation'
-                               onLogin={ onLogin }/>
+              {formEntries}
+              {validationFailed}
+              <LoginInvitation
+                currentUser={currentUser}
+                key='login-invitation'
+                onLogin={onLogin}
+              />
             </Body>
 
-            <Footer onClose={ onClose } onSubmit={ onSubmit }/>
+            <Footer onClose={onClose} onSubmit={onSubmit} />
           </form>
         </div>
       </div>

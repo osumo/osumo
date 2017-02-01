@@ -36,7 +36,7 @@ import { isArray, isFunction, isNull, isUndefined } from 'lodash';
  *   - the filtered array of child components or the children array as-is
  *   - the effective key by which the children have been filtered or null
  */
-const filterChildren = (children, filterKey, options={}) => {
+const filterChildren = (children, filterKey, options = {}) => {
   let { backupKey, onlyMatching } = options;
   let filteredChildren = children;
   let effectiveKey = (
@@ -75,7 +75,7 @@ class Group extends React.Component {
     } = this.props;
 
     if (!root) {
-      root = (<div {...props}/>);
+      root = (<div {...props} />);
     }
 
     if (isNull(children)) {

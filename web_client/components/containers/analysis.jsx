@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { isUndefined } from 'lodash';
 
 import Analysis from '../body/analysis';
 import actions from '../../actions';
@@ -9,7 +8,7 @@ import { Promise } from '../../utils/promise';
 
 import baseAnalysisModules from '../../analysis-modules/base-listing';
 
-const assemblePages = (pages, objects, visitedSet={}) => (
+const assemblePages = (pages, objects, visitedSet = {}) => (
   pages
     .map((page) => {
       if (!visitedSet[page]) {
@@ -30,16 +29,15 @@ const getFolderRootpath = (folder) => {
   let { baseParentId, baseParentType, parentId } = folder;
 
   if (parentId === baseParentId) {
-    return rest({ path: `${ baseParentType }/${ baseParentId }` })
+    return rest({ path: `${baseParentType}/${baseParentId}` })
       .then(({ response }) => response)
       .then(({ name, login }) => [
         { type: baseParentType, object: { name, login } },
-        { type: 'folder', object: { name: folder.name } },
+        { type: 'folder', object: { name: folder.name } }
       ]);
-
   }
 
-  return rest({ path: `folder/${ parentId }` })
+  return rest({ path: `folder/${parentId}` })
     .then(({ response }) => response)
     .then(getFolderRootpath)
     .then((objects) => [
@@ -84,15 +82,17 @@ const AnalysisContainer = connect(
         let pathPromise;
         let name, id;
 
-        name = item.name
+        name = item.name;
         id = item._id;
 
         if (type === 'item') {
-          pathPromise = rest({ path: `item/${ id }/rootpath` })
-            .then(({ response }) => [
-              ...response, { type: 'item', object: { name } }
-            ])
-
+          pathPromise = (
+            rest({ path: `item/${id}/rootpath` })
+              .then(({ response }) => [
+                ...response,
+                { type: 'item', object: { name } }
+              ])
+          );
         } else if (type === 'folder') {
           pathPromise = getFolderRootpath(item);
         } else {
@@ -107,9 +107,9 @@ const AnalysisContainer = connect(
         return (
           pathPromise
             .map(({ type, object: { name, login } }) => (
-              type === 'user' ? `/users/${ login }`
-              : type === 'collection' ? `/collections/${ name }`
-              : `/${ name }`
+              type === 'user' ? `/users/${login}`
+              : type === 'collection' ? `/collections/${name}`
+              : `/${name}`
             ))
 
             .reduce((a, b) => a + b, '')
@@ -119,7 +119,7 @@ const AnalysisContainer = connect(
                 element, {
                   value: id,
                   name,
-                  path: `${ path }`,
+                  path: `${path}`,
                   type
                 }
               ))

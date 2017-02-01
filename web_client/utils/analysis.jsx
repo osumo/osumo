@@ -24,16 +24,16 @@ export const pollJob = (
   jobId, title, taskName, pollInterval, pollCounter, maxPolls
 ) => (
   Promise.delay(pollInterval)
-    .then(() => rest({ path: `osumo/results/${ jobId }` }))
+    .then(() => rest({ path: `osumo/results/${jobId}` }))
     .then(({ response: { status, files } }) => {
       if (status === 4) {  /* error */
         throw new Error(
-          `OSUMO task "${ title }" (${ taskName }/${ jobId })` +
+          `OSUMO task "${title}" (${taskName}/${jobId})` +
           ' failed with an error'
         );
       } else if (status === 5) {  /* canceled */
         throw new Error(
-          `OSUMO task "${ title }" (${ taskName }/${ jobId }) was canceled`
+          `OSUMO task "${title}" (${taskName}/${jobId}) was canceled`
         );
       } else if (status === 3) {  /* success */
         return files;
@@ -42,8 +42,8 @@ export const pollJob = (
       if (maxPolls > 0) {
         if (pollCounter === maxPolls) {  /* no more polls */
           throw new Error(
-            `OSUMO task "${ title }" (${ taskName }/${ jobId }) ` +
-            `timed out after ${ maxPolls } tr${ maxPolls > 1 ? 'ies' : 'y' }`
+            `OSUMO task "${title}" (${taskName}/${jobId}) ` +
+            `timed out after ${maxPolls} tr${maxPolls > 1 ? 'ies' : 'y'}`
           );
         }
 
@@ -54,15 +54,14 @@ export const pollJob = (
     })
 );
 
-export const runTask = (taskName, params, options={}) => {
+export const runTask = (taskName, params, options = {}) => {
   let { maxPolls, pollInterval, title } = options;
   if (isUndefined(pollInterval)) { pollInterval = 5000; }
   if (isUndefined(maxPolls)) { maxPolls = 0; }
 
-  let path = `osumo/task/${ taskName }/run`
+  let path = `osumo/task/${taskName}/run`;
   if (!isUndefined(title)) {
-    path = `${ path }?title=${ title }`;
-    title = 'untitled';
+    path = `${path}?title=${title}`;
   }
 
   let { inputs, outputs } = params;
@@ -76,7 +75,7 @@ export const runTask = (taskName, params, options={}) => {
         Object.entries(outputs)
           .map(([k, v]) => (['OUTPUT', k, v]))
       )
-      .map(([t, k, v]) => ([`${ t }(${ k })`, v]))
+      .map(([t, k, v]) => ([`${t}(${k})`, v]))
       .reduce(objectReduce, {})
   );
 
@@ -97,7 +96,8 @@ const {
 
 export const processAnalysisPage = (dispatch, params) => {
   let { ui: uiSpec, postprocess } = params;
-  let { ui, tags, ...pageData } = uiSpec;
+  let { ui, ...pageData } = uiSpec;
+  delete pageData.tags;
 
   let parent;
   let promiseChain = dispatch(addPage(pageData));
@@ -108,7 +108,7 @@ export const processAnalysisPage = (dispatch, params) => {
     });
   }
 
-  promiseChain = promiseChain.then((page) => parent = page);
+  promiseChain = promiseChain.then((page) => { parent = page; });
 
   ui.forEach((elem) => {
     promiseChain = promiseChain.then(() => dispatch(addElem(elem, parent)));
@@ -135,7 +135,7 @@ export const fetchAndProcessAnalysisPage = (dispatch, params) => {
     postprocess
   } = params;
 
-  const path = `osumo/ui/${ key }`;
+  const path = `osumo/ui/${key}`;
 
   let promiseChain = rest({ path }).then(({ response }) => response);
   if (!isUndefined(preprocess)) {

@@ -7,12 +7,12 @@ import ACTION_TYPES from './reducer/action-types';
 let { rest } = globals;
 
 const promiseAction = (callback) => (dispatch, getState) => new Promise(
-  (rs, rj) => {
+  (resolve, reject) => {
     try {
       let result = callback(dispatch, getState);
-      rs(result);
+      resolve(result);
     } catch (e) {
-      rj(e);
+      reject(e);
     }
   }
 );
@@ -61,19 +61,15 @@ export const closeDialog = (byRouter = false) => promiseAction(
       return { ...S().dialog };
     }
 
-    let currentRoute = router();
+    let currentRoute = globals.router();
     let newRoute = (
       URI(currentRoute)
         .removeQuery('dialog')
         .toString()
     );
 
-    router.navigate(
-      (
-        URI(currentRoute)
-          .removeQuery('dialog')
-          .toString()
-      ),
+    globals.router.navigate(
+      newRoute,
       {
         replace: true,
         trigger: false
@@ -99,8 +95,8 @@ export const openFileSelectorDialog = (byRouter = false) => promiseAction(
       return { ...S().dialog };
     }
 
-    let currentRoute = router();
-    router.navigate(
+    let currentRoute = globals.router();
+    globals.router.navigate(
       (
         URI(currentRoute)
           .removeQuery('dialog')
@@ -135,8 +131,8 @@ export const openLoginDialog = (byRouter = false) => promiseAction(
       return { ...S().dialog };
     }
 
-    let currentRoute = router();
-    router.navigate(
+    let currentRoute = globals.router();
+    globals.router.navigate(
       (
         URI(currentRoute)
           .removeQuery('dialog')
@@ -171,8 +167,8 @@ export const openResetPasswordDialog = (byRouter = false) => promiseAction(
       return { ...S().dialog };
     }
 
-    let currentRoute = router();
-    router.navigate(
+    let currentRoute = globals.router();
+    globals.router.navigate(
       (
         URI(currentRoute)
           .removeQuery('dialog')
@@ -206,8 +202,8 @@ export const openRegisterDialog = (byRouter = false) => promiseAction(
       return { ...S().dialog };
     }
 
-    let currentRoute = router();
-    router.navigate(
+    let currentRoute = globals.router();
+    globals.router.navigate(
       (
         URI(currentRoute)
           .removeQuery('dialog')
@@ -224,12 +220,16 @@ export const openRegisterDialog = (byRouter = false) => promiseAction(
 );
 
 export const registerAnalysisAction = (
-  (pageKey, actionName, callback) => promiseAction(() => {
+  pageKey,
+  actionName,
+  callback
+) => promiseAction(
+  () => {
     globals.analysisActionTable[pageKey] = (
       globals.analysisActionTable[pageKey] || {});
 
     globals.analysisActionTable[pageKey][actionName] = callback;
-  })
+  }
 );
 
 export const removeAnalysisElement = (element) => promiseAction(
@@ -269,7 +269,7 @@ export const updateAnalysisElementState = (element, state) => promiseAction(
     let n = keys.length;
 
     state = forms;
-    for(;n--;) {
+    for (;n--;) {
       state = state[keys[n]];
     }
 
@@ -300,7 +300,7 @@ export const setDialogError = (field, message) => promiseAction(
     }
 
     D({ type: ACTION_TYPES.SET_DIALOG_ERROR, field, message });
-    return { ... S().dialog.error };
+    return { ...S().dialog.error };
   }
 );
 
@@ -336,11 +336,11 @@ export const setFileNavigationRoot = (root, type) => promiseAction(
           isString(type) ? [ type ] : [ 'user', 'collection', 'folder' ]
         )
           .forEach((modelType) => {
-            let query = { path: `${ modelType }/${ root }` };
+            let query = { path: `${modelType}/${root}` };
             let p = rest(query).then(({ response }) => response);
             promise = (promise ? promise.catch(() => p) : p);
           })
-      )
+      );
 
       return promise.then((root) => D(setFileNavigationRoot(root)));
     }
@@ -362,8 +362,8 @@ export const setGlobalNavTarget = (target, byRouter = false) => promiseAction(
       return S().globalNavTarget;
     }
 
-    router.navigate(
-      [target, URI(router()).query()]
+    globals.router.navigate(
+      [target, URI(globals.router()).query()]
         .filter((string) => string !== '')
         .join('?'),
       {
@@ -484,12 +484,20 @@ export const triggerAnalysisAction = (forms, page, action, ...args) => (
       if (callback) { callback = callback[action]; }
       if (!callback) {
         throw new Error(
-          `No such analysis action registered: ${ page.key }.${ action }`);
+          `No such analysis action registered: ${page.key}.${action}`);
       }
 
       return callback.apply(
-        { dispatch: D, getState: S }, /* this */
-        [ forms, page, action, ...args] /* args */
+        {
+          dispatch: D,
+          getState: S
+        }, /* this */
+        [
+          forms,
+          page,
+          action,
+          ...args
+        ] /* args */
       );
     }
   )
@@ -498,7 +506,7 @@ export const triggerAnalysisAction = (forms, page, action, ...args) => (
 export const truncateAnalysisPages = (count) => promiseAction(
   (D, S) => {
     D({ type: ACTION_TYPES.TRUNCATE_ANALYSIS_PAGES, count });
-    return S().analysis.pages
+    return S().analysis.pages;
   }
 );
 

@@ -65,16 +65,18 @@ class ResetPassword extends React.Component {
       let fTime = ((key === focusField && focusNeedsUpdate) ? focusTime : null);
 
       return (
-        <FormEntry className={ className }
-                   groupId={ `g-group-${key}` }
-                   id={ `g-${key}` }
-                   placeholder={ placeholder }
-                   key={ key }
-                   onChange={ updateCallback(key) }
-                   value={ form[key] }
-                   focusTime={ fTime }
-                   {...rest}>
-          { text }
+        <FormEntry
+          className={className}
+          groupId={`g-group-${key}`}
+          id={`g-${key}`}
+          placeholder={placeholder}
+          key={key}
+          onChange={updateCallback(key)}
+          value={form[key]}
+          focusTime={fTime}
+          {...rest}
+        >
+          {text}
         </FormEntry>
       );
     });
@@ -90,21 +92,25 @@ class ResetPassword extends React.Component {
     return (
       <div className='modal-dialog'>
         <div className='modal-content'>
-          <form className='modal-form'
-                id='g-reset-password-form'
-                role='form'
-                onSubmit={ (event) => event.preventDefault() }>
-            <Header onClose={ onClose }>Forgotten password</Header>
+          <form
+            className='modal-form'
+            id='g-reset-password-form'
+            role='form'
+            onSubmit={(event) => { event.preventDefault(); }}
+          >
+            <Header onClose={onClose}>Forgotten password</Header>
             <Body>
-              <Explanation/>
-              { formEntries }
-              { validationFailed }
-              <RegisterAndLoginInvitation key='login-invitation'
-                                          onRegister={ onRegister }
-                                          onLogin={ onLogin }/>
+              <Explanation />
+              {formEntries}
+              {validationFailed}
+              <RegisterAndLoginInvitation
+                key='login-invitation'
+                onRegister={onRegister}
+                onLogin={onLogin}
+              />
             </Body>
 
-            <Footer onClose={ onClose } onSubmit={ onSubmit }/>
+            <Footer onClose={onClose} onSubmit={onSubmit} />
           </form>
         </div>
       </div>

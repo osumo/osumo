@@ -7,16 +7,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { connect, Provider } from 'react-redux';
 import URI from 'urijs';
-import { isUndefined } from 'lodash';
+
+import girder from 'girder';
 
 import globals, { router, store } from './globals';
 import actions from './actions';
 import routes from './routes';
-import {
-  aggregateForm,
-  fetchAndProcessAnalysisPage,
-  runTask
-} from './utils/analysis';
 
 import MainApp from './components/main-app';
 import DialogBackdrop from './components/dialog/backdrop';
@@ -69,17 +65,17 @@ $(() => {
   router.start();
 
   ReactDOM.render(
-    <Provider store={ store }><App/></Provider>,
+    <Provider store={store}><App /></Provider>,
     globals.$mainRootDiv[0]
   );
 
   ReactDOM.render(
-    <Provider store={ store }><DialogContainer/></Provider>,
+    <Provider store={store}><DialogContainer /></Provider>,
     globals.$dialogRootDiv[0]
   );
 
   ReactDOM.render(
-    <Provider store={ store }><Backdrop/></Provider>,
+    <Provider store={store}><Backdrop /></Provider>,
     globals.$backdropRootDiv[0]
   );
 
@@ -95,9 +91,6 @@ $(() => {
       actions,
       URI
     });
-
-    let { default: igpse } = require('./analysis-modules/igpse');
-    // igpse();
   }
 });
 

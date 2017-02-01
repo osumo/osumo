@@ -2,7 +2,7 @@
 import actions from '../actions';
 import analysisUtils from '../utils/analysis';
 import { Promise } from '../utils/promise';
-import { store, rest } from '../globals';
+import { store } from '../globals';
 
 const D = store.dispatch.bind(store);
 
@@ -12,14 +12,14 @@ const actionProcess = (forms, page) => {
   const form = analysisUtils.aggregateForm(forms, page);
   const task = 'kmeans';
   const inputs = {
-    input_path: `FILE:${ form.input_path }`,
-    has_header: `BOOLEAN:${ form.has_header }`,
-    num_clusters: `INTEGER:${ form.num_clusters }`
+    input_path: `FILE:${form.input_path}`,
+    has_header: `BOOLEAN:${form.has_header}`,
+    num_clusters: `INTEGER:${form.num_clusters}`
   };
   const extras = '"type":"table", "format":"csv"';
   const outputs = {
-    centers: `FILE:${ form.output_dir }:centers.csv(${ extras })`,
-    clusters: `FILE:${ form.output_dir }:clusters.csv(${ extras })`
+    centers: `FILE:${form.output_dir}:centers.csv(${extras})`,
+    clusters: `FILE:${form.output_dir}:clusters.csv(${extras})`
   };
   const title = 'kmeans';
   const maxPolls = 40;

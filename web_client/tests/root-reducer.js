@@ -1,7 +1,7 @@
 
 import { createStore } from 'redux';
-import rootReducer from '../src/reducer';
-import ACTION_TYPES from '../src/reducer/new-action-types';
+import rootReducer from '../reducer';
+import ACTION_TYPES from '../reducer/action-types';
 import test from 'tape';
 
 test('add analysis page', (t) => {
@@ -20,9 +20,10 @@ test('add analysis page', (t) => {
 
   action({ type: ACTION_TYPES.TOGGLE_HEADER_DROPDOWN });
   action({ type: ACTION_TYPES.OPEN_FILE_SELECTOR_DIALOG });
-  action({ type: ACTION_TYPES.UPDATE_DIALOG_FORM, form: {
-    one: 1, two: 2, three: 3
-  }});
+  action({
+    type: ACTION_TYPES.UPDATE_DIALOG_FORM,
+    form: { one: 1, two: 2, three: 3 }
+  });
   action({ type: ACTION_TYPES.SET_GLOBAL_NAV_TARGET, target: 'testing' });
   action({ type: ACTION_TYPES.CLOSE_DIALOG });
 

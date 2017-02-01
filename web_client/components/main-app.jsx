@@ -12,11 +12,11 @@ class MainApp extends React.Component {
     let dialogEnabled = !!(dialogComponentKey);
 
     return (
-      <div className={ dialogEnabled ? 'modal-open' : null }>
-        <HeaderContainer/>
-        <GlobalNavContainer/>
-        <BodyContainer/>
-        <FooterContainer/>
+      <div className={dialogEnabled ? 'modal-open' : null}>
+        <HeaderContainer />
+        <GlobalNavContainer />
+        <BodyContainer />
+        <FooterContainer />
       </div>
     );
 

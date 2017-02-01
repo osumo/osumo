@@ -29,7 +29,7 @@ const RootSelectorView = View.extend({
 
 export default class RootSelector extends React.Component {
   clearSelector () {
-    const $root = $( this.refs.root );
+    const $root = $(this.refs.root);
 
     if (this.rootSelector) {
       this.rootSelector.stopListening(this.rootSelector.rootSelectorView);
@@ -40,7 +40,7 @@ export default class RootSelector extends React.Component {
 
   setSelector () {
     const { onRootSelect } = this.props;
-    const $root = $( this.refs.root );
+    const $root = $(this.refs.root);
 
     this.rootSelector = new RootSelectorView({
       el: $root,
@@ -60,7 +60,7 @@ export default class RootSelector extends React.Component {
   }
 
   componentDidUpdate () {
-    this.refreshSelector()
+    this.refreshSelector();
     this.rootSelector.render();
   }
 
@@ -69,6 +69,6 @@ export default class RootSelector extends React.Component {
   }
 
   render () {
-    return (<div ref='root'/>);
+    return (<div ref='root' />);
   }
 }

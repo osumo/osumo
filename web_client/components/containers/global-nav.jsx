@@ -10,10 +10,12 @@ const GlobalNavContainer = connect(
   () => ({
     onChildClick: (groupKey) => router(groupKey),
     children: [
-      <GlobalNavEntry icon='user'
-                      name='Testing'
-                      groupKey='testing'
-                      key='testing'/>
+      <GlobalNavEntry
+        icon='user'
+        name='Testing'
+        groupKey='testing'
+        key='testing'
+      />
     ]
   })
 )(GlobalNav);

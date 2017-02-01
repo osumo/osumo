@@ -16,7 +16,7 @@ class LoginInvitation extends React.Component {
       };
 
       const logInHere = (
-        <a className='g-login-link' onClick={ onLoginClick } key='1'>
+        <a className='g-login-link' onClick={onLoginClick} key='1'>
           Log in here.
         </a>
       );
@@ -24,8 +24,8 @@ class LoginInvitation extends React.Component {
       result = (
         <div className='g-bottom-message' key='0'>
           Already have an account?
-          { NBSP }
-          { logInHere }
+          {NBSP}
+          {logInHere}
         </div>
       );
     }

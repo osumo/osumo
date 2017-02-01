@@ -16,8 +16,8 @@ class Node extends React.Component {
     const className = (
       [
         groupMembership[0] ? 'black' : '',
-        groupMembership[1] ? 'red'   : '',
-        inAnyGroup         ? 'box'   : ''
+        groupMembership[1] ? 'red' : '',
+        inAnyGroup ? 'box' : ''
       ]
       .filter((frag) => frag.length)
       .join(' ')
@@ -25,12 +25,14 @@ class Node extends React.Component {
 
     return (
       <g className='node'>
-        <rect className={ className }
-              fill={ fill }
-              y={ verticalOffset }
-              width={ width }
-              height={ height }
-              onClick={ onClick }/>
+        <rect
+          className={className}
+          fill={fill}
+          y={verticalOffset}
+          width={width}
+          height={height}
+          onClick={onClick}
+        />
       </g>
     );
   }

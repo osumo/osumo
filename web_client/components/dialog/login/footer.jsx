@@ -1,5 +1,4 @@
 import React from 'react';
-import { NBSP } from '../../../constants';
 
 class Footer extends React.Component {
   render () {
@@ -10,16 +9,16 @@ class Footer extends React.Component {
 
     return (
       <div className='modal-footer'>
-        <a className='btn btn-default'
-           data-dismiss='modal'
-           onClick={ onClose }>
+        <a className='btn btn-default' data-dismiss='modal' onClick={onClose}>
           Close
         </a>
-        <button className='btn btn-primary'
-                id='g-login-button'
-                type='submit'
-                onClick={ onSubmit }>
-          <i className='icon-login'/>
+        <button
+          className='btn btn-primary'
+          id='g-login-button'
+          type='submit'
+          onClick={onSubmit}
+        >
+          <i className='icon-login' />
           Log in
         </button>
       </div>

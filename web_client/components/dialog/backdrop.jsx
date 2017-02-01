@@ -4,7 +4,7 @@ class Backdrop extends React.Component {
   render () {
     let { enabled } = this.props;
     return (
-      enabled ? <div className='modal-backdrop fade in'/> : null
+      enabled ? <div className='modal-backdrop fade in' /> : null
     );
   }
 

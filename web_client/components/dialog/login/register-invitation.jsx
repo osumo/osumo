@@ -19,25 +19,28 @@ class RegisterInvitation extends React.Component {
     };
 
     const registerHere = (
-      <a className='g-register-link' onClick={ onRegisterClick } key='1'>
+      <a className='g-register-link' onClick={onRegisterClick} key='1'>
         Register here.
       </a>
     );
 
     const forgotYourPassword = (
-      <a className='g-forgot-password' onClick={ onForgotPasswordClick }
-                                       key='2' >
+      <a
+        className='g-forgot-password'
+        onClick={onForgotPasswordClick}
+        key='2'
+      >
         Forgot your password?
       </a>
     );
 
     return (
       <div className='g-bottom-message' key='0'>
-        { 'Don\'t have an account yet?' }
-        { NBSP }
-        { registerHere }
-        { ' | ' }
-        { forgotYourPassword }
+        {'Don\'t have an account yet?'}
+        {NBSP}
+        {registerHere}
+        {' | '}
+        {forgotYourPassword }
       </div>
     );
   }

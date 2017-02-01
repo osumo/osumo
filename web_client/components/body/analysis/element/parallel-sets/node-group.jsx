@@ -16,17 +16,21 @@ class NodeGroup extends React.Component {
     } = this.props;
 
     return (
-      <g className='group'
-         transform={ `translate(${ horizontalOffset }, 0)` }>
+      <g
+        className='group'
+        transform={`translate(${horizontalOffset}, 0)`}
+      >
         {
           nodes.map((node, i) => (
-            <Node fill={ fill(node, i) }
-                  groupMembership={ groupMembership(node, i) }
-                  height={ height(node, i) }
-                  onClick={ (e) => onClick(node, e) }
-                  verticalOffset={ verticalOffset(node, i) }
-                  width={ width(node, i) }
-                  key={ i }/>
+            <Node
+              fill={fill(node, i)}
+              groupMembership={groupMembership(node, i)}
+              height={height(node, i)}
+              onClick={(e) => onClick(node, e)}
+              verticalOffset={verticalOffset(node, i)}
+              width={width(node, i)}
+              key={i}
+            />
           ))
         }
       </g>

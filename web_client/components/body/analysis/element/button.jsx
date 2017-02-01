@@ -13,13 +13,18 @@ class Button extends React.Component {
       if (!displayText) {
         displayText = action;
       }
-      onClick = (e) => (e.preventDefault(), onAction(action));
+      onClick = (e) => {
+        e.preventDefault();
+        return onAction(action);
+      };
     }
 
     return (
-      <button className='btn btn-default'
-              onClick={ onClick }>
-        { displayText }
+      <button
+        className='btn btn-default'
+        onClick={onClick}
+      >
+        {displayText}
       </button>
     );
   }

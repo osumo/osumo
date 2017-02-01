@@ -33,7 +33,6 @@ test('add analysis page', (t) => {
   t.equal(state.objects[state.pages[0]].description, 'testDescription');
   t.equal(state.objects[state.pages[0]].notes, 'testNotes');
 
-
   let element = {
     key: '(e) test',
     name: '(e) testName',
@@ -48,7 +47,6 @@ test('add analysis page', (t) => {
   state = store.getState();
   console.log('add analysis element');
   console.log(JSON.stringify(state, null, 2));
-
 
   let subElement = {
     key: '(se) test',
@@ -66,7 +64,6 @@ test('add analysis page', (t) => {
   console.log('add analysis subelement');
   console.log(JSON.stringify(state, null, 2));
 
-
   store.dispatch({
     type: ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT_STATE,
     element: 1,
@@ -76,7 +73,6 @@ test('add analysis page', (t) => {
   state = store.getState();
   console.log('update analysis element state');
   console.log(JSON.stringify(state, null, 2));
-
 
   store.dispatch({
     type: ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT_STATE,
@@ -88,10 +84,9 @@ test('add analysis page', (t) => {
   console.log('update analysis subelement state');
   console.log(JSON.stringify(state, null, 2));
 
-
   const { floor, random } = Math;
 
-  for(let i=0; i<20; ++i) {
+  for (let i = 0; i < 20; ++i) {
     if (random() < 0.1) {
       store.dispatch({
         type: ACTION_TYPES.ADD_ANALYSIS_PAGE,
@@ -102,7 +97,7 @@ test('add analysis page', (t) => {
     }
 
     let { idAllocator: { maxId } } = store.getState();
-    let parentId = floor(random()*maxId);
+    let parentId = floor(random() * maxId);
     store.dispatch({
       type: ACTION_TYPES.ADD_ANALYSIS_ELEMENT,
       element: {},
@@ -123,7 +118,6 @@ test('add analysis page', (t) => {
   console.log('remove 5');
   console.log(JSON.stringify(state, null, 2));
 
-
   let { lastPageId } = store.getState();
   store.dispatch({
     type: ACTION_TYPES.REMOVE_ANALYSIS_PAGE,
@@ -131,9 +125,8 @@ test('add analysis page', (t) => {
   });
 
   state = store.getState();
-  console.log(`remove last page id ${ lastPageId }`);
+  console.log(`remove last page id ${lastPageId}`);
   console.log(JSON.stringify(state, null, 2));
-
 
   let action = {
     type: ACTION_TYPES.ADD_ANALYSIS_PAGE,
