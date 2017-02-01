@@ -27,8 +27,8 @@
   "scripts": {
     "build": "webpack",
     "build:watch": "webpack --watch --progress",
-    "lint": "semistandard web-external/src",
-    "test:frontend": "babel-tape-runner 'web-external/tests/**/*.js*' | tap-spec"
+    "lint": "semistandard web_client",
+    "test:frontend": "babel-tape-runner 'web_client/tests/**/*.js*' | tap-spec"
   },
   "devDependencies": {
     "babel-tape-runner": "^2.0.1",
