@@ -1,7 +1,7 @@
 
 import { createStore } from 'redux';
-import analysis from '../src/reducer/new-analysis';
-import ACTION_TYPES from '../src/reducer/new-action-types';
+import analysis from '../reducer/analysis';
+import ACTION_TYPES from '../reducer/action-types';
 import test from 'tape';
 
 test('add analysis page', (t) => {

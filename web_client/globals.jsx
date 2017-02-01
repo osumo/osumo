@@ -3,8 +3,8 @@ import { applyMiddleware, createStore } from 'redux';
 import createLogger from 'redux-logger';
 import thunk from 'redux-thunk';
 
-import girder from 'girder';
-export const apiRoot = girder.apiRoot;
+import { apiRoot as apiRoot_ } from 'girder/rest';
+export const apiRoot = apiRoot_;
 
 import restRequests from './utils/rest-requests';
 import events from './utils/events';

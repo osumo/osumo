@@ -75,6 +75,7 @@ before_install:
   - git clone https://github.com/girder/girder.git $girder_path
   - git -C $girder_path checkout $GIRDER_GIT_COMMIT
   - pip install -e "$girder_path[plugins]"
+  - pip install girder-client
   - ls -l $girder_path/plugins
 
   - CACHE=$HOME/.cache CMAKE_VERSION=3.1.0 CMAKE_SHORT_VERSION=3.1 source $girder_path/scripts/install_cmake.sh
@@ -125,6 +126,22 @@ install:
 
   - girder-install web
 
+  - girder-server &
+  - sleep 5
+  - python $main_path/testing/travis/post-install-0.py
+  - sleep 5
+  - killall girder-server
+  - sleep 5
+  - girder-install web
+
+  - girder-server &
+  - sleep 5
+  - python $main_path/testing/travis/post-install-1.py
+  - sleep 5
+  - killall girder-server
+  - sleep 5
+
+
 script:
   - echo $R_LIBS
   - R -e ".libPaths()"
@@ -132,9 +149,9 @@ script:
   - npm run lint
 
   - cd $main_path
-  - npm run 'test:frontend'
-
   - girder-worker >/tmp/worker.out 2>&1 &
+  - girder-server >/tmp/server.out 2>&1 &
+  - npm run 'test:frontend'
 
   - cd $main_path
   - mkdir -p _build

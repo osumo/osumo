@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom';
 import { connect, Provider } from 'react-redux';
 import URI from 'urijs';
 
-import girder from 'girder';
+import girderRouter from 'girder/router';
 
 import globals, { router, store } from './globals';
 import actions from './actions';
@@ -22,7 +22,7 @@ import './style/full-viewport.styl';
 
 $(() => {
   /* disable girder's router navigation as it clashes with our router */
-  girder.router.navigate = () => null;
+  girderRouter.navigate = () => null;
 
   $(document.body).append(globals.$mainRootDiv)
                   .append(globals.$dialogRootDiv)
@@ -83,7 +83,6 @@ $(() => {
     /* expose some variables for debugging. */
     Object.assign(window, {
       ...globals,
-      commonReducers: require('./utils/common-reducers'),
       React,
       router,
       store,

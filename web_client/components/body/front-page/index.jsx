@@ -1,7 +1,7 @@
 import React from 'react';
 
 const content = {
-  __html: require('raw!./marketing.html')
+  __html: require('raw-loader!./marketing.html')
 };
 
 class Marketing extends React.Component {
