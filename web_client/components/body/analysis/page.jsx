@@ -1,5 +1,5 @@
 import React from 'react';
-import { isUndefined } from 'lodash';
+import { isNil, isUndefined } from 'lodash';
 
 import Element from './element';
 
@@ -44,20 +44,20 @@ class Page extends React.Component {
         : (<div className='task-notes'>{ notesText }</div>)
     );
 
+    let onSubmit = (e) => { e.preventDefault(); };
+    if (!isNil(mainAction)) {
+      onSubmit = (e) => {
+        e.preventDefault();
+        onAction(mainAction);
+      };
+    }
+
     return (
       <div className='.g-analysis-page'>
         <div className='.g-analysis-page-header'>
           { descriptionComponent }
           { notesComponent }
-          <form
-            className='function-control'
-            onSubmit={
-              (e) => {
-                e.preventDefault();
-                onAction(mainAction);
-              }
-            }
-          >
+          <form className='function-control' onSubmit={onSubmit}>
             {
               elements
                 .filter(({ type }) => type !== 'hidden')

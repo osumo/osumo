@@ -10,7 +10,7 @@ const BodyContainer = connect(
   () => ({
     children: [
       <FrontPage groupKey='' key='' />,
-      <Analysis groupKey='testing' key='testing' />
+      <Analysis groupKey='analysis' key='analysis' />
     ]
   })
 )(Body);

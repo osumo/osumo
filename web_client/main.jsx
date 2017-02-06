@@ -87,6 +87,7 @@ $(() => {
       router,
       store,
       rest: globals.rest,
+      analysisUtils: require('./utils/analysis'),
       actions,
       URI
     });

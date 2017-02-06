@@ -95,8 +95,8 @@ const {
 } = actions;
 
 export const processAnalysisPage = (dispatch, params) => {
-  let { ui: uiSpec, postprocess } = params;
-  let { ui, ...pageData } = uiSpec;
+  let { page: pageSpec, postprocess } = params;
+  let { ui, ...pageData } = pageSpec;
   delete pageData.tags;
 
   let parent;
@@ -145,8 +145,8 @@ export const fetchAndProcessAnalysisPage = (dispatch, params) => {
     });
   }
 
-  promiseChain = promiseChain.then((ui) => processAnalysisPage(dispatch, {
-    ui, postprocess
+  promiseChain = promiseChain.then((page) => processAnalysisPage(dispatch, {
+    page, postprocess
   }));
 
   return promiseChain;
