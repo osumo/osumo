@@ -1,8 +1,8 @@
 import React from 'react';
 import { isArray } from 'lodash';
-import d3Array from 'd3-array';
-import d3Scale from 'd3-scale';
-import d3Shape from 'd3-shape';
+import * as d3Array from 'd3-array';
+import * as d3Scale from 'd3-scale';
+import * as d3Shape from 'd3-shape';
 
 import LinkGroup from './link-group';
 import NodeGroup from './node-group';

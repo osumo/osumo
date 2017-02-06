@@ -73,15 +73,19 @@ const setFileNavigationRoot = (dialog, modelType, root) => {
 };
 
 const setFileNavigationFolderSelectMode = (dialog, mode) => {
-  let { fileSelect } = dialog;
-  fileSelect = ensure(
-    fileSelect, {
-      folderSelectMode: false,
-      showItems: true
-    }
-  );
+  let doChange = !('fileSelect' in dialog);
+  let fileSelect = {
+    folderSelectMode: false,
+    showItems: true
+  };
 
-  if (fileSelect.folderSelectMode !== mode) {
+  if (!doChange) {
+    ({ fileSelect } = dialog);
+  }
+
+  doChange = (doChange || (fileSelect.folderSelectMode !== mode));
+
+  if (doChange) {
     fileSelect = { ...fileSelect, folderSelectMode: mode };
     dialog = { ...dialog, fileSelect };
   }
@@ -90,15 +94,18 @@ const setFileNavigationFolderSelectMode = (dialog, mode) => {
 };
 
 const setFileNavigationShowItems = (dialog, showItems) => {
-  let { fileSelect } = dialog;
-  fileSelect = ensure(
-    fileSelect, {
-      folderSelectMode: false,
-      showItems: true
-    }
-  );
+  let doChange = !('fileSelect' in dialog);
+  let fileSelect = {
+    folderSelectMode: false,
+    showItems: true
+  };
 
-  if (fileSelect.showItems !== showItems) {
+  if (!doChange) {
+    ({ fileSelect } = dialog);
+  }
+
+  doChange = (doChange || (fileSelect.showItems !== showItems));
+  if (doChange) {
     fileSelect = { ...fileSelect, showItems: showItems };
     dialog = { ...dialog, fileSelect };
   }
