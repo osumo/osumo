@@ -1,0 +1,85 @@
+---
+
+name: Test Workflow
+key: test
+description: "Testing out UI components"
+notes: "Want to try out various UI widgets here"
+mainAction: process
+tags:
+  - baseUI
+
+ui:
+  - key: input_path_1
+    name: Generic User Input
+    description: Any Data
+    notes: "There is a browse button to the right. You cannot drag and drop local files yet"
+    type: fileSelection
+
+
+  - key: metadata_1
+    type: menu
+    name: MetaData
+    description: meta data selector
+    notes: "Pick the choice of meta data"
+    items:
+      - Transcriptome (mRNA)
+      - Transcriptome (whole)
+      - Proteome
+      - microRNA Expression
+      - DNA Methylation
+      - Somatic Mutation
+      - Imaging and Morphological Parameters
+      - Clinical Information
+      - Other
+
+
+  - key: input_path_2
+    name: Generic User Input
+    description: Any Data
+    notes: "There is a browse button to the right. You cannot drag and drop local files yet"
+    type: fileSelection
+
+
+  - key: metadata_2
+    type: menu
+    name: MetaData
+    description: meta data selector
+    notes: "Pick the choice of meta data"
+    items:
+      - Transcriptome (mRNA)
+      - Transcriptome (whole)
+      - Proteome
+      - microRNA Expression
+      - DNA Methylation
+      - Somatic Mutation
+      - Imaging and Morphological Parameters
+      - Clinical Information
+      - Other
+
+
+  - key: input_path_3
+    name: Generic User Input
+    description: Any Data
+    notes: "There is a browse button to the right. You cannot drag and drop local files yet"
+    type: fileSelection
+
+
+  - key: metadata_3
+    type: menu
+    name: MetaData
+    description: meta data selector
+    notes: "Pick the choice of meta data"
+    items:
+      - Transcriptome (mRNA)
+      - Transcriptome (whole)
+      - Proteome
+      - microRNA Expression
+      - DNA Methylation
+      - Somatic Mutation
+      - Imaging and Morphological Parameters
+      - Clinical Information
+      - Other
+
+  - type: button
+    name: Process
+    action: process

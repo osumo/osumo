@@ -1,6 +1,6 @@
 import React from 'react';
 import { isUndefined } from 'lodash';
-
+import MenuElement from './menu';
 import ButtonElement from './button';
 import FieldElement from './field';
 import FileSelectionElement from './file-selection';
@@ -32,6 +32,18 @@ class Element extends React.Component {
           />
         );
         wrapResult = false;
+        break;
+
+      case 'menu':
+        result = (
+          <MenuElement
+            key='result'
+            onStateChange={onStateChange}
+            state={state}
+            onAction={onAction}
+            {...props}
+            />
+        );
         break;
 
       case 'field':

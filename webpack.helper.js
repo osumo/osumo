@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = function (cfg, pluginBuildData) {
+
   cfg.module.loaders.push({
     test: /\.jsx?$/,
     exclude: /(node_modules|bower_components)/,
@@ -16,4 +17,3 @@ module.exports = function (cfg, pluginBuildData) {
 
   return cfg;
 };
-

@@ -1,0 +1,61 @@
+---
+
+name: test
+mode: r
+
+script: "@include(test.r)"
+
+inputs:
+  - name: input_path_1
+    type: string
+    format: text
+  - name: metadata_1
+    type: string
+    format: text
+  - name: input_path_2
+    type: string
+    format: text
+  - name: metadata_2
+    type: string
+    format: text
+  - name: input_path_3
+    type: string
+    format: text
+  - name: metadata_3
+    type: string
+    format: text
+outputs:
+  - name: output_mrna_dim
+    target: memory
+    type: r
+    format: object
+
+  - name: output_mirna_dim
+    target: memory
+    type: r
+    format: object
+
+  - name: output_clinical_dim
+    target: memory
+    type: r
+    format: object
+
+  - name: output_mrna_heatmap
+    target: filepath
+    type: image
+    format: png
+
+  - name: output_mirna_heatmap
+    target: filepath
+    type: image
+    format: png
+
+  - name: clustersJSON
+    target: memory
+    type: string
+    format: text
+
+  - name: transferData
+    target: memory
+    type: string
+    format: text
