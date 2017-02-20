@@ -117,13 +117,9 @@ vis_data <- function(mRNA.cl, miRNA.cl){
 }
 
 clusters <- vis_data(mRNACluster.cl, miRNACluster.cl)
-print("Good so far")
 # Make these values available as outputs
 clustersJSON <- toJSON(clusters)
-print("noting wrong with json")
 # Make a single output object.  This will get passed to the second half of the
 # job along with the user selections from the parallel sets.
 transferData = list("clusters"=list("cl1"=mRNACluster.cl, "cl2"=miRNACluster.cl, "combine"=clusters), "mRNACluster"=mRNACluster.cl, "miRNACluster"=miRNACluster.cl, "clinical"=clinical.m)
-print("nothing wrong with transferData list")
-print(transferData)
 transferData = rawToChar(serialize(transferData, NULL, ascii=TRUE))

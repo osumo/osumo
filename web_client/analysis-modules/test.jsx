@@ -23,7 +23,10 @@ const actionProcess = (forms, page) => {
     metadata_3: `STRING:${ form.metadata_3}`
   };
   const outputs = {
-    
+    clustersJSON: `FILE:${form.output_dir}:clusters.json`,
+    transferData: `FILE:${form.output_dir}:transfer-data.RData`,
+    output_mrna_heatmap: `FILE:${form.output_dir}:mrna_heatmap.png`,
+    output_mirna_heatmap: `FILE:${form.output_dir}:mirna_heatmap.png`
   };
   const title = 'Test Workflow';
   const maxPolls = 40;

@@ -79,6 +79,13 @@ ui:
       - Imaging and Morphological Parameters
       - Clinical Information
       - Other
+      
+  - key: output_dir
+    name: Output Location
+    description: output data folder
+    notes: "Location where the mRNA heatmap, miRNA heatmap, and cluster data \
+            is stored."
+    type: folderSelection
 
   - type: button
     name: Process
