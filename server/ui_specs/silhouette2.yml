@@ -1,0 +1,12 @@
+---
+
+key: silhouette2
+
+ui:
+  - name: Plot 1
+    type: image
+    fileId: 0 # TO BE FILLED IN
+
+  - name: Plot 2
+    type: image
+    fileId: 0 # TO BE FILLED IN

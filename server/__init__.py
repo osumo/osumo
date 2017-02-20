@@ -1,21 +1,25 @@
 
 import copy
 import inspect
+import json
 import os
+import re
 import tempfile
 
+RE_ARG_SPEC = re.compile(r'''([^\(]+)(\((.+)\))?''')
+
+from bson.objectid import ObjectId
 from girder import events
 from girder.api import access
 from girder.api.describe import Description, describeRoute
 from girder.api.rest import Resource, RestException
 from girder.constants import AccessType, TokenScope
 from girder.utility.model_importer import ModelImporter
-
+from girder.utility.plugin_utilities import registerPluginWebroot
 from girder.plugins.worker import utils as workerUtils
 
-from . import yaml_importer  # noqa
-from . import job_specs
-
+from .task_specs import task_specs
+from .ui_specs import ui_specs
 
 class Osumo(Resource):
     # NOTE(opadron): 'tools.staticdir.dir' is set in load()
@@ -25,43 +29,347 @@ class Osumo(Resource):
     def __init__(self):
         super(Osumo, self).__init__()
         self.resourceName = 'osumo'
-        self.route('GET', ('tasks', ), self.getTasks)
-        self.route('POST', (), self.processTask)
-        # This should change if we add a custom token per job.
-        self.jobInfo = {}
+        self.route('GET', ('task', ':key'), self.getTaskSpecByKey)
+        self.route('GET', ('task',), self.getTaskSpecs)
+        self.route('POST', ('task', ':key', 'run'), self.runTaskSpec)
+        self.route('GET', ('results', ':jobId'), self.getTaskResults)
+        self.route('GET', ('ui', ':key'), self.getUISpecByKey)
+        self.route('GET', ('ui',), self.getUISpecs)
 
-    def _adjustDataTypes(self, data, params, user):
-        """
-        Based on a dictionary of data, make sure each item is case to the
-        appropriate data type or references a resource.
+    @describeRoute(
+        Description('Return job status and list of output files.')
+            .param('jobId', 'Id of the job', paramType='path')
+            .errorResponse('Job not found.', 404)
+    )
+    @access.public
+    def getTaskResults(self, jobId, params, **kwargs):
+        jobId = ObjectId(jobId)
+        jobuser = self.model('jobuser', 'osumo').findOne({'jobId': jobId})
+        job = self.model('job', 'jobs').findOne({'_id': jobId})
 
-        :param data: a dictionary of data items to process.  Modified.
-        :param params: the query parameters with values for each data item.
-        :param user: the user to use for fetching resources.
-        """
-        for key in data:
-            value = params.get(key, data[key].get('default', None))
+        if not jobuser:
+            raise RestException('Job result not found.', 404)
 
-            type = data[key].get('type')
-            if type in ('file', 'item', 'folder'):
-                value = self._getResource(type, value, user)
-            elif type == 'integer':
-                value = int(value)
-            elif type == 'boolean':
-                value = 'true' if value in (True, 'true') else 'false'
-            elif type == 'temppath':
-                file = tempfile.NamedTemporaryFile(
-                    suffix=value if value is not None else '')
-                value = file.name
-                file.close()
-                data[key]['format'] = 'text'
-                data[key]['type'] = 'string'
-            elif type in ('enum', 'string', 'text'):
-                data[key]['format'] = 'text'
-                data[key]['type'] = 'string'
+        result = {'status': job['status']}
+        if result['status'] == 3:  # success
+            result['files'] = jobuser.get('processedFiles', [])
+
+        return result
+
+    @describeRoute(
+        Description('Fetch task spec with the given name.')
+        .param('key', 'Key of the task', paramType='path')
+        .errorResponse('Task not found.', 404)
+    )
+    @access.public
+    def getTaskSpecByKey(self, key, params, **kwargs):
+        key = key.lower()
+
+        task_list = [
+            c for (a, b, c) in sorted(
+                (
+                    task.get('key', k).lower(),
+                    task.get('key', k),
+                    task
+                )
+                for k, task in task_specs.items()
+            )
+            if a == key
+        ]
+
+        if task_list:
+            return task_list[0]
+
+        raise RestException('Task not found.', 404)
+
+    @describeRoute(
+        Description('Fetch UI spec with the given key.')
+        .param('key', 'Key of the UI', paramType='path')
+        .errorResponse('UI not found.', 404)
+    )
+    @access.public
+    def getUISpecByKey(self, key, params, **kwargs):
+        key = key.lower()
+
+        ui_list = [
+            c for (a, b, c) in sorted(
+                (
+                    ui.get('key', k).lower(),
+                    ui.get('key', k),
+                    ui
+                )
+                for k, ui in ui_specs.items()
+            )
+            if a == key
+        ]
+
+        if ui_list:
+            return ui_list[0]
+
+        raise RestException('UI not found.', 404)
+
+    @describeRoute(
+        Description('Find task specs that match the given parameters.')
+        .param('name', 'Name of the task', required=False)
+        .param('mode', 'Task execution mode', required=False)
+    )
+    @access.public
+    def getTaskSpecs(self, params, **kwargs):
+        name = params.get('name', '').lower()
+        mode = params.get('mode', '').lower()
+
+        return [
+            c for (a, b, c, d) in sorted(
+                (
+                    task.get('name', key).lower(),
+                    task.get('name', key),
+                    task,
+                    task.get('mode', '').lower()
+                )
+                for key, task in task_specs.items()
+            )
+            if (not name or a == name) and (not mode or d == mode)
+        ]
+
+    @describeRoute(
+        Description('Find UI specs that match the given parameters.')
+        .param('key', 'Key of the UI', required=False)
+        .param('name', 'Name of the UI', required=False)
+        .param('tags', 'Tags to search for', required=False)
+    )
+    @access.public
+    def getUISpecs(self, params, **kwargs):
+        key = params.get('key', '').lower()
+        name = params.get('name', '').lower()
+        tags = params.get('tags', '').lower()
+        tags = set(filter(bool, (x.strip() for x in tags.split(','))))
+
+        return [
+            d for (a, b, c, d, e) in sorted(
+                (
+                    key,
+                    ui.get('name', key).lower(),
+                    ui.get('name', key),
+                    ui,
+                    ui.get('tags', set())
+                )
+                for key, ui in ui_specs.items()
+            )
+            if (
+                (not key or a == key) and
+                (not name or b == name) and
+                (not tags or e.intersection(tags))
+            )
+        ]
+
+    @access.public
+    @describeRoute(
+        Description('Create a job from the given task spec')
+        .notes('Each task takes a variety of input parameters.  See the '
+               'appropriate task specification.')
+        .param('key', 'Key of the task', paramType='path')
+        .param('title', 'Title of the job', required=False)
+    )
+    def runTaskSpec(self, key, params, **kwargs):
+        task_spec = task_specs.get(key)
+        if task_spec is None:
+            raise RestException('No task named %s.' % key)
+
+        # validate input bindings
+        for input_spec in task_spec['inputs']:
+            input_name = input_spec['name']
+            input_key = 'INPUT({})'.format(input_name)
+
+            try:
+                payload = params[input_key]
+            except KeyError:
+                # Check to see if the input spec provides a default.
+                # If not, raise an exception.
+                if 'default' not in input_spec:
+                    raise RestException(
+                            'No binding provided for input "{}".'.format(
+                                input_name))
+
+            if RE_ARG_SPEC.match(payload) is None:
+                raise RestException(
+                        'invalid payload for input "{}": "{}"'.format(
+                            input_name, payload))
+
+        # validate output bindings
+        for output_spec in task_spec['outputs']:
+            output_name = output_spec['name']
+            output_key = 'OUTPUT({})'.format(output_name)
+
+            try:
+                payload = params[output_key]
+            except KeyError:
+                continue
+
+            if RE_ARG_SPEC.match(payload) is None:
+                raise RestException(
+                        'invalid payload for output "{}": "{}"'.format(
+                            output_name, payload))
+
+        #
+        # validation complete
+        #
+
+        job_title = params.get('title', 'sumo {}'.format(task_spec['name']))
+
+        user, token = self.getCurrentUser(True)
+
+        job = self.model('job', 'jobs').createJob(
+            title=job_title, type='sumo', user=user, handler='worker_handler')
+
+        jobToken = self.model('job', 'jobs').createJobToken(job)
+
+        job['kwargs']['jobInfo'] = workerUtils.jobInfoSpec(
+            job=job,
+            token=jobToken,
+            logPrint=True)
+
+        if not token:
+            # It seems like we should be able to use a token without USER_AUTH
+            # in its scope, but I'm not sure how.
+            token = self.model('token').createToken(
+                user, days=1, scope=TokenScope.USER_AUTH)
+
+        job_inputs = {}
+        for input_spec in task_spec['inputs']:
+            input_name = input_spec['name']
+            input_key = 'INPUT({})'.format(input_name)
+
+            payload = params.get(input_key)
+            if payload is None:
+                continue
+
+            job_input = {}
+
+            m = RE_ARG_SPEC.match(payload)
+            pos_args, extra_args = m.group(1), m.group(3)
+            pos_args = pos_args.split(':')
+            if extra_args:
+                extra_args = json.loads('{{{}}}'.format(extra_args))
             else:
-                raise NotImplementedError('No input data type %s' % type)
-            data[key]['data'] = value
+                extra_args = {}
+
+            input_type = pos_args[0]
+
+            if input_type in ('FILE', 'ITEM'):
+                resource_id = pos_args[1]
+                resource_type = input_type.lower()
+                data_type = extra_args.get(
+                        'type', input_spec.get('type', 'string'))
+                data_format = extra_args.get(
+                        'format', input_spec.get('format', 'text'))
+
+                job_input.update(
+                        workerUtils.girderInputSpec(
+                            self._getResource(resource_type, resource_id, user),
+                            resourceType=resource_type,
+                            token=token,
+                            dataType=data_type,
+                            dataFormat=data_format))
+
+            elif input_type == 'HTTP':
+                # TODO(opadron): maybe we'll want to implement this, someday?
+                raise NotImplementedError('HTTP input not implemented')
+
+            elif input_type == 'INTEGER':
+                value = pos_args[1]
+                job_input['type'] = 'number'
+                job_input['format'] = 'number'
+                job_input['mode'] = 'inline'
+                job_input['data'] = int(value)
+
+            elif input_type == 'FLOAT':
+                value = pos_args[1]
+                job_input['type'] = 'number'
+                job_input['format'] = 'number'
+                job_input['mode'] = 'inline'
+                job_input['data'] = float(value)
+
+            elif input_type == 'STRING':
+                value = ':'.join(pos_args[1:])
+                job_input['type'] = 'string'
+                job_input['format'] = 'text'
+                job_input['mode'] = 'inline'
+                job_input['data'] = value
+
+            elif input_type == 'BOOLEAN':
+                value = pos_args[1]
+                job_input['type'] = 'boolean'
+                job_input['format'] = 'json'
+                job_input['mode'] = 'inline'
+                job_input['data'] = 'true' if int(value) else 'false'
+
+            else:
+                raise NotImplementedError(
+                        'Input type "{}" not supported'.format(input_type))
+
+            job_input.update(extra_args)
+            job_inputs[input_name] = job_input
+
+        job_outputs = {}
+        for output_spec in task_spec['outputs']:
+            output_name = output_spec['name']
+            output_key = 'OUTPUT({})'.format(output_name)
+
+            payload = params.get(output_key)
+            if payload is None:
+                continue
+
+            job_output = {}
+
+            m = RE_ARG_SPEC.match(payload)
+            pos_args, extra_args = m.group(1), m.group(3)
+            pos_args = pos_args.split(':')
+            if extra_args:
+                extra_args = json.loads('{{{}}}'.format(extra_args))
+            else:
+                extra_args = {}
+
+            output_type = pos_args[0]
+
+            if output_type in ('FILE', 'ITEM'):
+                parent_id, resource_name = (pos_args + [None])[1:3]
+                parent_type = ('folder' if output_type == 'FILE' else 'file')
+                data_type = extra_args.get(
+                        'type', output_spec.get('type', 'string'))
+                data_format = extra_args.get(
+                        'format', output_spec.get('format', 'text'))
+
+                parent = self._getResource(parent_type, parent_id, user)
+                job_output.update(
+                        workerUtils.girderOutputSpec(
+                            parent,
+                            parentType=parent_type,
+                            token=token,
+                            name=resource_name,
+                            dataType=data_type,
+                            dataFormat=data_format))
+
+            else:
+                raise NotImplementedError(
+                        'Output type "{}" not supported'.format(output_type))
+
+            job_output.update(extra_args)
+            job_outputs[output_name] = job_output
+
+        job['kwargs'].update(
+            task=task_spec,
+            inputs=job_inputs,
+            outputs=job_outputs
+        )
+
+        job = self.model('job', 'jobs').save(job)
+        self.model('jobuser', 'osumo').createJobuser(job['_id'], user['_id'])
+        self.model('job', 'jobs').scheduleJob(job)
+
+        return {
+            'job': self.model('job', 'jobs').filter(job, user),
+            'token': str(token['_id'])
+        }
 
     def _getResource(self, type, id, user):
         """
@@ -90,124 +398,6 @@ class Osumo(Resource):
                         files[0]['_id'], user=user, level=AccessType.READ)
         return value
 
-    def _getTaskUser(self, task):
-        """
-        Get the current user.  If there is no current user, check if the task
-        has a fallback user and get that instead.
-
-        :param task: the task specification
-        :returns: the user.
-        """
-        user, token = self.getCurrentUser(True)
-        if not user and task.get('fallbackUser'):
-            user = self.model('user').findOne(
-                {'login': task.get('fallbackUser')})
-            token = None
-        if not user:
-            raise access.AccessException('You must be logged in.')
-        return user, token
-
-    @describeRoute(
-        Description('List available tasks')
-    )
-    @access.public
-    def getTasks(self, *args, **kwargs):
-        tasks = []
-        for job in job_specs.jobList:
-            task = getattr(job_specs, job).copy()
-            if 'task' in task:
-                del task['task']
-                task['key'] = job
-                tasks.append((
-                    task.get('name', job).lower(),
-                    task.get('name', job),
-                    task
-                ))
-        tasks.sort()
-        tasks = [taskrow[-1] for taskrow in tasks]
-        return tasks
-
-    @access.public
-    @describeRoute(
-        Description('Process a task')
-        .notes('Each task takes a variety of input parameters.  See the '
-               'appropriate task specification.')
-        .param('taskkey', 'Key specifying the task to process.', required=True)
-    )
-    def processTask(self, params, **kwargs):
-        self.requireParams(('taskkey', ), params)
-        if getattr(job_specs, params['taskkey'], None) is None:
-            raise RestException('No task named %s.' % params['taskkey'])
-        task = copy.deepcopy(getattr(job_specs, params['taskkey']))
-        data = {}
-        data.update({input['key']: input for input in task['inputs']})
-        data.update({input['key']: input for input in task['parameters']})
-        # Any input that doesn't have a default is required.
-        self.requireParams((key for key in data
-                            if 'default' not in data[key]), params)
-        user, token = self._getTaskUser(task)
-        self._adjustDataTypes(data, params, user)
-
-        job = self.model('job', 'jobs').createJob(
-            title='sumo %s' % task.get('name', 'task'),
-            type='sumo',
-            user=user,
-            handler='worker_handler')
-
-        jobToken = self.model('job', 'jobs').createJobToken(job)
-
-        job['kwargs']['jobInfo'] = workerUtils.jobInfoSpec(
-            job=job,
-            token=jobToken,
-            logPrint=True)
-
-        if not token:
-            # It seems like we should be able to use a token without USER_AUTH
-            # in its scope, but I'm not sure how.
-            token = self.model('token').createToken(
-                user, days=1, scope=TokenScope.USER_AUTH)
-
-        inputs = {}
-        for key in data:
-            if data[key].get('input') is False:
-                continue
-            spec = data.get(key, {}).copy()
-            if data[key].get('type') in ('file', 'item', 'folder'):
-                spec = workerUtils.girderInputSpec(
-                    spec['data'], resourceType=data[key]['type'],
-                    token=token,
-                    dataType=data[key].get('dataType', 'string'),
-                    dataFormat=data[key].get('dataFormat', 'text'),
-                    )
-            inputs[key] = spec
-
-        # TODO(opadron): make a special-purpose token just for this job in case
-        # the user logs out before it finishes.
-        outputs = {}
-        for output in task.get('outputs', {}):
-            key = output['key']
-            spec = {'token': token}
-            for subkey in output:
-                if (subkey in inspect.getargspec(
-                        workerUtils.girderOutputSpec).args):
-                    value = output[subkey]
-                    if value.startswith('parameter:'):
-                        valuekey = value.split(':', 1)[1]
-                        value = data.get(valuekey, {}).get('data')
-                    spec[subkey] = value
-            outputs[key] = workerUtils.girderOutputSpec(**spec)
-
-        job['kwargs'].update(task=task['task'], inputs=inputs, outputs=outputs)
-
-        job = self.model('job', 'jobs').save(job)
-        self.model('job', 'jobs').scheduleJob(job)
-        self.jobInfo[str(job['_id'])] = {'user': user}
-
-        return {
-            'job': self.model('job', 'jobs').filter(job, user),
-            'token': str(token['_id'])
-        }
-
     def dataProcess(self, event):
         """
         Called when a file is uploaded.  If it is from one of our jobs, record
@@ -216,49 +406,29 @@ class Osumo(Resource):
         :param event: the event with the file information.
         """
         reference = event.info['reference']
-        jobInfo = self.jobInfo.get(reference)
-        if jobInfo is None:
-            # Not our job
-            return
+        jobuser = self.model('jobuser', 'osumo').findOne(
+                {'jobId': ObjectId(reference)})
+
+        user = self.model('user').findOne({'_id': jobuser['userId']})
         job = self.model('job', 'jobs').load(
-            id=reference, user=jobInfo['user'], level=AccessType.ADMIN,
-            fields={'processedFiles', 'kwargs', 'userId', 'type', 'status'})
-        if not job:
-            return
-        files = job.get('processedFiles', [])
-        files.append({
-            'fileId': event.info['file']['_id'],
-            'itemId': event.info['file']['itemId'],
-            'name': event.info['file']['name']
-        })
+                jobuser['jobId'], user=user, level=AccessType.ADMIN)
+
+        self.model('jobuser', 'osumo').appendFile(
+                jobuser,
+                event.info['file']['_id'],
+                event.info['file']['itemId'],
+                event.info['file']['name'])
+
         self.model('job', 'jobs').updateJob(
-            job, otherFields={'processedFiles': files},
-            log='Added processed file %s' % event.info['file']['name'])
+                job,
+                log='Added processed file %s' % event.info['file']['name'])
 
 
 def load(info):
-    ModelImporter.model('job', 'jobs').exposeFields(
-        level=AccessType.ADMIN, fields='processedFiles')
-    ModelImporter.model('job', 'jobs').exposeFields(
-        level=AccessType.SITE_ADMIN, fields='processedFiles')
+    Osumo._cp_config['tools.staticdir.dir'] = (
+        os.path.join(info['pluginRootDir'], 'web_client'))
+    osumo = Osumo()
+    registerPluginWebroot(osumo, info['name'])
+    info['apiRoot'].osumo = osumo
 
-    Osumo._cp_config['tools.staticdir.dir'] = os.path.join(
-        os.path.relpath(info['pluginRootDir'],
-                        info['config']['/']['tools.staticdir.root']),
-        'web-external')
-
-    # Move girder app to /girder, serve sumo app from /
-    info['apiRoot'].osumo = Osumo()
-
-    (
-        info['serverRoot'],
-        info['serverRoot'].girder
-    ) = (
-        info['apiRoot'].osumo,
-        info['serverRoot']
-    )
-
-    info['serverRoot'].api = info['serverRoot'].girder.api
-    info['serverRoot'].girder.api
-
-    events.bind('data.process', 'osumo', info['apiRoot'].osumo.dataProcess)
+    events.bind('data.process', 'osumo', osumo.dataProcess)

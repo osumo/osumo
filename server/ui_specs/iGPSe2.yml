@@ -1,0 +1,33 @@
+---
+
+# key: igpse2
+mainAction: process
+
+ui:
+  - name: mRNA Heatmap
+    notes: "The major groups show how the data was clustered.  The columns \
+            show different mRNA attributes, and the rows represent each \
+            subject."
+    type: image
+    fileId: 0 # TO BE FILLED IN
+
+  - name: miRNA Heatmap
+    notes: "The major groups show how the data was clustered.  The columns \
+            show different miRNA attributes, and the rows represent each \
+            subject."
+    type: image
+    fileId: 0 # TO BE FILLED IN
+
+  - key: pSets
+    name: parallel sets
+    notes: Parallel Sets
+    type: parallelSets
+    inputData: 0 # TO BE FILLED IN
+
+  - type: button
+    name: Process
+    action: process
+
+  - key: hidden
+    type: hidden
+

@@ -31,7 +31,9 @@ addons:
       - python-dev
       - libgsl0-dev
       - r-base-dev
+      - r-cran-cluster
       - r-cran-matrix
+      - r-cran-rcolorbrewer
       - r-cran-survival
       - r-recommended    # More than we really need
       # girder worker
@@ -42,8 +44,8 @@ services:
 
 before_install:
   # These may be set to any git commit-ish, such as master or a sha1 hash
-  - export GIRDER_GIT_COMMIT=1a0765d747cc79e1586ab9ba24b0618057155fe9
-  - export GIRDER_WORKER_GIT_COMMIT=29c1f504e0f5335d5e6d370bb1077e4df4e05a78
+  - export GIRDER_GIT_COMMIT=2dc524f1f86f22c0cda248164021a3a8218556be
+  - export GIRDER_WORKER_GIT_COMMIT=1e94f4baa06248def51eef6417f40bb131490f35
 
   - echo "options(repos = c(CRAN='https://cran.rstudio.com/'))" > ~/.Rprofile
   - main_path=$PWD
@@ -60,31 +62,27 @@ before_install:
 
   - pip install -U pip virtualenv
 
-  # Use Node 5.10
+  # Use Node 6
   - rm -rf ~/.nvm
   - git clone https://github.com/creationix/nvm.git ~/.nvm
   - source ~/.nvm/nvm.sh
-  - nvm install v5
-  - nvm use v5
+  - nvm install v6
+  - nvm use v6
   - npm config set python `which python`
   - if [ $TRAVIS_OS_NAME == "linux" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
   - cd $main_path
 
   - girder_path=$HOME/girder
   - rm -fr $girder_path
-  - git clone https://github.com/girder/girder.git $girder_path 
+  - git clone https://github.com/girder/girder.git $girder_path
   - git -C $girder_path checkout $GIRDER_GIT_COMMIT
-  - ln -sf $main_path $girder_path/plugins/
+  - pip install -e "$girder_path[plugins]"
+  - pip install -r "$girder_path/requirements-dev.txt"
+  - pip install girder-client
   - ls -l $girder_path/plugins
 
   - CACHE=$HOME/.cache CMAKE_VERSION=3.1.0 CMAKE_SHORT_VERSION=3.1 source $girder_path/scripts/install_cmake.sh
   - cmake --version
-
-  - girder_worker_path=$HOME/girder_worker
-  - git clone https://github.com/girder/girder_worker.git $girder_worker_path 
-  - git -C $girder_worker_path checkout $GIRDER_WORKER_GIT_COMMIT
-  - cp $main_path/testing/travis/girder_worker.local.cfg $girder_worker_path/girder_worker/worker.local.cfg
-  - pip install -U -r $girder_worker_path/requirements.txt -r $girder_worker_path/girder_worker/plugins/girder_io/requirements.txt -r $girder_worker_path/girder_worker/plugins/r/requirements.txt
 
   - export MONGO_VERSION=3.2.6
   - export PY_COVG="ON"
@@ -92,6 +90,12 @@ before_install:
   - mkdir /tmp/db
   - mongod --dbpath=/tmp/db >/dev/null 2>/dev/null &
   - mongod --version
+
+  - girder_worker_path=$HOME/girder_worker
+  - git clone https://github.com/girder/girder_worker.git $girder_worker_path 
+  - git -C $girder_worker_path checkout $GIRDER_WORKER_GIT_COMMIT
+  - cp $main_path/testing/travis/girder_worker.local.cfg $girder_worker_path/girder_worker/worker.local.cfg
+  - pip install -e "$girder_worker_path"[girder_io,r]
 
   - mkdir -p $HOME/.cache/node_modules || true
   - ln -sf $HOME/.cache/node_modules .
@@ -101,13 +105,22 @@ before_install:
   - npm install -g npm
   - npm --version
 
-  - ln -s $main_path $girder_path/plugins/osumo
+  - girder-install plugin $main_path
+  - echo $main_path
+  - pwd
+  - ls
+  - (cd $main_path ; npm install )
 
 install:
   # Only install R packages if they aren't present or are older versions than 
   # we expect.  Without the conditional installation, caching the packages in
   # Travis doesn't save much time.  We just use one package for each set for
   # version comparison, as this should be sufficient for cache purposes.
+  - R --version
+
+  # Install a version of the R proximity library that works with the version of
+  # R in precise.
+  - R -e "if (!require('proxy')) install.packages('http://cran.r-project.org/src/contrib/Archive/proxy/proxy_0.4-16.tar.gz', repos=NULL, type='source')"
 
   - R -e "if (require('colorspace')) packageVersion('colorspace')"
   - R -e "if (!require('colorspace') || packageVersion('colorspace') < numeric_version('1.2.6')) install.packages(c('colorspace', 'deldir', 'FNN', 'magrittr', 'proxy', 'RColorBrewer'), repos='http://cran.rstudio.com')"
@@ -119,10 +132,23 @@ install:
   - R -e "if (!require('cccd') || packageVersion('cccd') < numeric_version('1.5')) install.packages(c('cccd', 'cluster', 'igraph', 'jsonlite', 'pheatmap', 'survival'), repos='http://cran.rstudio.com')"
   - R -e "packageVersion('cccd')"
 
-  - cd $girder_path
-  - pip install -U -r requirements.txt -r requirements-dev.txt
-  # - pip install --no-cache-dir -e .
-  - npm install
+  - girder-install web
+
+  - girder-server &
+  - sleep 5
+  - python $main_path/testing/travis/post-install-0.py
+  - sleep 5
+  - killall girder-server
+  - sleep 5
+  - girder-install web
+
+  - girder-server &
+  - sleep 5
+  - python $main_path/testing/travis/post-install-1.py
+  - sleep 5
+  - killall girder-server
+  - sleep 5
+
 
 script:
   - echo $R_LIBS
@@ -131,10 +157,9 @@ script:
   - npm run lint
 
   - cd $main_path
+  - girder-worker >/tmp/worker.out 2>&1 &
+  - girder-server >/tmp/server.out 2>&1 &
   - npm run 'test:frontend'
-
-  - cd $girder_worker_path
-  - python -m girder_worker >/tmp/worker.out 2>&1 &
 
   - cd $main_path
   - mkdir -p _build

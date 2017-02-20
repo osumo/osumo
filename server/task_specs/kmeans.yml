@@ -1,0 +1,30 @@
+---
+
+name: kmeans
+mode: r
+
+script: "@include(kmeans.r)"
+
+inputs:
+  - name: input_path
+    type: string
+    format: text
+
+  - name: has_header
+    type: boolean
+    format: boolean
+
+  - name: num_clusters
+    type: number
+    format: number
+
+outputs:
+  - name: centers
+    type: table
+    format: r.dataframe
+    target: memory
+
+  - name: clusters
+    type: table
+    format: r.dataframe
+    target: memory

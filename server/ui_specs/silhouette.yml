@@ -1,0 +1,34 @@
+---
+
+name: Silhouette Plot
+key: silhouette
+description: Show silhouette plot
+
+mainAction: process
+
+tags:
+  - baseUI
+
+ui:
+  - key: input_path
+    name: "MicroRNA Expression Profile"
+    description: "miRNA data."
+    notes: "This must be a CSV file with one column per subject, \
+            one header row, and one data row per micro RNA"
+    type: fileSelection
+    options:
+      onlyNames: ".*csv$"
+
+  - key: num_clusters
+    name: "Number of Clusters (k)"
+    description: "The number (k) of clusters used in calculations"
+    notes: "Clustering is performed via k-means."
+    type: field
+
+  - key: output_dir
+    name: Output Location
+    type: folderSelection
+
+  - type: button
+    name: Process
+    action: process

@@ -1,0 +1,31 @@
+---
+
+name: Survival Plot
+mode: r
+
+script: "@include(surv.r)"
+
+inputs:
+  - name: input_rdata
+    type: string
+    format: text
+
+  - name: num_clusters
+    type: number
+    format: number
+
+outputs:
+  - name: fit
+    type: r
+    target: memory
+    format: object
+
+  - name: sdf
+    type: r
+    target: memory
+    format: object
+
+  - name: dataplot
+    type: image
+    target: filepath
+    format: png
