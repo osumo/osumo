@@ -18,6 +18,7 @@ class Menu extends React.Component{
     return (
 
       <select onChange={onChangeState} value={state.value}>
+        <option value="-1">-None-</option>
         {items.map((item) => (<option value={item}>{item}</option>))}
       </select>
 
