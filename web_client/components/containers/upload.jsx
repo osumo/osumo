@@ -9,11 +9,11 @@ import { Promise } from '../../utils/promise';
 
 const UploadContainer = connect(
   (state) => ({
-    browseText: '[BROWSE TEXT]',
-    noneSelectedText: '[NONE SELECTED TEXT]',
-    subtitle: '[SUBTITLE]',
-    title: '[TITLE]',
-    validationFailedMessage: '[VALIDATION FAILED MESSAGE]'
+    browseText: 'Click or Drop Here',
+    statusText: '[CURRENT STATUS]',
+    subtitle: 'Upload local data to SUMO',
+    title: 'Upload Data',
+    validationFailedMessage: ''
   }),
 
   (dispatch) => ({
