@@ -1,6 +1,6 @@
 ---
 
-# key: igpse2
+name: Heatmaps and Subset Selection
 mainAction: process
 
 ui:
