@@ -59,7 +59,6 @@ const actionProcess = (forms, page) => {
 
 const main = (data) => {
   priorData = data;
-
   return (
     D(actions.registerAnalysisAction('igpse2', 'process', actionProcess))
       .then(() => Promise.all([
@@ -79,4 +78,3 @@ const main = (data) => {
 };
 
 export default main;
-

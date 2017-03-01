@@ -55,7 +55,6 @@ const actionProcess = (forms, page) => {
         if (name === 'clusters.json') { clustersId = fid; }
         if (name === 'transfer-data.RData') { transferDataId = fid; }
       });
-
       return (
         rest({ path: `file/${clustersId}/download` })
           .then(({ response }) => ({
@@ -120,4 +119,3 @@ const main = () => (
 );
 
 export default main;
-

@@ -2,6 +2,7 @@ import React from 'react';
 import { isUndefined } from 'lodash';
 
 import ButtonElement from './button';
+import TabSelectionElement from './tab-selection'
 import FieldElement from './field';
 import FileSelectionElement from './file-selection';
 import ImageElement from './image';
@@ -32,6 +33,16 @@ class Element extends React.Component {
           />
         );
         wrapResult = false;
+        break;
+
+      case 'TabSelection':
+        result = (
+          <TabSelectionElement
+            key='result'
+            onAction={onAction}
+            {...props}
+          />
+        );
         break;
 
       case 'field':
