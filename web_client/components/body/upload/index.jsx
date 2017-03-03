@@ -232,18 +232,81 @@ class Upload extends React.Component {
         </button>
         <h4 className='g-upload-entry-name'>{file.name}</h4>
         <h4 className='g-upload-entry-type'>{file.type}</h4>
-        <select
+        <input
           className='g-upload-entry-tag'
+          list="types"
           onChange={
             ({ target: { value } }) => onFileEntryTypeChange(i, value)
           }
+          placeholder="Content Type"
+          type="search"
           value={file.metaType || ''}
-        >
-          <option key={null      } value={''        }>- none -</option>
-          <option key={'mrna'    } value={'mrna'    }>mRNA</option>
-          <option key={'mirna'   } value={'mirna'   }>MicroRNA</option>
-          <option key={'cprofile'} value={'cprofile'}>ClinicalProfile</option>
-        </select>
+        />
+        <datalist id="types">
+          <option
+            key={'proteinX'}
+            value={'proteinX'}
+          >
+            Protein Expression
+          </option>
+          <option
+            key={'rawSequence'}
+            value={'rawSequence'}
+          >
+            Raw Sequencing Data
+          </option>
+          <option key={'cprofile'} value={'cprofile'}>
+            Clinical Profile
+          </option>
+          <option
+            key={'dnaMeth'}
+            value={'dnaMeth'}
+          >
+            DNA Methylation
+          </option>
+          <option
+            key={'mrna'}
+            value={'mrna'}
+          >
+            Gene Expression Quantification
+          </option>
+          <option
+            key={'mirna'}
+          value={'mirna'}
+          >
+            MircoRNA Quantification
+          </option>
+          <option
+            key={'isoX'}
+            value={'isoX'}
+          >
+            Osiform Expression Quantification
+          </option>
+          <option
+            key={'exonJunction'}
+            value={'exonJunction'}
+          >
+            Exon Junction Quantification
+          </option>
+          <option
+            key={'exon'}
+            value={'exon'}
+          >
+            Exon Quantification
+          </option>
+          <option
+            key={'mrnaSummary'}
+            value={'mrnaSummary'}
+          >
+            Gene Expression Summary
+          </option>
+          <option
+            key={'none'}
+            value={'none'}
+          >
+            - none/other -
+          </option>
+        </datalist>
       </li>
     ));
 
