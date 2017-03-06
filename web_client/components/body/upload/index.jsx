@@ -163,7 +163,7 @@ class Upload extends React.Component {
             margin: '0px',
             marginRight: '3px',
             marginTop: '4px',
-            width: '100px'
+            width: '150px'
           }}
         >
           <div
