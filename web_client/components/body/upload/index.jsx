@@ -8,6 +8,8 @@ import { Promise } from '../../../utils/promise';
 import objectReduce from '../../../utils/object-reduce';
 import TextField from '../../common/text-field';
 import { rest } from '../../../globals';
+
+import dataVarietyTable from './data-variety-table';
 import './style.styl';
 
 class Upload extends React.Component {
@@ -48,6 +50,14 @@ class Upload extends React.Component {
     if (!progressGoal) {
       progressGoal = 100;
     }
+
+    const dataVarietyList = (
+      <datalist className={currentlyUploading ? 'hidden' : ''} id='types'>
+        {dataVarietyTable.map(({ id, description }) => (
+          <option key={id} value={id}>{description}</option>
+        ))}
+      </datalist>
+    );
 
     let titleElement = [];
     if (title) {
@@ -114,41 +124,7 @@ class Upload extends React.Component {
           type='search'
           value={file.metaType || ''}
         />
-        <datalist className={currentlyUploading ? 'hidden' : ''} id='types'>
-          <option key={'proteinX'} value={'proteinX'}>
-            Protein Expression
-          </option>
-          <option key={'rawSequence'} value={'rawSequence'}>
-            Raw Sequencing Data
-          </option>
-          <option key={'cprofile'} value={'cprofile'}>
-            Clinical Profile
-          </option>
-          <option key={'dnaMeth'} value={'dnaMeth'}>
-            DNA Methylation
-          </option>
-          <option key={'mrna'} value={'mrna'}>
-            Gene Expression Quantification
-          </option>
-          <option key={'mirna'} value={'mirna'}>
-            MircoRNA Quantification
-          </option>
-          <option key={'isoX'} value={'isoX'}>
-            Osiform Expression Quantification
-          </option>
-          <option key={'exonJunction'} value={'exonJunction'}>
-            Exon Junction Quantification
-          </option>
-          <option key={'exon'} value={'exon'}>
-            Exon Quantification
-          </option>
-          <option key={'mrnaSummary'} value={'mrnaSummary'}>
-            Gene Expression Summary
-          </option>
-          <option key={'none'} value={'none'}>
-            - none/other -
-          </option>
-        </datalist>
+        {dataVarietyList}
         <div
           className={
             'progress progress-striped' + (

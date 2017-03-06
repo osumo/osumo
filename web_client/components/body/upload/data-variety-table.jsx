@@ -1,0 +1,15 @@
+export default [
+  { id: 'proteinX'    , description: 'Protein Expression'                },
+  { id: 'rawSequence' , description: 'Raw Sequencing Data'               },
+  { id: 'cprofile'    , description: 'Clinical Profile'                  },
+  { id: 'dnaMeth'     , description: 'DNA Methylation'                   },
+  { id: 'mrna'        , description: 'Gene Expression Quantification'    },
+  { id: 'mirna'       , description: 'MicroRNA Quantification'           },
+  { id: 'isoX'        , description: 'Isoform Expression Quantification' },
+  { id: 'exonJunction', description: 'Exon Junction Quantification'      },
+  { id: 'exon'        , description: 'Exon Quantification'               },
+  { id: 'mrnaSummary' , description: 'Gene Expression Summary'           },
+
+  /* should always have a none option */
+  { id: 'none'        , description: ' - none/other - '                  }
+];
