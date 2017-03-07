@@ -7,8 +7,20 @@ import igpse2 from './igpse2';
 
 const D = store.dispatch.bind(store);
 
+let page2;
+let mrnaMapElement;
+let mirnaMapElement;
+let pSetsElement;
+
+let page3;
+let survPlotElement;
+
 const actionProcess = (forms, page) => {
-  const truncatePromise = D(actions.truncateAnalysisPages(1));
+  const truncatePromise = D(actions.truncateAnalysisPages(1, {
+    clear: false,
+    disable: true,
+    remove: false
+  }));
 
   const form = analysisUtils.aggregateForm(forms, page);
   const task = 'iGPSe';
@@ -51,7 +63,13 @@ const actionProcess = (forms, page) => {
             miRNAFileId,
             transferDataId,
             clusterData: response,
-            outputDirId: form.output_dir
+            outputDirId: form.output_dir,
+            page2,
+            page3,
+            mrnaMapElement,
+            mirnaMapElement,
+            pSetsElement,
+            survPlotElement
           }))
       );
     })
@@ -67,6 +85,38 @@ const actionProcess = (forms, page) => {
 const main = () => (
   D(actions.registerAnalysisAction('igpse', 'process', actionProcess))
     .then(() => analysisUtils.fetchAndProcessAnalysisPage(D, 'igpse'))
+    .then(() => analysisUtils.fetchAndProcessAnalysisPage(
+      D, {
+        key: 'igpse2',
+        postprocess: (type, obj) => {
+          if (type === 'page') {
+            page2 = obj;
+          } else if (type === 'element') {
+            if (obj.key === 'mrnaMap') {
+              mrnaMapElement = obj;
+            } else if (obj.key === 'mirnaMap') {
+              mirnaMapElement = obj;
+            } else if (obj.key === 'pSets') {
+              pSetsElement = obj;
+            }
+          }
+        }
+      }
+    ))
+    .then((page) => D(actions.disableAnalysisPage(page)))
+    .then(() => analysisUtils.fetchAndProcessAnalysisPage(
+      D, {
+        key: 'igpse3',
+        postprocess: (type, obj) => {
+          if (type === 'page') {
+            page3 = obj;
+          } else if (type === 'element' && obj.key === 'survPlot') {
+            survPlotElement = obj;
+          }
+        }
+      }
+    ))
+    .then((page) => D(actions.disableAnalysisPage(page)))
 );
 
 export default main;

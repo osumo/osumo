@@ -654,6 +654,22 @@ export const truncateAnalysisPages = (count, options={}) => promiseAction(
   }
 );
 
+export const updateAnalysisElement = (element, props) => promiseAction(
+  (D, S) => {
+    D({
+      type: ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT,
+      element,
+      ...props
+    });
+
+    let { id } = element;
+    if (isUndefined(id)) { id = element; }
+
+    let { analysis: { objects } } = S();
+    return { ...objects[id] };
+  }
+);
+
 export const updateAnalysisElementState = (element, state) => promiseAction(
   (D, S) => {
     D({
@@ -853,6 +869,7 @@ export default {
   toggleHeaderDropdown,
   triggerAnalysisAction,
   truncateAnalysisPages,
+  updateAnalysisElement,
   updateAnalysisElementState,
   updateDialogForm,
   updateUploadBrowseText,

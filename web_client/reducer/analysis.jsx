@@ -468,6 +468,51 @@ const truncateAnalysisPages = (analysis, numPages, options={}) => {
   return analysis;
 };
 
+const updateAnalysisElement = (analysis, element, props) => {
+  let { forms, objects, parents } = analysis;
+  forms = ensure(forms, {});
+  objects = ensure(objects, {});
+  parents = ensure(parents, {});
+
+  element = ensure(element, 'no-element');
+  if (element === 'no-element') { return analysis; }
+
+  if (isScalar(element)) { element = ensure(objects[element], 'no-element'); }
+  if (element === 'no-element') { return analysis; }
+
+  props = ensure(props, 'no-props');
+  if (props === 'no-props') { return analysis; }
+
+  let {
+    /* list of attributes that can *not* be changed once set */
+    id,
+    key,
+    type,
+
+    /* we take the rest and carry on */
+    ...restProps
+  } = props;
+
+  let changed = false;
+  let newObjects = (
+    Object.entries(objects)
+      .map(([k, v]) => {
+        if (k === element.id.toString()) {
+          changed = true;
+          v = { ...v, ...restProps };
+        }
+        return [k, v];
+      })
+      .reduce(objectReduce, {})
+  );
+
+  if (changed) {
+    analysis = { ...analysis, objects: newObjects };
+  }
+
+  return analysis;
+};
+
 const updateAnalysisElementState = (analysis, element, state) => {
   let { forms, objects, parents } = analysis;
   forms = ensure(forms, {});
@@ -647,6 +692,9 @@ const analysis = (state = {}, action) => {
   } else if (type === ACTION_TYPES.TRUNCATE_ANALYSIS_PAGES) {
     const { count, clear, disable, remove } = action;
     state = truncateAnalysisPages(state, count, { clear, disable, remove });
+  } else if (type === ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT) {
+    const { type, element, ...props } = action;
+    state = updateAnalysisElement(state, element, props);
   } else if (type === ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT_STATE) {
     const { element, state: newState } = action;
     state = updateAnalysisElementState(state, element, newState);

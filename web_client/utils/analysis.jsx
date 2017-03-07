@@ -121,7 +121,7 @@ export const processAnalysisPage = (dispatch, params) => {
     }
   });
 
-  return promiseChain;
+  return promiseChain.then(() => parent);
 };
 
 export const fetchAndProcessAnalysisPage = (dispatch, params) => {

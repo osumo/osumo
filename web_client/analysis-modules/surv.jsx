@@ -8,8 +8,15 @@ import surv2 from './surv2';
 
 const D = store.dispatch.bind(store);
 
+let page2;
+let survPlotElement;
+
 const actionProcess = (forms, page) => {
-  const truncatePromise = D(actions.truncateAnalysisPages(1));
+  const truncatePromise = D(actions.truncateAnalysisPages(1, {
+    clear: false,
+    disable: true,
+    remove: false
+  }));
 
   const form = analysisUtils.aggregateForm(forms, page);
   const task = 'surv';
@@ -39,7 +46,7 @@ const actionProcess = (forms, page) => {
         if (name === 'survivor-plot.png') { dataplotId = fid; }
       });
 
-      return { fitId, sdfId, dataplotId };
+      return { fitId, sdfId, dataplotId, page2, survPlotElement };
     })
   );
 
@@ -53,6 +60,19 @@ const actionProcess = (forms, page) => {
 const main = () => (
   D(actions.registerAnalysisAction('surv', 'process', actionProcess))
     .then(() => analysisUtils.fetchAndProcessAnalysisPage(D, 'surv'))
+    .then(() => analysisUtils.fetchAndProcessAnalysisPage(
+      D, {
+        key: 'surv2',
+        postprocess: (type, obj) => {
+          if (type === 'page') {
+            page2 = obj;
+          } else if (type === 'element' && obj.key === 'survPlot') {
+            survPlotElement = obj;
+          }
+        }
+      }
+    ))
+    .then((page) => D(actions.disableAnalysisPage(page)))
 );
 
 export default main;
