@@ -101,6 +101,13 @@ export const addAnalysisPage = (page) => promiseAction(
   }
 );
 
+export const addUploadFileEntries = (entries) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.ADD_UPLOAD_FILE_ENTRIES, entries });
+    return [...S().upload.fileEntries];
+  }
+);
+
 export const clearLoginInfo = () => promiseAction(
   (D, S) => {
     D({ type: ACTION_TYPES.CLEAR_LOGIN_INFO });
@@ -294,6 +301,48 @@ export const removeAnalysisElement = (element) => promiseAction(
 
 export const removeAnalysisPage = (page, key) => promiseAction(
   (D) => D({ type: ACTION_TYPES.REMOVE_ANALYSIS_PAGE, key, page })
+);
+
+export const removeUploadFileEntry = (index) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.REMOVE_UPLOAD_FILE_ENTRY, index })
+    return [...S().upload.fileEntries];
+  }
+);
+
+export const resetUploadState = () => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.RESET_UPLOAD_STATE })
+    return { ...S().upload };
+  }
+);
+
+export const setUploadModeToDefault = () => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.SET_UPLOAD_MODE_DEFAULT })
+    return S().upload.mode;
+  }
+);
+
+export const setUploadModeToDragging = () => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.SET_UPLOAD_MODE_DRAGGING })
+    return S().upload.mode;
+  }
+);
+
+export const setUploadModeToDone = () => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.SET_UPLOAD_MODE_DONE })
+    return S().upload.mode;
+  }
+);
+
+export const setUploadModeToUploading = () => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.SET_UPLOAD_MODE_UPLOADING })
+    return S().upload.mode;
+  }
 );
 
 export const updateAnalysisElementState = (element, state) => promiseAction(
@@ -563,6 +612,39 @@ export const updateDialogForm = (form) => promiseAction(
   }
 );
 
+export const updateUploadBrowseText = (text) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.UPDATE_UPLOAD_BROWSE_TEXT, text })
+    return S().upload.browseText;
+  }
+);
+
+export const updateUploadFileEntry = (index, state) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.UPDATE_UPLOAD_FILE_ENTRY, index, state })
+    let result = S().upload.fileEntries[index];
+    if (result) {
+      result = { ...result };
+    }
+    return result;
+  }
+);
+
+export const updateUploadProgress = (current, goal) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.UPDATE_UPLOAD_PROGRESS, current, goal })
+    let { upload } = S();
+    return [upload.progress, upload.progressGoal];
+  }
+);
+
+export const updateUploadStatusText = (text) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.UPDATE_UPLOAD_STATUS_TEXT, text })
+    return S().upload.statusText;
+  }
+);
+
 export const uploadFile = (file, params=null, parent=null) => promiseAction(
   (D, S) => {
     params = params || {};
@@ -648,6 +730,7 @@ export const verifyCurrentUser = () => promiseAction(
 export default {
   addAnalysisElement,
   addAnalysisPage,
+  addUploadFileEntries,
   clearLoginInfo,
   closeDialog,
   onItemSelect,
@@ -658,6 +741,8 @@ export default {
   registerAnalysisAction,
   removeAnalysisElement,
   removeAnalysisPage,
+  removeUploadFileEntry,
+  resetUploadState,
   updateAnalysisElementState,
   setCurrentUser,
   setDialogError,
@@ -667,6 +752,10 @@ export default {
   setGlobalNavTarget,
   setItemSelectedCallback,
   setItemFilter,
+  setUploadModeToDefault,
+  setUploadModeToDragging,
+  setUploadModeToDone,
+  setUploadModeToUploading,
   submitLoginForm,
   submitLogoutForm,
   submitResetPasswordForm,
@@ -675,6 +764,11 @@ export default {
   triggerAnalysisAction,
   truncateAnalysisPages,
   updateDialogForm,
+  updateUploadBrowseText,
+  updateUploadFileEntry,
+  updateUploadProgress,
+  updateUploadStatusText,
   uploadFile,
   verifyCurrentUser
 };
+
