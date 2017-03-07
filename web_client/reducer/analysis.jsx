@@ -452,12 +452,10 @@ const truncateAnalysisPages = (analysis, numPages, options={}) => {
       }
 
       if (clear) {
-        let idSet = Object.keys(
+        let idSet = (
           pagesToModify
             .map((page) => objects[page].elements)
             .reduce((a, b) => a.concat(b), [])
-            .map((element) => [element, true])
-            .reduce(objectReduce, {})
         );
 
         analysis = removeAnalysisElement(analysis, idSet);
