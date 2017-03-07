@@ -1,4 +1,6 @@
-export default [
+import React from 'react';
+
+export const table = [
   { id: 'proteinX'    , description: 'Protein Expression'                },
   { id: 'rawSequence' , description: 'Raw Sequencing Data'               },
   { id: 'cprofile'    , description: 'Clinical Profile'                  },
@@ -13,3 +15,11 @@ export default [
   /* should always have a none option */
   { id: 'none'        , description: ' - none/other - '                  }
 ];
+
+export const elements = table.map(
+  ({ id, description }) => (
+    <option key={id} value={id}>{description}</option>
+  )
+);
+
+export default table;
