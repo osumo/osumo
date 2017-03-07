@@ -82,10 +82,11 @@ const AnalysisContainer = connect(
         let { _modelType: type } = item;
 
         let pathPromise;
-        let name, id;
+        let name, id, metaType;
 
         name = item.name;
         id = item._id;
+        metaType = ((item.meta || {}).sumoDataType || null);
 
         if (type === 'item') {
           pathPromise = (
@@ -122,7 +123,8 @@ const AnalysisContainer = connect(
                   value: id,
                   name,
                   path: `${path}`,
-                  type
+                  type,
+                  ...(metaType ? { metaType } : {})
                 }
               ))
             ))
