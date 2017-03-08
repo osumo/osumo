@@ -9,22 +9,6 @@ import { Promise } from '../../utils/promise';
 
 import baseAnalysisModules from '../../analysis-modules/base-listing';
 
-const assemblePages = (pages, objects, visitedSet = {}) => (
-  pages
-    .map((page) => {
-      if (!visitedSet[page]) {
-        visitedSet[page] = { ...objects[page] };
-        visitedSet[page].elements = assemblePages(
-          visitedSet[page].elements || [],
-          objects,
-          visitedSet
-        );
-      }
-
-      return visitedSet[page];
-    })
-);
-
 /* TODO(opadron): replace this with a proper route (folder/:id/rootpath) */
 const getFolderRootpath = (folder) => {
   let { baseParentId, baseParentType, parentId } = folder;
@@ -54,15 +38,16 @@ const modules = (
 );
 
 const AnalysisContainer = connect(
-  ({ analysis: { currentPage, forms, objects, pages } }, dispatch) => {
-    forms = forms || {};
+  ({ analysis: { currentPage, objects, pages, states } }) => {
     objects = objects || {};
     pages = pages || [];
+    states = states || {};
 
     return {
       currentPage,
-      forms,
-      pages: assemblePages(pages, objects)
+      objects,
+      pages,
+      states
     };
   },
 

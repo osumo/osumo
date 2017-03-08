@@ -4,12 +4,14 @@ name: Silhouette Plots
 key: silhouette2
 
 ui:
-  - key: plot1
-    name: Plot 1
-    type: image
-    fileId: 0 # TO BE FILLED IN
+  - type: tabGroup
+    elements:
+      - key: plot1
+        name: Silhouette Plot
+        type: image
+        fileId: 0 # TO BE FILLED IN
 
-  - key: plot2
-    name: Plot 2
-    type: image
-    fileId: 0 # TO BE FILLED IN
+      - key: plot2
+        name: Cluster Plot
+        type: image
+        fileId: 0 # TO BE FILLED IN

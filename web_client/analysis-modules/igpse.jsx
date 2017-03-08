@@ -15,27 +15,28 @@ let pSetsElement;
 let page3;
 let survPlotElement;
 
-const actionProcess = (forms, page) => {
+const actionProcess = (data, page) => {
   const truncatePromise = D(actions.truncateAnalysisPages(1, {
     clear: false,
     disable: true,
     remove: false
   }));
 
-  const form = analysisUtils.aggregateForm(forms, page);
+  const state = analysisUtils.aggregateStateData(data, page);
+
   const task = 'iGPSe';
   const inputs = {
-    mrna_input_path: `FILE:${form.mrna_input_path}`,
-    mirna_input_path: `FILE:${form.mirna_input_path}`,
-    clinical_input_path: `FILE:${form.clinical_input_path}`,
-    mrna_clusters: `INTEGER:${form.mrna_clusters}`,
-    mirna_clusters: `INTEGER:${form.mirna_clusters}`
+    mrna_input_path: `FILE:${state.mrna_input_path}`,
+    mirna_input_path: `FILE:${state.mirna_input_path}`,
+    clinical_input_path: `FILE:${state.clinical_input_path}`,
+    mrna_clusters: `INTEGER:${state.mrna_clusters}`,
+    mirna_clusters: `INTEGER:${state.mirna_clusters}`
   };
   const outputs = {
-    clustersJSON: `FILE:${form.output_dir}:clusters.json`,
-    transferData: `FILE:${form.output_dir}:transfer-data.RData`,
-    output_mrna_heatmap: `FILE:${form.output_dir}:mrna_heatmap.png`,
-    output_mirna_heatmap: `FILE:${form.output_dir}:mirna_heatmap.png`
+    clustersJSON: `FILE:${state.output_dir}:clusters.json`,
+    transferData: `FILE:${state.output_dir}:transfer-data.RData`,
+    output_mrna_heatmap: `FILE:${state.output_dir}:mrna_heatmap.png`,
+    output_mirna_heatmap: `FILE:${state.output_dir}:mirna_heatmap.png`
   };
   const title = 'iGPSe';
   const maxPolls = 40;
@@ -62,7 +63,7 @@ const actionProcess = (forms, page) => {
             miRNAFileId,
             transferDataId,
             clusterData: response,
-            outputDirId: form.output_dir,
+            outputDirId: state.output_dir,
             page2,
             page3,
             mrnaMapElement,

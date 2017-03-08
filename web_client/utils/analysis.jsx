@@ -1,23 +1,85 @@
-import { isString, isUndefined } from 'lodash';
+import { isArray, isString, isUndefined } from 'lodash';
 
 import { rest } from '../globals';
 import objectReduce from './object-reduce';
 import { Promise } from './promise';
 import actions from '../actions';
 
-export const aggregateForm = (forms, page) => (
-  (page.elements || [])
-    .map(({ key }) => key)
-    .filter((key) => !isUndefined(key))
-    .map((key) => [
-      key,
-      (
-        (
-          forms[page.key] || {}
-        )[key] || {}
-      ).value
-    ])
-    .reduce(objectReduce, {})
+const aggregateStateDataHelper = (data, obj, cache={}) => {
+  let { objects, states } = data;
+  objects = objects || {};
+  states = states || {};
+
+  /*
+   * cache entries are length-1-arrays.  This lets us
+   * box/unbox undefined and null values
+   */
+  if (!isArray(cache[obj.id])) {
+    let { elements } = obj;
+    elements = elements || [];
+
+    let state = states[obj.id];
+    state = state || {};
+    let { value } = state;
+
+    let result;
+    /*
+     * If this node is a leaf node, then get its "value" directly from its state
+     * hash
+     */
+    if (elements.length === 0) {
+      result = value;
+
+    /*
+     * Otherwise, this node has child nodes, then its "value" is a hash of its
+     * childrens' values.
+     */
+    } else {
+      result = {};
+
+      /*
+       * ...but if this node *also* has its own "value", set it under the
+       * "parent-value" key.  Something like "parent-value" is chosen because it
+       * is not a valid identifier, and should be less likely to clash with any
+       * child key.
+       */
+      if (!isUndefined(value)) {
+        result['parent-value'] = value;
+      }
+    }
+
+    /*
+     * save result object in cache *now*, even if its supposed to be a hash of
+     * its children and we haven't finished populating it, yet.  This is done so
+     * that it is available for recursive calls.  Because the values are passed
+     * by reference, this will work correctly even if there is a reference
+     * cycle.
+     */
+    /* box the cached entry */
+    cache[obj.id] = [result];
+
+    (
+      elements
+        .filter((id) => id in objects)
+        .map((id) => objects[id])
+        .forEach((e) => {
+          let { key } = e;
+          key = key || `anon-${e.id}`;
+
+          let value = aggregateStateDataHelper(data, e, cache);
+          if (!isUndefined(value)) {
+            result[key] = value;
+          }
+        })
+    );
+  }
+
+  /* unbox the cached entry */
+  return cache[obj.id][0];
+};
+
+export const aggregateStateData = (data, page) => (
+  aggregateStateDataHelper(data, page)
 );
 
 export const pollJob = (
@@ -153,7 +215,7 @@ export const fetchAndProcessAnalysisPage = (dispatch, params) => {
 };
 
 export default {
-  aggregateForm,
+  aggregateStateData,
   fetchAndProcessAnalysisPage,
   pollJob,
   processAnalysisPage,

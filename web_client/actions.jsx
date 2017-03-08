@@ -1,5 +1,4 @@
-import { isNil, isString, isUndefined } from 'lodash';
-import URI from 'urijs';
+import { isNil, isString, isUndefined } from 'lodash'; import URI from 'urijs';
 
 import globals from './globals';
 import { Promise } from './utils/promise';
@@ -94,16 +93,18 @@ export const addAnalysisPage = (page) => promiseAction(
     let promise = null;
     let { id } = page;
     if (isUndefined(id)) {
-      let { analysis } = S();
-      page = analysis.objects[analysis.lastPageId];
+      let { analysis: { lastPageId, objects, pages, states } } = S();
+      page = objects[lastPageId];
 
-      if (analysis.pages.length === 1) {
+      if (pages.length === 1) {
         promise = D(triggerAnalysisAction(
-          analysis.forms || {},
+          { objects, states },
           page,
           'tabEnter',
           { nothrow: true }
-        ));
+        )).then(
+          () => { ...page }
+        );
       }
     }
 
@@ -391,7 +392,10 @@ export const setCurrentAnalysisPage = (page, key) => promiseAction(
     if (!isNil(oldAnalysis.currentPage)) {
       promise = promise.then(
         () => D(triggerAnalysisAction(
-          oldAnalysis.forms || {},
+          {
+            states: oldAnalysis.states || {},
+            objects: oldAnalysis.objects
+          },
           oldAnalysis.objects[oldAnalysis.currentPage],
           'tabExit',
           { nothrow: true }
@@ -402,10 +406,10 @@ export const setCurrentAnalysisPage = (page, key) => promiseAction(
     return promise.then(() => D({
       type: ACTION_TYPES.SET_CURRENT_ANALYSIS_PAGE, key, page
     })).then(() => {
-      let { analysis: { currentPage, forms, objects } } = S();
+      let { analysis: { currentPage, states, objects } } = S();
       let cPage = objects[currentPage];
       return D(triggerAnalysisAction(
-        forms || {}, cPage, 'tabEnter', { nothrow: true }
+        { states, objects }, cPage, 'tabEnter', { nothrow: true }
       )).then(() => cPage);
     });
   }
@@ -615,7 +619,7 @@ export const toggleHeaderDropdown = () => promiseAction(
   }
 );
 
-export const triggerAnalysisAction = (forms, page, action, options={}) => {
+export const triggerAnalysisAction = (data, page, action, options={}) => {
   let { nothrow, extraArgs: args } = options;
 
   nothrow = nothrow || false;
@@ -637,7 +641,7 @@ export const triggerAnalysisAction = (forms, page, action, options={}) => {
           getState: S
         }, /* this */
         [
-          forms,
+          data,
           page,
           action,
           ...args
@@ -678,32 +682,8 @@ export const updateAnalysisElementState = (element, state) => promiseAction(
       state
     });
 
-    let { id } = element;
-    if (isUndefined(id)) { id = element; }
-
-    let { analysis: { forms, objects, parents } } = S();
-
-    let keys = [];
-    const walk = (id) => {
-      let { key } = objects[id];
-      if (!isUndefined(key)) {
-        keys.push(key);
-      }
-
-      let parent = parents[id];
-      if (!isUndefined(parent)) {
-        walk(parent);
-      }
-    };
-    walk(id);
-    let n = keys.length;
-
-    state = forms;
-    for (;n--;) {
-      state = state[keys[n]];
-    }
-
-    return { ...state };
+    let { analysis: { states } } = S();
+    return { ...(states[id] || {}) };
   }
 );
 

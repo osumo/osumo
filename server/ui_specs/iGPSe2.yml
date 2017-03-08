@@ -5,23 +5,23 @@ mainAction: process
 
 ui:
   - name: Tabbed Interface
-    type: TabSelection
-    items:
-    - key: mrnaMap
-      name: mRNA Heatmap
-      notes: "The major groups show how the data was clustered.  The columns \
-              show different mRNA attributes, and the rows represent each \
-              subject."
-      type: image
-      fileId: 0 # TO BE FILLED IN
+    type: tabGroup
+    elements:
+      - key: mrnaMap
+        name: mRNA Heatmap
+        notes: "The major groups show how the data was clustered.  The columns \
+                show different mRNA attributes, and the rows represent each \
+                subject."
+        type: image
+        fileId: 0 # TO BE FILLED IN
 
-    - key: mirnaMap
-      name: miRNA Heatmap
-      notes: "The major groups show how the data was clustered.  The columns \
-              show different miRNA attributes, and the rows represent each \
-              subject."
-      type: image
-      fileId: 0 # TO BE FILLED IN
+      - key: mirnaMap
+        name: miRNA Heatmap
+        notes: "The major groups show how the data was clustered.  The columns \
+                show different miRNA attributes, and the rows represent each \
+                subject."
+        type: image
+        fileId: 0 # TO BE FILLED IN
 
   - key: pSets
     name: parallel sets
