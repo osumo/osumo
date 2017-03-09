@@ -131,16 +131,38 @@ const AnalysisContainer = connect(
 
       .then(() => {
         let { options } = element;
-        let { onlyNames } = (options || {});
+        let { onlyNames, onlyTypes } = (options || {});
 
         let filter = null;
-        let regex;
+        let onlyNameRegex, onlyTypeRegex;
 
-        if (onlyNames) {
-          regex = new RegExp(onlyNames);
-          filter = (item) => (
-            item._modelType !== 'item' || regex.test(item.name)
-          );
+        if (onlyNames || onlyTypes) {
+          if (onlyNames) {
+            onlyNameRegex = new RegExp(onlyNames);
+          }
+
+          if (onlyTypes) {
+            onlyTypeRegex = new RegExp(onlyTypes);
+          }
+
+          filter = (item) => {
+            let result = true;
+            if (item._modelType === 'item') {
+              if (onlyNames && !onlyNameRegex.test(item.name)) {
+                result = false;
+              } else if (
+                onlyTypes &&
+                (
+                  !item.meta ||
+                  !onlyTypeRegex.test(item.meta.sumoDataType)
+                )
+              ) {
+                result = false;
+              }
+            }
+
+            return result;
+          };
         }
 
         return dispatch(actions.setItemFilter(filter));

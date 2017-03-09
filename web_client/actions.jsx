@@ -1,10 +1,66 @@
-import { isString, isUndefined } from 'lodash';
+import { isNil, isString, isUndefined } from 'lodash';
 import URI from 'urijs';
+
 import globals from './globals';
 import { Promise } from './utils/promise';
 import ACTION_TYPES from './reducer/action-types';
 
+import FileModel from 'girder/models/FileModel';
+import UserModel from 'girder/models/UserModel';
+import CollectionModel from 'girder/models/CollectionModel';
+import FolderModel from 'girder/models/FolderModel';
+import AccessControlledModel from 'girder/models/AccessControlledModel';
+
 let { rest } = globals;
+
+const getResourceFromId = (id, type=null) => {
+  let promise;
+  (
+    (
+      isString(type) ? [ type ] : [ 'user', 'collection', 'folder' ]
+    )
+      .forEach((modelType) => {
+        let query = { path: `${modelType}/${id}` };
+        const p = () => (
+          rest(query).then(({ response }) => response)
+        );
+        promise = (promise ? promise.catch(p) : p());
+      })
+  );
+  return promise;
+};
+
+const getModelFromResource = (obj) => {
+  const { _modelType: t } = obj;
+  const Model = (
+    t === 'user'
+      ? UserModel
+      : t === 'collection'
+        ? CollectionModel
+        : t === 'folder'
+          ? FolderModel
+          : AccessControlledModel
+  );
+
+  return new Promise((resolve, reject) => {
+    let result = new Model({ _id: obj._id });
+    let req = result.fetch();
+    req.error((payload) => {
+      let e = new Error();
+      e.payload = payload;
+      reject(e);
+    });
+    req.then(() => { resolve(result); });
+  });
+};
+
+
+const getModelFromId = (id, type=null) => {
+  return (
+    getResourceFromId(id, type)
+      .then(getModelFromResource)
+  );
+};
 
 const promiseAction = (callback) => (dispatch, getState) => new Promise(
   (resolve, reject) => {
@@ -42,6 +98,13 @@ export const addAnalysisPage = (page) => promiseAction(
     }
 
     return { ...page };
+  }
+);
+
+export const addUploadFileEntries = (entries) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.ADD_UPLOAD_FILE_ENTRIES, entries });
+    return [...S().upload.fileEntries];
   }
 );
 
@@ -240,6 +303,48 @@ export const removeAnalysisPage = (page, key) => promiseAction(
   (D) => D({ type: ACTION_TYPES.REMOVE_ANALYSIS_PAGE, key, page })
 );
 
+export const removeUploadFileEntry = (index) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.REMOVE_UPLOAD_FILE_ENTRY, index })
+    return [...S().upload.fileEntries];
+  }
+);
+
+export const resetUploadState = () => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.RESET_UPLOAD_STATE })
+    return { ...S().upload };
+  }
+);
+
+export const setUploadModeToDefault = () => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.SET_UPLOAD_MODE_DEFAULT })
+    return S().upload.mode;
+  }
+);
+
+export const setUploadModeToDragging = () => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.SET_UPLOAD_MODE_DRAGGING })
+    return S().upload.mode;
+  }
+);
+
+export const setUploadModeToDone = () => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.SET_UPLOAD_MODE_DONE })
+    return S().upload.mode;
+  }
+);
+
+export const setUploadModeToUploading = () => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.SET_UPLOAD_MODE_UPLOADING })
+    return S().upload.mode;
+  }
+);
+
 export const updateAnalysisElementState = (element, state) => promiseAction(
   (D, S) => {
     D({
@@ -329,20 +434,10 @@ export const setFileNavigationShowItems = (showItems) => promiseAction(
 export const setFileNavigationRoot = (root, type) => promiseAction(
   (D, S) => {
     if (isString(root)) {
-      let promise;
-
-      (
-        (
-          isString(type) ? [ type ] : [ 'user', 'collection', 'folder' ]
-        )
-          .forEach((modelType) => {
-            let query = { path: `${modelType}/${root}` };
-            let p = rest(query).then(({ response }) => response);
-            promise = (promise ? promise.catch(() => p) : p);
-          })
+      return (
+        getResourceFromId(root, type)
+          .then((root) => D(setFileNavigationRoot(root)))
       );
-
-      return promise.then((root) => D(setFileNavigationRoot(root)));
     }
 
     D({
@@ -517,6 +612,107 @@ export const updateDialogForm = (form) => promiseAction(
   }
 );
 
+export const updateUploadBrowseText = (text) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.UPDATE_UPLOAD_BROWSE_TEXT, text })
+    return S().upload.browseText;
+  }
+);
+
+export const updateUploadFileEntry = (index, state) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.UPDATE_UPLOAD_FILE_ENTRY, index, state })
+    let result = S().upload.fileEntries[index];
+    if (result) {
+      result = { ...result };
+    }
+    return result;
+  }
+);
+
+export const updateUploadProgress = (current, goal) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.UPDATE_UPLOAD_PROGRESS, current, goal })
+    let { upload } = S();
+    return [upload.progress, upload.progressGoal];
+  }
+);
+
+export const updateUploadStatusText = (text) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.UPDATE_UPLOAD_STATUS_TEXT, text })
+    return S().upload.statusText;
+  }
+);
+
+export const uploadFile = (file, params=null, parent=null) => promiseAction(
+  (D, S) => {
+    params = params || {};
+    let { callbacks, ...restParams } = params;
+    callbacks = callbacks || {};
+
+    if (isNil(parent)) {
+      let currentUser = S().loginInfo.user;
+      return rest({
+        path: 'folder',
+        data: {
+          parentType: 'user',
+          parentId: currentUser._id,
+          limit: 1,
+          offset: 0,
+          sort: 'lowerName',
+          sordir: 1
+        }
+      }).then(({ response: parentList }) => getModelFromResource(
+        parentList.length > 0
+          ? parentList[0]
+          : currentUser
+      )).then(
+        (parentModel) => D(uploadFile(file, params, parentModel))
+      );
+    }
+
+    if (isString(parent)) {
+      return (
+        getModelFromId(parent)
+          .then((p) => D(uploadFile(file, params, p)))
+      );
+    }
+
+    return new Promise((resolve, reject) => {
+      let fileModel = new FileModel();
+
+      if (!isNil(callbacks.onChunk)) {
+        fileModel.on('g:upload.chunkSent', callbacks.onChunk);
+      }
+
+      if (!isNil(callbacks.onProgress)) {
+        fileModel.on('g:upload.progress', callbacks.onProgress);
+      }
+
+      fileModel.on('g:upload.complete', () => {
+        resolve({ file: fileModel, parent: parent });
+      });
+
+      fileModel.on('g:upload.error', (info) => {
+        let e = new Error('Upload Error');
+        e.info = info;
+        e.type = 'upload'
+        reject(e);
+      });
+
+      fileModel.on('g:upload.errorStarting', (info) => {
+        let e = new Error('Upload Start Error');
+        e.info = info;
+        e.type = 'uploadStart'
+        reject(e);
+      });
+
+      fileModel.upload(parent, file, null, restParams);
+    });
+  }
+);
+
 export const verifyCurrentUser = () => promiseAction(
   (D) => (
     rest({ path: 'token/current' })
@@ -534,6 +730,7 @@ export const verifyCurrentUser = () => promiseAction(
 export default {
   addAnalysisElement,
   addAnalysisPage,
+  addUploadFileEntries,
   clearLoginInfo,
   closeDialog,
   onItemSelect,
@@ -544,6 +741,8 @@ export default {
   registerAnalysisAction,
   removeAnalysisElement,
   removeAnalysisPage,
+  removeUploadFileEntry,
+  resetUploadState,
   updateAnalysisElementState,
   setCurrentUser,
   setDialogError,
@@ -553,6 +752,10 @@ export default {
   setGlobalNavTarget,
   setItemSelectedCallback,
   setItemFilter,
+  setUploadModeToDefault,
+  setUploadModeToDragging,
+  setUploadModeToDone,
+  setUploadModeToUploading,
   submitLoginForm,
   submitLogoutForm,
   submitResetPasswordForm,
@@ -561,5 +764,11 @@ export default {
   triggerAnalysisAction,
   truncateAnalysisPages,
   updateDialogForm,
+  updateUploadBrowseText,
+  updateUploadFileEntry,
+  updateUploadProgress,
+  updateUploadStatusText,
+  uploadFile,
   verifyCurrentUser
 };
+
