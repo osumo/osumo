@@ -9,17 +9,19 @@ class Analysis extends React.Component {
     let {
       baseAnalysisModules,
       currentPage,
-      forms,
       onBaseAnalysis,
       onAction,
       onFileSelect,
       onPageClick,
       onStateChange,
-      pages
+      objects,
+      pages,
+      states
     } = this.props;
 
+    objects = (objects || []);
     pages = (pages || []);
-    forms = (forms || {});
+    states = (states || {});
 
     const emptyAnalysisPageStyle = {
       textAlign: 'center',
@@ -37,12 +39,14 @@ class Analysis extends React.Component {
     if (pages.length > 0) {
       analysisPageContents = (
         pages
-          .filter((page) => page.id === currentPage)
+          .filter((id) => (id === currentPage))
+          .map((id) => ({ ...(objects[id] || {}) }))
           .map((page) => (
             <AnalysisPage
               {...page}
-              form={forms[page.key] || {}}
-              onAction={(action) => onAction(forms, page, action)}
+              states={states}
+              objects={objects}
+              onAction={(action) => onAction({ objects, states }, page, action)}
               onFileSelect={onFileSelect}
               onStateChange={onStateChange}
               key={page.id}
@@ -80,11 +84,11 @@ class Analysis extends React.Component {
   static get propTypes () {
     return {
       baseAnalysisModules: React.PropTypes.arrayOf(React.PropTypes.object),
-      forms: React.PropTypes.object,
       onAction: React.PropTypes.func,
       onFileSelect: React.PropTypes.func,
       onStateChange: React.PropTypes.func,
-      pages: React.PropTypes.arrayOf(React.PropTypes.object)
+      pages: React.PropTypes.arrayOf(React.PropTypes.object),
+      states: React.PropTypes.object
     };
   }
 }

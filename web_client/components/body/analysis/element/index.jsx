@@ -2,6 +2,7 @@ import React from 'react';
 import { isUndefined } from 'lodash';
 
 import ButtonElement from './button';
+import TabGroup from './tab-group'
 import FieldElement from './field';
 import FileSelectionElement from './file-selection';
 import ImageElement from './image';
@@ -10,10 +11,15 @@ import ParallelSetsElement from './parallel-sets';
 class Element extends React.Component {
   render () {
     let {
+      elements,
       id,
       type,
       state,
+      objects,
+      states,
       onAction,
+      onChildFileSelect,
+      onChildStateChange,
       onFileSelect,
       onStateChange,
       ...props
@@ -22,16 +28,54 @@ class Element extends React.Component {
     let result;
     let wrapResult = true;
 
+    elements = elements || [];
+    let children = (
+      elements.length > 0
+        ? (
+          elements
+            .map((id) => (objects[id] || {}))
+            .map((element) => (
+              <Element
+                {...element}
+                mainAction={props.mainAction}
+                objects={objects}
+                states={states}
+                onAction={onAction}
+                onFileSelect={() => onChildFileSelect(element)}
+                onStateChange={(state) => onChildStateChange(element, state)}
+                onChildFileSelect={onChildFileSelect}
+                onChildStateChange={onChildStateChange}
+                state={states[element.id] || {}}
+                key={element.id}
+              />
+            ))
+        )
+        : null
+    );
+
     switch (type) {
       case 'button':
         result = (
           <ButtonElement
             key='result'
             onAction={onAction}
+            children={children}
             {...props}
           />
         );
         wrapResult = false;
+        break;
+
+      case 'tabGroup':
+        result = (
+          <TabGroup
+            key='result'
+            onStateChange={onStateChange}
+            state={state}
+            children={children}
+            {...props}
+          />
+        );
         break;
 
       case 'field':
@@ -40,6 +84,7 @@ class Element extends React.Component {
             key='result'
             onStateChange={onStateChange}
             state={state}
+            children={children}
             {...props}
           />
         );
@@ -54,6 +99,7 @@ class Element extends React.Component {
             onStateChange={onStateChange}
             onFileSelect={onFileSelect}
             state={state}
+            children={children}
             {...props}
           />
         );
@@ -68,6 +114,7 @@ class Element extends React.Component {
             onStateChange={onStateChange}
             onFileSelect={onFileSelect}
             state={state}
+            children={children}
             {...props}
           />
         );
@@ -85,6 +132,7 @@ class Element extends React.Component {
             key='result'
             onStateChange={onStateChange}
             state={state}
+            children={children}
             {...props}
           />
         );
@@ -95,6 +143,7 @@ class Element extends React.Component {
           <div key='result' className='.g-analysis-element'>
             { id }
             { JSON.stringify(this.props) }
+            { children }
           </div>
         );
         wrapResult = false;

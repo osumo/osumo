@@ -10,20 +10,20 @@ const D = store.dispatch.bind(store);
 
 let priorData;
 
-const actionProcess = (forms, page) => {
+const actionProcess = (data, page) => {
   const truncatePromise = D(actions.truncateAnalysisPages(2, {
     clear: false,
     disable: true,
     remove: false
   }));
 
-  const form = analysisUtils.aggregateForm(forms, page);
+  const state = analysisUtils.aggregateStateData(data, page);
   const task = 'iGPSe2';
   const inputs = {
     transferData: `FILE:${priorData.transferDataId}`,
     groups: `STRING:${JSON.stringify({
-      GROUP1: form.pSets[0],
-      GROUP2: form.pSets[1]
+      GROUP1: state.pSets[0],
+      GROUP2: state.pSets[1]
     })}`
   };
   const outputs = {
@@ -59,7 +59,6 @@ const actionProcess = (forms, page) => {
 
 const main = (data) => {
   priorData = data;
-
   return (
     D(actions.registerAnalysisAction('igpse2', 'process', actionProcess))
       .then(() => Promise.all([
@@ -79,4 +78,3 @@ const main = (data) => {
 };
 
 export default main;
-

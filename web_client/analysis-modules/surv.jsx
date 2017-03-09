@@ -11,23 +11,23 @@ const D = store.dispatch.bind(store);
 let page2;
 let survPlotElement;
 
-const actionProcess = (forms, page) => {
+const actionProcess = (data, page) => {
   const truncatePromise = D(actions.truncateAnalysisPages(1, {
     clear: false,
     disable: true,
     remove: false
   }));
 
-  const form = analysisUtils.aggregateForm(forms, page);
+  const state = analysisUtils.aggregateStateData(data, page);
   const task = 'surv';
   const inputs = {
-    input_rdata: `FILE:${form.input_rdata}`,
-    num_clusters: `INTEGER:${form.num_clusters}`
+    input_rdata: `FILE:${state.input_rdata}`,
+    num_clusters: `INTEGER:${state.num_clusters}`
   };
   const outputs = {
-    fit: `FILE:${form.output_dir}:fit.rdata`,
-    sdf: `FILE:${form.output_dir}:sdf.rdata`,
-    dataplot: `FILE:${form.output_dir}:survivor-plot.png`
+    fit: `FILE:${state.output_dir}:fit.rdata`,
+    sdf: `FILE:${state.output_dir}:sdf.rdata`,
+    dataplot: `FILE:${state.output_dir}:survivor-plot.png`
   };
   const title = 'survivor plot';
   const maxPolls = 40;
