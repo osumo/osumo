@@ -1,16 +1,19 @@
 import React from 'react';
 
 import AnalysisPage from './page';
+import AnalysisTabBar from './tab-bar';
 import { NBSP } from '../../../constants';
 
 class Analysis extends React.Component {
   render () {
     let {
       baseAnalysisModules,
+      currentPage,
       forms,
       onBaseAnalysis,
       onAction,
       onFileSelect,
+      onPageClick,
       onStateChange,
       pages
     } = this.props;
@@ -32,16 +35,20 @@ class Analysis extends React.Component {
     );
 
     if (pages.length > 0) {
-      analysisPageContents = pages.map((page) => (
-        <AnalysisPage
-          {...page}
-          form={forms[page.key] || {}}
-          onAction={(action) => onAction(forms, page, action)}
-          onFileSelect={onFileSelect}
-          onStateChange={onStateChange}
-          key={page.id}
-        />
-      ));
+      analysisPageContents = (
+        pages
+          .filter((page) => page.id === currentPage)
+          .map((page) => (
+            <AnalysisPage
+              {...page}
+              form={forms[page.key] || {}}
+              onAction={(action) => onAction(forms, page, action)}
+              onFileSelect={onFileSelect}
+              onStateChange={onStateChange}
+              key={page.id}
+            />
+          ))
+      );
     }
 
     return (
@@ -58,6 +65,11 @@ class Analysis extends React.Component {
             }
           </select>
         </div>
+        <AnalysisTabBar
+          currentPage={currentPage}
+          onPageClick={onPageClick}
+          pages={pages}
+        />
         <div className='analysis-pages'>
           {analysisPageContents}
         </div>

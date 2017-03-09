@@ -5,11 +5,8 @@ class FileSelection extends React.Component {
   render () {
     let {
       onFileSelect,
-      // options,
       state
     } = this.props;
-
-    // options = options || {};
 
     /* TODO(opadron): add selected file history to spec */
     /*
@@ -21,7 +18,7 @@ class FileSelection extends React.Component {
      * ];
      */
 
-    let { path } = state;
+    let { metaType, path } = state;
     let buttons = [
       <button
         key='file-select'
@@ -46,6 +43,28 @@ class FileSelection extends React.Component {
     /* TODO(opadron): add "recently chosen" dropdown */
     buttons.pop();
 
+    let pathFieldStyle = {};
+    let metaTypeFieldStyle = {};
+
+    if (metaType) {
+      pathFieldStyle = { marginRight: '-72px' };
+      metaTypeFieldStyle = {
+        background: '#bee7ff',
+        border: '2px solid #89b4d8',
+        borderRadius: '5px',
+        color: 'darkblue',
+        height: '29px',
+        marginTop: '3px',
+        overflow: 'hidden',
+        padding: '0px',
+        pointerEvents: 'none',
+        textAlign: 'center',
+        verticalAlign: 'middle',
+        width: '70px',
+        zIndex: '10'
+      };
+    }
+
     /*
      * TODO(opadron): this will go after
      * ... { buttons } ...
@@ -66,19 +85,18 @@ class FileSelection extends React.Component {
       >
         <TextField
           className='form-control'
-          value={path}
           onChange={function () { this.preventDefault(); }}
+          style={pathFieldStyle}
+          value={path}
+        />
+        <TextField
+          className={'form-control' + (metaType ? '' : ' hidden')}
+          style={metaTypeFieldStyle}
+          value={metaType}
         />
         <div className='input-group-btn'>{buttons}</div>
       </div>
     );
-  }
-
-  static get propTypes () {
-    return {
-      options: React.PropTypes.object,
-      state: React.PropTypes.object
-    };
   }
 }
 

@@ -7,7 +7,11 @@ import { store } from '../globals';
 const D = store.dispatch.bind(store);
 
 const actionProcess = (forms, page) => {
-  const truncatePromise = D(actions.truncateAnalysisPages(1));
+  const truncatePromise = D(actions.truncateAnalysisPages(1, {
+    clear: false,
+    disable: true,
+    remove: false
+  }));
 
   const form = analysisUtils.aggregateForm(forms, page);
   const task = 'kmeans';

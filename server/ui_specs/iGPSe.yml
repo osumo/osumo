@@ -1,6 +1,6 @@
 ---
 
-name: iGPSe
+name: Input Data
 key: igpse
 description: "Interactive Genomics Patient Stratification explorer"
 notes: "Show a survival plot based on clustering of different data sets."

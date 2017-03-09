@@ -91,13 +91,23 @@ export const addAnalysisPage = (page) => promiseAction(
   (D, S) => {
     D({ type: ACTION_TYPES.ADD_ANALYSIS_PAGE, page });
 
+    let promise = null;
     let { id } = page;
     if (isUndefined(id)) {
       let { analysis } = S();
       page = analysis.objects[analysis.lastPageId];
+
+      if (analysis.pages.length === 1) {
+        promise = D(triggerAnalysisAction(
+          analysis.forms || {},
+          page,
+          'tabEnter',
+          { nothrow: true }
+        ));
+      }
     }
 
-    return { ...page };
+    return promise || { ...page };
   }
 );
 
@@ -140,6 +150,34 @@ export const closeDialog = (byRouter = false) => promiseAction(
     );
 
     return D(closeDialog(true));
+  }
+);
+
+export const disableAnalysisPage = (page) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.DISABLE_ANALYSIS_PAGE, page });
+
+    let { id } = page;
+    if (isUndefined(id)) { id = page; }
+    let { analysis } = S();
+    page = analysis.objects[id];
+    if (page) { page = { ...page }; }
+
+    return page;
+  }
+);
+
+export const enableAnalysisPage = (page) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.ENABLE_ANALYSIS_PAGE, page });
+
+    let { id } = page;
+    if (isUndefined(id)) { id = page; }
+    let { analysis } = S();
+    page = analysis.objects[id];
+    if (page) { page = { ...page }; }
+
+    return page;
   }
 );
 
@@ -345,40 +383,31 @@ export const setUploadModeToUploading = () => promiseAction(
   }
 );
 
-export const updateAnalysisElementState = (element, state) => promiseAction(
+export const setCurrentAnalysisPage = (page, key) => promiseAction(
   (D, S) => {
-    D({
-      type: ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT_STATE,
-      element,
-      state
-    });
+    let promise = Promise.resolve();
 
-    let { id } = element;
-    if (isUndefined(id)) { id = element; }
-
-    let { analysis: { forms, objects, parents } } = S();
-
-    let keys = [];
-    const walk = (id) => {
-      let { key } = objects[id];
-      if (!isUndefined(key)) {
-        keys.push(key);
-      }
-
-      let parent = parents[id];
-      if (!isUndefined(parent)) {
-        walk(parent);
-      }
-    };
-    walk(id);
-    let n = keys.length;
-
-    state = forms;
-    for (;n--;) {
-      state = state[keys[n]];
+    let { analysis: oldAnalysis } = S();
+    if (!isNil(oldAnalysis.currentPage)) {
+      promise = promise.then(
+        () => D(triggerAnalysisAction(
+          oldAnalysis.forms || {},
+          oldAnalysis.objects[oldAnalysis.currentPage],
+          'tabExit',
+          { nothrow: true }
+        ))
+      );
     }
 
-    return { ...state };
+    return promise.then(() => D({
+      type: ACTION_TYPES.SET_CURRENT_ANALYSIS_PAGE, key, page
+    })).then(() => {
+      let { analysis: { currentPage, forms, objects } } = S();
+      let cPage = objects[currentPage];
+      return D(triggerAnalysisAction(
+        forms || {}, cPage, 'tabEnter', { nothrow: true }
+      )).then(() => cPage);
+    });
   }
 );
 
@@ -565,6 +594,20 @@ export const submitRegistrationForm = (form) => promiseAction(
   }
 );
 
+export const toggleAnalysisPage = (page) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.TOGGLE_ANALYSIS_PAGE, page });
+
+    let { id } = page;
+    if (isUndefined(id)) { id = page; }
+    let { analysis } = S();
+    page = analysis.objects[id];
+    if (page) { page = { ...page }; }
+
+    return page;
+  }
+);
+
 export const toggleHeaderDropdown = () => promiseAction(
   (D, S) => {
     D({ type: ACTION_TYPES.TOGGLE_HEADER_DROPDOWN });
@@ -572,12 +615,18 @@ export const toggleHeaderDropdown = () => promiseAction(
   }
 );
 
-export const triggerAnalysisAction = (forms, page, action, ...args) => (
-  promiseAction(
+export const triggerAnalysisAction = (forms, page, action, options={}) => {
+  let { nothrow, extraArgs: args } = options;
+
+  nothrow = nothrow || false;
+  args = args || [];
+
+  return promiseAction(
     (D, S) => {
       let callback = globals.analysisActionTable[page.key];
       if (callback) { callback = callback[action]; }
       if (!callback) {
+        if (nothrow) { return null; }
         throw new Error(
           `No such analysis action registered: ${page.key}.${action}`);
       }
@@ -595,13 +644,66 @@ export const triggerAnalysisAction = (forms, page, action, ...args) => (
         ] /* args */
       );
     }
-  )
+  );
+};
+
+export const truncateAnalysisPages = (count, options={}) => promiseAction(
+  (D, S) => {
+    D({ type: ACTION_TYPES.TRUNCATE_ANALYSIS_PAGES, count, ...options });
+    return S().analysis.pages;
+  }
 );
 
-export const truncateAnalysisPages = (count) => promiseAction(
+export const updateAnalysisElement = (element, props) => promiseAction(
   (D, S) => {
-    D({ type: ACTION_TYPES.TRUNCATE_ANALYSIS_PAGES, count });
-    return S().analysis.pages;
+    D({
+      type: ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT,
+      element,
+      ...props
+    });
+
+    let { id } = element;
+    if (isUndefined(id)) { id = element; }
+
+    let { analysis: { objects } } = S();
+    return { ...objects[id] };
+  }
+);
+
+export const updateAnalysisElementState = (element, state) => promiseAction(
+  (D, S) => {
+    D({
+      type: ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT_STATE,
+      element,
+      state
+    });
+
+    let { id } = element;
+    if (isUndefined(id)) { id = element; }
+
+    let { analysis: { forms, objects, parents } } = S();
+
+    let keys = [];
+    const walk = (id) => {
+      let { key } = objects[id];
+      if (!isUndefined(key)) {
+        keys.push(key);
+      }
+
+      let parent = parents[id];
+      if (!isUndefined(parent)) {
+        walk(parent);
+      }
+    };
+    walk(id);
+    let n = keys.length;
+
+    state = forms;
+    for (;n--;) {
+      state = state[keys[n]];
+    }
+
+    return { ...state };
   }
 );
 
@@ -733,11 +835,14 @@ export default {
   addUploadFileEntries,
   clearLoginInfo,
   closeDialog,
+  disableAnalysisPage,
+  enableAnalysisPage,
   onItemSelect,
   openFileSelectorDialog,
   openLoginDialog,
   openResetPasswordDialog,
   openRegisterDialog,
+  setCurrentAnalysisPage,
   registerAnalysisAction,
   removeAnalysisElement,
   removeAnalysisPage,
@@ -760,9 +865,12 @@ export default {
   submitLogoutForm,
   submitResetPasswordForm,
   submitRegistrationForm,
+  toggleAnalysisPage,
   toggleHeaderDropdown,
   triggerAnalysisAction,
   truncateAnalysisPages,
+  updateAnalysisElement,
+  updateAnalysisElementState,
   updateDialogForm,
   updateUploadBrowseText,
   updateUploadFileEntry,

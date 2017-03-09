@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { isNil } from 'lodash';
 
 import Analysis from '../body/analysis';
 import actions from '../../actions';
@@ -53,12 +54,13 @@ const modules = (
 );
 
 const AnalysisContainer = connect(
-  ({ analysis: { forms, objects, pages } }) => {
+  ({ analysis: { currentPage, forms, objects, pages } }, dispatch) => {
     forms = forms || {};
     objects = objects || {};
     pages = pages || [];
 
     return {
+      currentPage,
       forms,
       pages: assemblePages(pages, objects)
     };
@@ -80,10 +82,11 @@ const AnalysisContainer = connect(
         let { _modelType: type } = item;
 
         let pathPromise;
-        let name, id;
+        let name, id, metaType;
 
         name = item.name;
         id = item._id;
+        metaType = ((item.meta || {}).sumoDataType || null);
 
         if (type === 'item') {
           pathPromise = (
@@ -120,7 +123,8 @@ const AnalysisContainer = connect(
                   value: id,
                   name,
                   path: `${path}`,
-                  type
+                  type,
+                  ...(metaType ? { metaType } : {})
                 }
               ))
             ))
@@ -183,6 +187,8 @@ const AnalysisContainer = connect(
 
       .then(() => dispatch(actions.openFileSelectorDialog()))
     ),
+
+    onPageClick: (page) => dispatch(actions.setCurrentAnalysisPage(page)),
 
     onStateChange: (element, newState) => dispatch(
       actions.updateAnalysisElementState(element, newState)
