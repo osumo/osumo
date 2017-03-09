@@ -5,9 +5,13 @@ class AnalysisTabBar extends React.Component {
   render () {
     let {
       currentPage,
+      objects,
       onPageClick,
       pages
     } = this.props;
+
+    objects = objects || {};
+    pages = pages.map((id) => objects[id] || {});
 
     let tabElements = pages.map((page) => (
       <div

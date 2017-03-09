@@ -103,7 +103,7 @@ export const addAnalysisPage = (page) => promiseAction(
           'tabEnter',
           { nothrow: true }
         )).then(
-          () => { ...page }
+          () => ({ ...page })
         );
       }
     }
@@ -670,7 +670,7 @@ export const updateAnalysisElement = (element, props) => promiseAction(
     if (isUndefined(id)) { id = element; }
 
     let { analysis: { objects } } = S();
-    return { ...objects[id] };
+    return { ...(objects[id] || {}) };
   }
 );
 
@@ -681,6 +681,9 @@ export const updateAnalysisElementState = (element, state) => promiseAction(
       element,
       state
     });
+
+    let { id } = element;
+    if (isUndefined(id)) { id = element; }
 
     let { analysis: { states } } = S();
     return { ...(states[id] || {}) };

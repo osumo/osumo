@@ -39,7 +39,7 @@ class Analysis extends React.Component {
     if (pages.length > 0) {
       analysisPageContents = (
         pages
-          .filter((id) => (id === currentPage))
+          .filter((id) => (id.toString() === currentPage.toString()))
           .map((id) => ({ ...(objects[id] || {}) }))
           .map((page) => (
             <AnalysisPage
@@ -71,6 +71,7 @@ class Analysis extends React.Component {
         </div>
         <AnalysisTabBar
           currentPage={currentPage}
+          objects={objects}
           onPageClick={onPageClick}
           pages={pages}
         />
@@ -79,17 +80,6 @@ class Analysis extends React.Component {
         </div>
       </div>
     );
-  }
-
-  static get propTypes () {
-    return {
-      baseAnalysisModules: React.PropTypes.arrayOf(React.PropTypes.object),
-      onAction: React.PropTypes.func,
-      onFileSelect: React.PropTypes.func,
-      onStateChange: React.PropTypes.func,
-      pages: React.PropTypes.arrayOf(React.PropTypes.object),
-      states: React.PropTypes.object
-    };
   }
 }
 

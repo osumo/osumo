@@ -66,6 +66,7 @@ class Page extends React.Component {
                 .map((element) => (
                   <Element
                     {...element}
+                    elementKey={element.key}
                     mainAction={mainAction}
                     objects={objects}
                     states={states}
@@ -83,20 +84,6 @@ class Page extends React.Component {
         </div>
       </div>
     );
-  }
-
-  static get propTypes () {
-    return {
-      description: React.PropTypes.string,
-      elements: React.PropTypes.arrayOf(React.PropTypes.object),
-      mainAction: React.PropTypes.string,
-      name: React.PropTypes.string,
-      notes: React.PropTypes.string,
-      onAction: React.PropTypes.func,
-      onFileSelect: React.PropTypes.func,
-      onStateChange: React.PropTypes.func,
-      states: React.PropTypes.object
-    };
   }
 }
 

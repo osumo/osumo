@@ -9,7 +9,7 @@ mainAction: process
 tags:
   - baseUI
 
-ui:
+elements:
   - key: input_path
     name: "MicroRNA Expression Profile"
     description: "miRNA data."

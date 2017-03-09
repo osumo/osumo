@@ -8,13 +8,14 @@ import silhouette2 from './silhouette2';
 
 const D = store.dispatch.bind(store);
 
+let page1;
+
 let page2;
-let plot1Element;
-let plot2Element;
+let page2Elements;
 
 const actionProcess = (data, page) => {
   const truncatePromise = D(actions.truncateAnalysisPages(1, {
-    clear: false,
+    clear: true,
     disable: true,
     remove: false
   }));
@@ -48,8 +49,7 @@ const actionProcess = (data, page) => {
         dataplot1Id,
         dataplot2Id,
         page2,
-        plot1Element,
-        plot2Element
+        page2Elements
       };
     })
   );
@@ -63,24 +63,18 @@ const actionProcess = (data, page) => {
 
 const main = () => (
   D(actions.registerAnalysisAction('silhouette', 'process', actionProcess))
-    .then(() => analysisUtils.fetchAndProcessAnalysisPage(D, 'silhouette'))
-    .then(() => analysisUtils.fetchAndProcessAnalysisPage(
-      D, {
-        key: 'silhouette2',
-        postprocess: (type, obj) => {
-          if (type === 'page') {
-            page2 = obj;
-          } else if (type === 'element') {
-            if (obj.key === 'plot1') {
-              plot1Element = obj;
-            } else if (obj.key === 'plot2') {
-              plot2Element = obj;
-            }
-          }
-        }
-      }
-    ))
-    .then((page) => D(actions.disableAnalysisPage(page)))
+  .then(() => analysisUtils.fetchAnalysisPage('silhouette'))
+  .then((page) => D(actions.addAnalysisPage({ ...page, enabled: false })))
+  .then((page) => (page1 = page))
+
+  .then(() => analysisUtils.fetchAnalysisPage('silhouette2'))
+  .then(({ elements, ...page }) => {
+    page2Elements = elements || [];
+    return D(actions.addAnalysisPage({ ...page, enabled: false }));
+  })
+  .then((page) => (page2 = page))
+
+  .then(() => D(actions.enableAnalysisPage(page1)))
 );
 
 export default main;

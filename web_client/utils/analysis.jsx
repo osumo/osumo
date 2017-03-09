@@ -1,6 +1,6 @@
 import { isArray, isString, isUndefined } from 'lodash';
 
-import { rest } from '../globals';
+import { rest, store } from '../globals';
 import objectReduce from './object-reduce';
 import { Promise } from './promise';
 import actions from '../actions';
@@ -151,73 +151,50 @@ export const runTask = (taskName, params, options = {}) => {
   );
 };
 
-const {
-  addAnalysisElement: addElem,
-  addAnalysisPage: addPage
-} = actions;
+export const traverseAnalysisElements = (obj, visitor) => {
+  let { analysis: { objects } } = store.getState();
+  let traversedMap = {};
 
-export const processAnalysisPage = (dispatch, params) => {
-  let { page: pageSpec, postprocess } = params;
-  let { ui, ...pageData } = pageSpec;
-  delete pageData.tags;
+  let done = false;
+  const doneCallback = () => (done = true);
+  let { id } = obj;
+  if (isUndefined(id)) { id = obj; }
+  obj = objects[id] || {};
 
-  let parent;
-  let promiseChain = dispatch(addPage(pageData));
-  if (postprocess) {
-    promiseChain = promiseChain.then((page) => {
-      postprocess('page', page);
-      return page;
-    });
-  }
+  const processBreadth = (idList) => {
+    if (done || idList.length === 0) { return; }
+    let newIdList = [];
+    return (
+      Promise.all(
+        idList
+          .filter((id) => (!traversedMap[id]))
+          .map((id) => {
+            let obj = objects[id] || {};
+            traversedMap[id] = true;
 
-  promiseChain = promiseChain.then((page) => { parent = page; });
+            let { elements: newElements } = obj;
+            newElements = newElements || [];
+            newIdList = newIdList.concat(newElements);
+            return visitor(obj, doneCallback);
+          })
+      )
 
-  ui.forEach((elem) => {
-    promiseChain = promiseChain.then(() => dispatch(addElem(elem, parent)));
+      .then(() => processBreadth(newIdList))
+    );
+  };
 
-    if (postprocess) {
-      promiseChain = promiseChain.then((elem) => {
-        postprocess('element', elem);
-        return elem;
-      });
-    }
-  });
-
-  return promiseChain.then(() => parent);
+  return processBreadth(obj.elements || []);
 };
 
-export const fetchAndProcessAnalysisPage = (dispatch, params) => {
-  if (isString(params)) {
-    params = { key: params };
-  }
-
-  let {
-    key,
-    preprocess,
-    postprocess
-  } = params;
-
+export const fetchAnalysisPage = (key) => {
   const path = `osumo/ui/${key}`;
-
-  let promiseChain = rest({ path }).then(({ response }) => response);
-  if (!isUndefined(preprocess)) {
-    promiseChain = promiseChain.then((page) => {
-      preprocess(page);
-      return page;
-    });
-  }
-
-  promiseChain = promiseChain.then((page) => processAnalysisPage(dispatch, {
-    page, postprocess
-  }));
-
-  return promiseChain;
+  return rest({ path }).then(({ response }) => response);
 };
 
 export default {
   aggregateStateData,
-  fetchAndProcessAnalysisPage,
+  fetchAnalysisPage,
   pollJob,
-  processAnalysisPage,
-  runTask
+  runTask,
+  traverseAnalysisElements
 };

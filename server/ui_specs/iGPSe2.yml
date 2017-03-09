@@ -3,7 +3,7 @@
 name: Heatmaps and Subset Selection
 mainAction: process
 
-ui:
+elements:
   - name: Tabbed Interface
     type: tabGroup
     elements:

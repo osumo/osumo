@@ -51,7 +51,8 @@ const actionProcess = (data, page) => {
 
 const main = () => (
   D(actions.registerAnalysisAction('kmeans', 'process', actionProcess))
-    .then(() => analysisUtils.fetchAndProcessAnalysisPage(D, 'kmeans'))
+  .then(() => analysisUtils.fetchAnalysisPage('kmeans'))
+  .then((page) => D(actions.addAnalysisPage(page)))
 );
 
 export default main;

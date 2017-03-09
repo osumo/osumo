@@ -12,7 +12,7 @@ let priorData;
 
 const actionProcess = (data, page) => {
   const truncatePromise = D(actions.truncateAnalysisPages(2, {
-    clear: false,
+    clear: true,
     disable: true,
     remove: false
   }));
@@ -61,19 +61,25 @@ const main = (data) => {
   priorData = data;
   return (
     D(actions.registerAnalysisAction('igpse2', 'process', actionProcess))
-      .then(() => Promise.all([
-        D(actions.updateAnalysisElement(
-          data.mrnaMapElement, { fileId: data.mRNAFileId }
-        )),
-        D(actions.updateAnalysisElement(
-          data.mirnaMapElement, { fileId: data.miRNAFileId }
-        )),
-        D(actions.updateAnalysisElement(
-          data.pSetsElement, { inputData: data.clusterData }
+    .then(() => {
+      let promise = Promise.resolve();
+
+      data.page2Elements[0].elements[0].fileId = data.mRNAFileId;
+      data.page2Elements[0].elements[1].fileId = data.miRNAFileId;
+      data.page2Elements[1].inputData = data.clusterData;
+
+      data.page2Elements.forEach((e) => (
+        promise = promise.then(() => D(
+          actions.addAnalysisElement(e, data.page2)
         ))
-      ]))
-      .then(() => D(actions.enableAnalysisPage(data.page2)))
-      .then(() => D(actions.setCurrentAnalysisPage(data.page2)))
+      ));
+
+      return promise;
+    })
+
+    .then(() => D(actions.enableAnalysisPage(data.page2)))
+
+    .then(() => D(actions.setCurrentAnalysisPage(data.page2)))
   );
 };
 

@@ -3,7 +3,7 @@
 name: Survival Plot
 key: surv2
 
-ui:
+elements:
   - key: survPlot
     name: Survival Plot
     type: image

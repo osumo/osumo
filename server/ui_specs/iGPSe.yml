@@ -8,7 +8,7 @@ mainAction: process
 tags:
   - baseUI
 
-ui:
+elements:
   - key: mrna_input_path
     name: Gene Expression Profile
     description: mRNA data

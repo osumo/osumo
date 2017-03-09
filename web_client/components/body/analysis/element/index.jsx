@@ -37,6 +37,7 @@ class Element extends React.Component {
             .map((element) => (
               <Element
                 {...element}
+                elementKey={element.key}
                 mainAction={props.mainAction}
                 objects={objects}
                 states={states}
@@ -178,20 +179,6 @@ class Element extends React.Component {
     }
 
     return result;
-  }
-
-  static get propTypes () {
-    return {
-      description: React.PropTypes.string,
-      id: React.PropTypes.number,
-      name: React.PropTypes.string,
-      notes: React.PropTypes.string,
-      onAction: React.PropTypes.func,
-      onFileSelect: React.PropTypes.func,
-      onStateChange: React.PropTypes.func,
-      state: React.PropTypes.object,
-      type: React.PropTypes.string
-    };
   }
 }
 

@@ -7,17 +7,17 @@ import igpse2 from './igpse2';
 
 const D = store.dispatch.bind(store);
 
+let page1;
+
 let page2;
-let mrnaMapElement;
-let mirnaMapElement;
-let pSetsElement;
+let page2Elements;
 
 let page3;
-let survPlotElement;
+let page3Elements;
 
 const actionProcess = (data, page) => {
   const truncatePromise = D(actions.truncateAnalysisPages(1, {
-    clear: false,
+    clear: true,
     disable: true,
     remove: false
   }));
@@ -65,11 +65,9 @@ const actionProcess = (data, page) => {
             clusterData: response,
             outputDirId: state.output_dir,
             page2,
+            page2Elements,
             page3,
-            mrnaMapElement,
-            mirnaMapElement,
-            pSetsElement,
-            survPlotElement
+            page3Elements
           }))
       );
     })
@@ -84,39 +82,26 @@ const actionProcess = (data, page) => {
 
 const main = () => (
   D(actions.registerAnalysisAction('igpse', 'process', actionProcess))
-    .then(() => analysisUtils.fetchAndProcessAnalysisPage(D, 'igpse'))
-    .then(() => analysisUtils.fetchAndProcessAnalysisPage(
-      D, {
-        key: 'igpse2',
-        postprocess: (type, obj) => {
-          if (type === 'page') {
-            page2 = obj;
-          } else if (type === 'element') {
-            if (obj.key === 'mrnaMap') {
-              mrnaMapElement = obj;
-            } else if (obj.key === 'mirnaMap') {
-              mirnaMapElement = obj;
-            } else if (obj.key === 'pSets') {
-              pSetsElement = obj;
-            }
-          }
-        }
-      }
-    ))
-    .then((page) => D(actions.disableAnalysisPage(page)))
-    .then(() => analysisUtils.fetchAndProcessAnalysisPage(
-      D, {
-        key: 'igpse3',
-        postprocess: (type, obj) => {
-          if (type === 'page') {
-            page3 = obj;
-          } else if (type === 'element' && obj.key === 'survPlot') {
-            survPlotElement = obj;
-          }
-        }
-      }
-    ))
-    .then((page) => D(actions.disableAnalysisPage(page)))
+
+  .then(() => analysisUtils.fetchAnalysisPage('igpse'))
+  .then((page) => D(actions.addAnalysisPage({ ...page, enabled: false })))
+  .then((page) => (page1 = page))
+
+  .then(() => analysisUtils.fetchAnalysisPage('igpse2'))
+  .then(({ elements, ...page }) => {
+    page2Elements = elements || [];
+    return D(actions.addAnalysisPage({ ...page, enabled: false }));
+  })
+  .then((page) => (page2 = page))
+
+  .then(() => analysisUtils.fetchAnalysisPage('igpse3'))
+  .then(({ elements, ...page }) => {
+    page3Elements = elements || [];
+    return D(actions.addAnalysisPage({ ...page, enabled: false }));
+  })
+  .then((page) => (page3 = page))
+
+  .then(() => D(actions.enableAnalysisPage(page1)))
 );
 
 export default main;

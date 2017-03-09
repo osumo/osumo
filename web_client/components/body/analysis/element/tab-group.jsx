@@ -20,7 +20,7 @@ class TabGroup extends React.Component {
           className = 'active';
         }
 
-        let { name, key, id } = child.props;
+        let { name, elementKey: key, id } = child.props;
         name = name || key || `anon-${id}`;
 
         return (

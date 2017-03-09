@@ -8,12 +8,14 @@ import surv2 from './surv2';
 
 const D = store.dispatch.bind(store);
 
+let page1;
+
 let page2;
-let survPlotElement;
+let page2Elements;
 
 const actionProcess = (data, page) => {
   const truncatePromise = D(actions.truncateAnalysisPages(1, {
-    clear: false,
+    clear: true,
     disable: true,
     remove: false
   }));
@@ -59,20 +61,19 @@ const actionProcess = (data, page) => {
 
 const main = () => (
   D(actions.registerAnalysisAction('surv', 'process', actionProcess))
-    .then(() => analysisUtils.fetchAndProcessAnalysisPage(D, 'surv'))
-    .then(() => analysisUtils.fetchAndProcessAnalysisPage(
-      D, {
-        key: 'surv2',
-        postprocess: (type, obj) => {
-          if (type === 'page') {
-            page2 = obj;
-          } else if (type === 'element' && obj.key === 'survPlot') {
-            survPlotElement = obj;
-          }
-        }
-      }
-    ))
-    .then((page) => D(actions.disableAnalysisPage(page)))
+
+  .then(() => analysisUtils.fetchAnalysisPage('surv'))
+  .then((page) => D(actions.addAnalysisPage({ ...page, enabled: false })))
+  .then((page) => (page1 = page))
+
+  .then(() => analysisUtils.fetchAnalysisPage('surv2'))
+  .then(({ elements, ...page }) => {
+    page2Elements = elements || [];
+    return D(actions.addAnalysisPage({ ...page, enabled: false }));
+  })
+  .then((page) => (page2 = page))
+
+  .then(() => D(actions.enableAnalysisPage(page1)))
 );
 
 export default main;

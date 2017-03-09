@@ -9,7 +9,7 @@ mainAction: process
 tags:
   - baseUI
 
-ui:
+elements:
   - key: input_rdata
     name: "Input Data"
     description: "A set of rdata."

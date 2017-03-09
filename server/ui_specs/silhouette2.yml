@@ -3,7 +3,7 @@
 name: Silhouette Plots
 key: silhouette2
 
-ui:
+elements:
   - type: tabGroup
     elements:
       - key: plot1
