@@ -33,7 +33,7 @@ const actionProcess = (data, page) => {
     mirna_clusters: `INTEGER:${state.mirna_clusters}`
   };
   const outputs = {
-    clustersJSON: `FILE:${state.output_dir}:clusters.json`,
+    clustersJSON: 'JSON',
     transferData: `FILE:${state.output_dir}:transfer-data.RData`,
     output_mrna_heatmap: `FILE:${state.output_dir}:mrna_heatmap.png`,
     output_mirna_heatmap: `FILE:${state.output_dir}:mirna_heatmap.png`
@@ -44,33 +44,22 @@ const actionProcess = (data, page) => {
   const runPromise = (
     analysisUtils.runTask(task, { inputs, outputs }, { title, maxPolls })
 
-    .then((files) => {
-      let mRNAFileId;
-      let miRNAFileId;
-      let clustersId;
-      let transferDataId;
-
-      files.forEach(({ fileId: fid, name }) => {
-        if (name === 'mrna_heatmap.png') { mRNAFileId = fid; }
-        if (name === 'mirna_heatmap.png') { miRNAFileId = fid; }
-        if (name === 'clusters.json') { clustersId = fid; }
-        if (name === 'transfer-data.RData') { transferDataId = fid; }
-      });
-      return (
-        rest({ path: `file/${clustersId}/download` })
-          .then(({ response }) => ({
-            mRNAFileId,
-            miRNAFileId,
-            transferDataId,
-            clusterData: response,
-            outputDirId: state.output_dir,
-            page2,
-            page2Elements,
-            page3,
-            page3Elements
-          }))
-      );
-    })
+    .then(({
+      output_mrna_heatmap: { fileId: mRNAFileId },
+      output_mirna_heatmap: { fileId: miRNAFileId },
+      clustersJSON: { data: clusterData },
+      transferData: { fileId: transferDataId }
+    }) => ({
+      mRNAFileId,
+      miRNAFileId,
+      transferDataId,
+      clusterData,
+      outputDirId: state.output_dir,
+      page2,
+      page2Elements,
+      page3,
+      page3Elements
+    }))
   );
 
   return (

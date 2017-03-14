@@ -7,7 +7,7 @@ const D = store.dispatch.bind(store);
 const main = (data) => {
   let promise = Promise.resolve();
 
-  data.page2Elements[0].fileId = data.dataPlotId;
+  data.page2Elements[0].fileId = data.dataplotId;
 
   data.page2Elements.forEach((e) => (
     promise = promise.then(() => D(

@@ -111,3 +111,8 @@ clustersJSON <- toJSON(clusters)
 # job along with the user selections from the parallel sets.
 transferData = list("clusters"=list("cl1"=mRNACluster.cl, "cl2"=miRNACluster.cl, "combine"=clusters), "mRNACluster"=mRNACluster.cl, "miRNACluster"=miRNACluster.cl, "clinical"=clinical.m)
 transferData = rawToChar(serialize(transferData, NULL, ascii=TRUE))
+
+output_mrna_dim <- toJSON(output_mrna_dim)
+output_mirna_dim <- toJSON(output_mirna_dim)
+output_clinical_dim <- toJSON(output_clinical_dim)
+

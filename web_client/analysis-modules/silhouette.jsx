@@ -36,22 +36,15 @@ const actionProcess = (data, page) => {
   const runPromise = (
     analysisUtils.runTask(task, { inputs, outputs }, { title, maxPolls })
 
-    .then((files) => {
-      let dataplot1Id;
-      let dataplot2Id;
-
-      files.forEach(({ fileId: fid, name }) => {
-        if (name === 'dataplot1.png') { dataplot1Id = fid; }
-        if (name === 'dataplot2.png') { dataplot2Id = fid; }
-      });
-
-      return {
-        dataplot1Id,
-        dataplot2Id,
-        page2,
-        page2Elements
-      };
-    })
+    .then(({
+      dataplot1: { fileId: dataplot1Id },
+      dataplot2: { fileId: dataplot2Id }
+    }) => ({
+      dataplot1Id,
+      dataplot2Id,
+      page2,
+      page2Elements
+    }))
   );
 
   return (
