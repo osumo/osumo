@@ -66,4 +66,3 @@ class AnalysisTabBar extends React.Component {
 }
 
 export default AnalysisTabBar;
-
