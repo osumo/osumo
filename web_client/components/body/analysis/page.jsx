@@ -10,13 +10,14 @@ class Page extends React.Component {
     let {
       description,
       elements,
-      form,
       mainAction,
       name,
       notes,
+      objects,
       onAction,
       onFileSelect,
-      onStateChange
+      onStateChange,
+      states
     } = this.props;
 
     let descriptionText = (
@@ -60,41 +61,29 @@ class Page extends React.Component {
           <form className='function-control' onSubmit={onSubmit}>
             {
               elements
+                .map((id) => (objects[id] || {}))
                 .filter(({ type }) => type !== 'hidden')
-                .map((element) => {
-                  let key = (
-                    isUndefined(element.key) ? element.id : element.key);
-                  return (
-                    <Element
-                      {...element}
-                      mainAction={mainAction}
-                      onAction={onAction}
-                      onFileSelect={() => onFileSelect(element)}
-                      onStateChange={(state) => onStateChange(element, state)}
-                      state={form[key] || {}}
-                      key={element.id}
-                    />
-                  );
-                })
+                .map((element) => (
+                  <Element
+                    {...element}
+                    elementKey={element.key}
+                    mainAction={mainAction}
+                    objects={objects}
+                    states={states}
+                    onAction={onAction}
+                    onFileSelect={() => onFileSelect(element)}
+                    onStateChange={(state) => onStateChange(element, state)}
+                    onChildFileSelect={onFileSelect}
+                    onChildStateChange={onStateChange}
+                    state={states[element.id] || {}}
+                    key={element.id}
+                  />
+                ))
             }
           </form>
         </div>
       </div>
     );
-  }
-
-  static get propTypes () {
-    return {
-      description: React.PropTypes.string,
-      elements: React.PropTypes.arrayOf(React.PropTypes.object),
-      form: React.PropTypes.object,
-      mainAction: React.PropTypes.string,
-      name: React.PropTypes.string,
-      notes: React.PropTypes.string,
-      onAction: React.PropTypes.func,
-      onFileSelect: React.PropTypes.func,
-      onStateChange: React.PropTypes.func
-    };
   }
 }
 

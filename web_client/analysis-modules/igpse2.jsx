@@ -8,20 +8,26 @@ import igpse3 from './igpse3';
 
 const D = store.dispatch.bind(store);
 
-const actionProcess = (forms, page) => {
-  const truncatePromise = D(actions.truncateAnalysisPages(2));
+let priorData;
 
-  const form = analysisUtils.aggregateForm(forms, page);
+const actionProcess = (data, page) => {
+  const truncatePromise = D(actions.truncateAnalysisPages(2, {
+    clear: true,
+    disable: true,
+    remove: false
+  }));
+
+  const state = analysisUtils.aggregateStateData(data, page);
   const task = 'iGPSe2';
   const inputs = {
-    transferData: `FILE:${form.hidden.transferData}`,
+    transferData: `FILE:${priorData.transferDataId}`,
     groups: `STRING:${JSON.stringify({
-      GROUP1: form.pSets[0],
-      GROUP2: form.pSets[1]
+      GROUP1: state.pSets[0],
+      GROUP2: state.pSets[1]
     })}`
   };
   const outputs = {
-    dataplot: `FILE:${form.hidden.outputDir}:dataplot.png`
+    dataplot: `FILE:${priorData.outputDirId}:dataplot.png`
   };
 
   const title = 'iGPSe Part 2';
@@ -37,7 +43,10 @@ const actionProcess = (forms, page) => {
         if (name === 'dataplot.png') { dataPlotId = fid; }
       });
 
-      return dataPlotId;
+      return {
+        survPlotId: dataPlotId,
+        ...priorData
+      };
     })
   );
 
@@ -48,33 +57,30 @@ const actionProcess = (forms, page) => {
   );
 };
 
-const main = (data) => (
-  D(actions.registerAnalysisAction('igpse2', 'process', actionProcess))
-    .then(() => analysisUtils.fetchAndProcessAnalysisPage(
-      D, {
-        key: 'igpse2',
-        preprocess: (page) => {
-          page.ui[0].fileId = data.mRNAFileId;
-          page.ui[1].fileId = data.miRNAFileId;
-          page.ui[2].inputData = data.clusterData;
-        },
-        postprocess: (type, obj) => {
-          if (type === 'element') {
-            if (obj.key === 'hidden') {
-              return D(actions.updateAnalysisElementState(
-                obj, {
-                  value: {
-                    transferData: data.transferDataId,
-                    outputDir: data.outputDirId
-                  }
-                })
-              ).then(() => obj);
-            }
-          }
-        }
-      }
-    ))
-);
+const main = (data) => {
+  priorData = data;
+  return (
+    D(actions.registerAnalysisAction('igpse2', 'process', actionProcess))
+    .then(() => {
+      let promise = Promise.resolve();
+
+      data.page2Elements[0].elements[0].fileId = data.mRNAFileId;
+      data.page2Elements[0].elements[1].fileId = data.miRNAFileId;
+      data.page2Elements[1].inputData = data.clusterData;
+
+      data.page2Elements.forEach((e) => (
+        promise = promise.then(() => D(
+          actions.addAnalysisElement(e, data.page2)
+        ))
+      ));
+
+      return promise;
+    })
+
+    .then(() => D(actions.enableAnalysisPage(data.page2)))
+
+    .then(() => D(actions.setCurrentAnalysisPage(data.page2)))
+  );
+};
 
 export default main;
-

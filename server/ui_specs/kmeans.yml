@@ -12,7 +12,7 @@ mainAction: process
 tags:
   - baseUI
 
-ui:
+elements:
   - key: input_path
     name: Input Data
     description: "A list of points, all with the same number of dimensions."

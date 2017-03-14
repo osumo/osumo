@@ -1,22 +1,27 @@
 import React from 'react';
 
 import AnalysisPage from './page';
+import AnalysisTabBar from './tab-bar';
 import { NBSP } from '../../../constants';
 
 class Analysis extends React.Component {
   render () {
     let {
       baseAnalysisModules,
-      forms,
+      currentPage,
       onBaseAnalysis,
       onAction,
       onFileSelect,
+      onPageClick,
       onStateChange,
-      pages
+      objects,
+      pages,
+      states
     } = this.props;
 
+    objects = (objects || []);
     pages = (pages || []);
-    forms = (forms || {});
+    states = (states || {});
 
     const emptyAnalysisPageStyle = {
       textAlign: 'center',
@@ -32,16 +37,22 @@ class Analysis extends React.Component {
     );
 
     if (pages.length > 0) {
-      analysisPageContents = pages.map((page) => (
-        <AnalysisPage
-          {...page}
-          form={forms[page.key] || {}}
-          onAction={(action) => onAction(forms, page, action)}
-          onFileSelect={onFileSelect}
-          onStateChange={onStateChange}
-          key={page.id}
-        />
-      ));
+      analysisPageContents = (
+        pages
+          .filter((id) => (id.toString() === currentPage.toString()))
+          .map((id) => ({ ...(objects[id] || {}) }))
+          .map((page) => (
+            <AnalysisPage
+              {...page}
+              states={states}
+              objects={objects}
+              onAction={(action) => onAction({ objects, states }, page, action)}
+              onFileSelect={onFileSelect}
+              onStateChange={onStateChange}
+              key={page.id}
+            />
+          ))
+      );
     }
 
     return (
@@ -58,22 +69,17 @@ class Analysis extends React.Component {
             }
           </select>
         </div>
+        <AnalysisTabBar
+          currentPage={currentPage}
+          objects={objects}
+          onPageClick={onPageClick}
+          pages={pages}
+        />
         <div className='analysis-pages'>
           {analysisPageContents}
         </div>
       </div>
     );
-  }
-
-  static get propTypes () {
-    return {
-      baseAnalysisModules: React.PropTypes.arrayOf(React.PropTypes.object),
-      forms: React.PropTypes.object,
-      onAction: React.PropTypes.func,
-      onFileSelect: React.PropTypes.func,
-      onStateChange: React.PropTypes.func,
-      pages: React.PropTypes.arrayOf(React.PropTypes.object)
-    };
   }
 }
 

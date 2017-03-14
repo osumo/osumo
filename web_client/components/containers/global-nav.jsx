@@ -12,6 +12,13 @@ const GlobalNavContainer = connect(
     children: [
       <GlobalNavEntry
         icon='user'
+        name='Upload Data'
+        groupKey='upload'
+        key='upload'
+      />,
+
+      <GlobalNavEntry
+        icon='user'
         name='Analysis'
         groupKey='analysis'
         key='analysis'

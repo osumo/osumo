@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { isNil } from 'lodash';
 
 import Analysis from '../body/analysis';
 import actions from '../../actions';
@@ -7,22 +8,6 @@ import objectReduce from '../../utils/object-reduce';
 import { Promise } from '../../utils/promise';
 
 import baseAnalysisModules from '../../analysis-modules/base-listing';
-
-const assemblePages = (pages, objects, visitedSet = {}) => (
-  pages
-    .map((page) => {
-      if (!visitedSet[page]) {
-        visitedSet[page] = { ...objects[page] };
-        visitedSet[page].elements = assemblePages(
-          visitedSet[page].elements || [],
-          objects,
-          visitedSet
-        );
-      }
-
-      return visitedSet[page];
-    })
-);
 
 /* TODO(opadron): replace this with a proper route (folder/:id/rootpath) */
 const getFolderRootpath = (folder) => {
@@ -53,14 +38,16 @@ const modules = (
 );
 
 const AnalysisContainer = connect(
-  ({ analysis: { forms, objects, pages } }) => {
-    forms = forms || {};
+  ({ analysis: { currentPage, objects, pages, states } }) => {
     objects = objects || {};
     pages = pages || [];
+    states = states || {};
 
     return {
-      forms,
-      pages: assemblePages(pages, objects)
+      currentPage,
+      objects,
+      pages,
+      states
     };
   },
 
@@ -80,10 +67,11 @@ const AnalysisContainer = connect(
         let { _modelType: type } = item;
 
         let pathPromise;
-        let name, id;
+        let name, id, metaType;
 
         name = item.name;
         id = item._id;
+        metaType = ((item.meta || {}).sumoDataType || null);
 
         if (type === 'item') {
           pathPromise = (
@@ -120,7 +108,8 @@ const AnalysisContainer = connect(
                   value: id,
                   name,
                   path: `${path}`,
-                  type
+                  type,
+                  ...(metaType ? { metaType } : {})
                 }
               ))
             ))
@@ -131,16 +120,38 @@ const AnalysisContainer = connect(
 
       .then(() => {
         let { options } = element;
-        let { onlyNames } = (options || {});
+        let { onlyNames, onlyTypes } = (options || {});
 
         let filter = null;
-        let regex;
+        let onlyNameRegex, onlyTypeRegex;
 
-        if (onlyNames) {
-          regex = new RegExp(onlyNames);
-          filter = (item) => (
-            item._modelType !== 'item' || regex.test(item.name)
-          );
+        if (onlyNames || onlyTypes) {
+          if (onlyNames) {
+            onlyNameRegex = new RegExp(onlyNames);
+          }
+
+          if (onlyTypes) {
+            onlyTypeRegex = new RegExp(onlyTypes);
+          }
+
+          filter = (item) => {
+            let result = true;
+            if (item._modelType === 'item') {
+              if (onlyNames && !onlyNameRegex.test(item.name)) {
+                result = false;
+              } else if (
+                onlyTypes &&
+                (
+                  !item.meta ||
+                  !onlyTypeRegex.test(item.meta.sumoDataType)
+                )
+              ) {
+                result = false;
+              }
+            }
+
+            return result;
+          };
         }
 
         return dispatch(actions.setItemFilter(filter));
@@ -161,6 +172,8 @@ const AnalysisContainer = connect(
 
       .then(() => dispatch(actions.openFileSelectorDialog()))
     ),
+
+    onPageClick: (page) => dispatch(actions.setCurrentAnalysisPage(page)),
 
     onStateChange: (element, newState) => dispatch(
       actions.updateAnalysisElementState(element, newState)

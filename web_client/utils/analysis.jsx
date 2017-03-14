@@ -1,23 +1,85 @@
-import { isString, isUndefined } from 'lodash';
+import { isArray, isString, isUndefined } from 'lodash';
 
-import { rest } from '../globals';
+import { rest, store } from '../globals';
 import objectReduce from './object-reduce';
 import { Promise } from './promise';
 import actions from '../actions';
 
-export const aggregateForm = (forms, page) => (
-  (page.elements || [])
-    .map(({ key }) => key)
-    .filter((key) => !isUndefined(key))
-    .map((key) => [
-      key,
-      (
-        (
-          forms[page.key] || {}
-        )[key] || {}
-      ).value
-    ])
-    .reduce(objectReduce, {})
+const aggregateStateDataHelper = (data, obj, cache={}) => {
+  let { objects, states } = data;
+  objects = objects || {};
+  states = states || {};
+
+  /*
+   * cache entries are length-1-arrays.  This lets us
+   * box/unbox undefined and null values
+   */
+  if (!isArray(cache[obj.id])) {
+    let { elements } = obj;
+    elements = elements || [];
+
+    let state = states[obj.id];
+    state = state || {};
+    let { value } = state;
+
+    let result;
+    /*
+     * If this node is a leaf node, then get its "value" directly from its state
+     * hash
+     */
+    if (elements.length === 0) {
+      result = value;
+
+    /*
+     * Otherwise, this node has child nodes, then its "value" is a hash of its
+     * childrens' values.
+     */
+    } else {
+      result = {};
+
+      /*
+       * ...but if this node *also* has its own "value", set it under the
+       * "parent-value" key.  Something like "parent-value" is chosen because it
+       * is not a valid identifier, and should be less likely to clash with any
+       * child key.
+       */
+      if (!isUndefined(value)) {
+        result['parent-value'] = value;
+      }
+    }
+
+    /*
+     * save result object in cache *now*, even if its supposed to be a hash of
+     * its children and we haven't finished populating it, yet.  This is done so
+     * that it is available for recursive calls.  Because the values are passed
+     * by reference, this will work correctly even if there is a reference
+     * cycle.
+     */
+    /* box the cached entry */
+    cache[obj.id] = [result];
+
+    (
+      elements
+        .filter((id) => id in objects)
+        .map((id) => objects[id])
+        .forEach((e) => {
+          let { key } = e;
+          key = key || `anon-${e.id}`;
+
+          let value = aggregateStateDataHelper(data, e, cache);
+          if (!isUndefined(value)) {
+            result[key] = value;
+          }
+        })
+    );
+  }
+
+  /* unbox the cached entry */
+  return cache[obj.id][0];
+};
+
+export const aggregateStateData = (data, page) => (
+  aggregateStateDataHelper(data, page)
 );
 
 export const pollJob = (
@@ -89,73 +151,50 @@ export const runTask = (taskName, params, options = {}) => {
   );
 };
 
-const {
-  addAnalysisElement: addElem,
-  addAnalysisPage: addPage
-} = actions;
+export const traverseAnalysisElements = (obj, visitor) => {
+  let { analysis: { objects } } = store.getState();
+  let traversedMap = {};
 
-export const processAnalysisPage = (dispatch, params) => {
-  let { page: pageSpec, postprocess } = params;
-  let { ui, ...pageData } = pageSpec;
-  delete pageData.tags;
+  let done = false;
+  const doneCallback = () => (done = true);
+  let { id } = obj;
+  if (isUndefined(id)) { id = obj; }
+  obj = objects[id] || {};
 
-  let parent;
-  let promiseChain = dispatch(addPage(pageData));
-  if (postprocess) {
-    promiseChain = promiseChain.then((page) => {
-      postprocess('page', page);
-      return page;
-    });
-  }
+  const processBreadth = (idList) => {
+    if (done || idList.length === 0) { return; }
+    let newIdList = [];
+    return (
+      Promise.all(
+        idList
+          .filter((id) => (!traversedMap[id]))
+          .map((id) => {
+            let obj = objects[id] || {};
+            traversedMap[id] = true;
 
-  promiseChain = promiseChain.then((page) => { parent = page; });
+            let { elements: newElements } = obj;
+            newElements = newElements || [];
+            newIdList = newIdList.concat(newElements);
+            return visitor(obj, doneCallback);
+          })
+      )
 
-  ui.forEach((elem) => {
-    promiseChain = promiseChain.then(() => dispatch(addElem(elem, parent)));
+      .then(() => processBreadth(newIdList))
+    );
+  };
 
-    if (postprocess) {
-      promiseChain = promiseChain.then((elem) => {
-        postprocess('element', elem);
-        return elem;
-      });
-    }
-  });
-
-  return promiseChain;
+  return processBreadth(obj.elements || []);
 };
 
-export const fetchAndProcessAnalysisPage = (dispatch, params) => {
-  if (isString(params)) {
-    params = { key: params };
-  }
-
-  let {
-    key,
-    preprocess,
-    postprocess
-  } = params;
-
+export const fetchAnalysisPage = (key) => {
   const path = `osumo/ui/${key}`;
-
-  let promiseChain = rest({ path }).then(({ response }) => response);
-  if (!isUndefined(preprocess)) {
-    promiseChain = promiseChain.then((page) => {
-      preprocess(page);
-      return page;
-    });
-  }
-
-  promiseChain = promiseChain.then((page) => processAnalysisPage(dispatch, {
-    page, postprocess
-  }));
-
-  return promiseChain;
+  return rest({ path }).then(({ response }) => response);
 };
 
 export default {
-  aggregateForm,
-  fetchAndProcessAnalysisPage,
+  aggregateStateData,
+  fetchAnalysisPage,
   pollJob,
-  processAnalysisPage,
-  runTask
+  runTask,
+  traverseAnalysisElements
 };

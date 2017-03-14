@@ -8,19 +8,28 @@ import surv2 from './surv2';
 
 const D = store.dispatch.bind(store);
 
-const actionProcess = (forms, page) => {
-  const truncatePromise = D(actions.truncateAnalysisPages(1));
+let page1;
 
-  const form = analysisUtils.aggregateForm(forms, page);
+let page2;
+let page2Elements;
+
+const actionProcess = (data, page) => {
+  const truncatePromise = D(actions.truncateAnalysisPages(1, {
+    clear: true,
+    disable: true,
+    remove: false
+  }));
+
+  const state = analysisUtils.aggregateStateData(data, page);
   const task = 'surv';
   const inputs = {
-    input_rdata: `FILE:${form.input_rdata}`,
-    num_clusters: `INTEGER:${form.num_clusters}`
+    input_rdata: `FILE:${state.input_rdata}`,
+    num_clusters: `INTEGER:${state.num_clusters}`
   };
   const outputs = {
-    fit: `FILE:${form.output_dir}:fit.rdata`,
-    sdf: `FILE:${form.output_dir}:sdf.rdata`,
-    dataplot: `FILE:${form.output_dir}:survivor-plot.png`
+    fit: `FILE:${state.output_dir}:fit.rdata`,
+    sdf: `FILE:${state.output_dir}:sdf.rdata`,
+    dataplot: `FILE:${state.output_dir}:survivor-plot.png`
   };
   const title = 'survivor plot';
   const maxPolls = 40;
@@ -39,7 +48,7 @@ const actionProcess = (forms, page) => {
         if (name === 'survivor-plot.png') { dataplotId = fid; }
       });
 
-      return { fitId, sdfId, dataplotId };
+      return { fitId, sdfId, dataplotId, page2, survPlotElement };
     })
   );
 
@@ -52,7 +61,19 @@ const actionProcess = (forms, page) => {
 
 const main = () => (
   D(actions.registerAnalysisAction('surv', 'process', actionProcess))
-    .then(() => analysisUtils.fetchAndProcessAnalysisPage(D, 'surv'))
+
+  .then(() => analysisUtils.fetchAnalysisPage('surv'))
+  .then((page) => D(actions.addAnalysisPage({ ...page, enabled: false })))
+  .then((page) => (page1 = page))
+
+  .then(() => analysisUtils.fetchAnalysisPage('surv2'))
+  .then(({ elements, ...page }) => {
+    page2Elements = elements || [];
+    return D(actions.addAnalysisPage({ ...page, enabled: false }));
+  })
+  .then((page) => (page2 = page))
+
+  .then(() => D(actions.enableAnalysisPage(page1)))
 );
 
 export default main;

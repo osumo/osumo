@@ -1,6 +1,6 @@
 ---
 
-name: iGPSe
+name: Input Data
 key: igpse
 description: "Interactive Genomics Patient Stratification explorer"
 notes: "Show a survival plot based on clustering of different data sets."
@@ -8,7 +8,7 @@ mainAction: process
 tags:
   - baseUI
 
-ui:
+elements:
   - key: mrna_input_path
     name: Gene Expression Profile
     description: mRNA data
@@ -16,7 +16,7 @@ ui:
             row, and one data row per gene."
     type: fileSelection
     options:
-      onlyNames: "^mRNA.*csv$"
+      onlyTypes: "^mrna$"
 
   - key: mrna_clusters
     name: mRNA Number of Clusters (k)
@@ -34,7 +34,7 @@ ui:
             row, and one data row per micro RNA."
     type: fileSelection
     options:
-      onlyNames: "^miRNA.*csv$"
+      onlyTypes: "^mirna$"
 
   - key: mirna_clusters
     name: miRNA Number of Clusters (k)
@@ -52,7 +52,8 @@ ui:
             an indicator field."
     type: fileSelection
     options:
-      onlyNames: "^time.*csv$"
+      onlyTypes: "^cprofile$"
+
 
   - key: output_dir
     name: Output Location
