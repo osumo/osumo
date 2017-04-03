@@ -119,6 +119,12 @@ export const addUploadFileEntries = (entries) => promiseAction(
   }
 );
 
+export const loginAnonymousUser = () => promiseAction(
+  // TODO: abstract these out of the code entirely.
+  (dispatch, getState) => rest.login('anonuser', 'anonpassword')
+    .then(user => dispatch(setCurrentUser(user, user.token.token, true)))
+);
+
 export const clearLoginInfo = () => promiseAction(
   (dispatch, getState) => {
     dispatch({ type: ACTION_TYPES.CLEAR_LOGIN_INFO });
@@ -426,9 +432,9 @@ export const setCurrentAnalysisPage = (page, key) => promiseAction(
   }
 );
 
-export const setCurrentUser = (user, token) => promiseAction(
+export const setCurrentUser = (user, token, anonymous=false) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.SET_LOGIN_INFO, token, user });
+    dispatch({ type: ACTION_TYPES.SET_LOGIN_INFO, token, user, anonymous });
     return (
       dispatch(setFileNavigationRoot(user))
         .then(() => ({ ...getState().loginInfo.user }))
@@ -545,7 +551,7 @@ export const submitLoginForm = (form) => promiseAction(
 
 export const submitLogoutForm = () => promiseAction(
   (dispatch, getState) => (
-    rest.logout().then(() => dispatch(clearLoginInfo()))
+    rest.logout().then(() => dispatch(loginAnonymousUser()))
       .then(() => ({ ...getState().loginInfo }))
   )
 );
@@ -826,7 +832,7 @@ export const verifyCurrentUser = () => promiseAction(
               )
           )
 
-          : dispatch(clearLoginInfo())
+          : dispatch(loginAnonymousUser())
       ))
   )
 );
@@ -839,6 +845,7 @@ export default {
   closeDialog,
   disableAnalysisPage,
   enableAnalysisPage,
+  loginAnonymousUser,
   onItemSelect,
   openFileSelectorDialog,
   openLoginDialog,
