@@ -535,7 +535,8 @@ export const submitLoginForm = (form) => promiseAction(
     let result;
     return (
       rest
-        .login(login, password)
+        .logout()
+        .then(() => rest.login(login, password))
         .then((user) => dispatch(setCurrentUser(user, user.token.token)))
         .then((user) => (result = user))
         .then(() => dispatch(closeDialog()))
@@ -543,6 +544,7 @@ export const submitLoginForm = (form) => promiseAction(
         .catch(
           ({ responseJSON: { message } }) => (
             dispatch(setDialogError('login', message))
+              .then(() => dispatch(loginAnonymousUser()))
           )
         )
     );

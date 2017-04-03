@@ -6,6 +6,7 @@ class User extends React.Component {
     let result;
     let {
       currentUser,
+      anonymous,
       dropdownOpened,
       onDropdown,
       onFolders,
@@ -16,7 +17,7 @@ class User extends React.Component {
     } = this.props;
 
     /* TODO(opadron): this should be broken down into further components. */
-    if (currentUser) {
+    if (currentUser && !anonymous) {
       let id = currentUser._id;
 
       onFolders = partial(onFolders, id);
