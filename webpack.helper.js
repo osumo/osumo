@@ -1,7 +1,6 @@
 'use strict';
 
 module.exports = function (cfg, pluginBuildData) {
-  cfg.watch = true;
   cfg.watchOptions = {
     poll: 1000
   };
