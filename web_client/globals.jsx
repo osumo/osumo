@@ -20,7 +20,10 @@ export const IN_PRODUCTION = (
 export const store = (
   IN_PRODUCTION
   ? createStore(reducer, applyMiddleware(thunk))
-  : createStore(reducer, applyMiddleware(thunk, createLogger({ diff: true })))
+  : createStore(reducer, applyMiddleware(thunk, createLogger({
+    diff: true,
+    collapsed: () => true
+  })))
 );
 
 import Promise from 'bluebird';
