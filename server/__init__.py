@@ -9,7 +9,7 @@ import tempfile
 RE_ARG_SPEC = re.compile(r'''([^\(]+)(\((.+)\))?''')
 
 from bson.objectid import ObjectId
-from girder import events
+from girder import events, logprint
 from girder.api import access
 from girder.api.describe import Description, describeRoute
 from girder.api.rest import Resource, RestException, setCurrentUser
@@ -26,7 +26,7 @@ class Osumo(Resource):
     _cp_config = {'tools.staticdir.on': True,
                   'tools.staticdir.index': 'index.html'}
 
-    def __init__(self):
+    def __init__(self, anonuser, anonpassword):
         super(Osumo, self).__init__()
         self.resourceName = 'osumo'
         self.route('GET', ('task', ':key'), self.getTaskSpecByKey)
@@ -37,15 +37,15 @@ class Osumo(Resource):
         self.route('GET', ('ui',), self.getUISpecs)
         self.route('POST', ('anonlogin',), self.anonymousLogin)
 
+        self.anonuser = anonuser
+        self.anonpassword = anonpassword
+
     @describeRoute(
         Description('Log in using the "anonymous user".')
     )
     @access.public
     def anonymousLogin(self, params):
-        login = 'anonuser'
-        password = 'anonpassword'
-
-        user = self.model('user').authenticate(login, password)
+        user = self.model('user').authenticate(self.anonuser, self.anonpassword)
 
         setCurrentUser(user)
         token = self.sendAuthTokenCookie(user)
@@ -449,9 +449,17 @@ class Osumo(Resource):
 
 
 def load(info):
+    # Check environment variables for anonymous user/password; bail if not set.
+    anonuser = os.environ.get('OSUMO_ANON_USER')
+    anonpassword = os.environ.get('OSUMO_ANON_PASSWORD')
+
+    if not anonuser or not anonpassword:
+        logprint.error('Environment variables OSUMO_ANON_USER and OSUMO_ANON_PASSWORD must be set.')
+        raise RuntimeError
+
     Osumo._cp_config['tools.staticdir.dir'] = (
         os.path.join(info['pluginRootDir'], 'web_client'))
-    osumo = Osumo()
+    osumo = Osumo(anonuser, anonpassword)
     registerPluginWebroot(osumo, info['name'])
     info['apiRoot'].osumo = osumo
 
