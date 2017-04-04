@@ -12,7 +12,7 @@ from bson.objectid import ObjectId
 from girder import events
 from girder.api import access
 from girder.api.describe import Description, describeRoute
-from girder.api.rest import Resource, RestException
+from girder.api.rest import Resource, RestException, setCurrentUser
 from girder.constants import AccessType, TokenScope
 from girder.utility.model_importer import ModelImporter
 from girder.utility.plugin_utilities import registerPluginWebroot
@@ -35,6 +35,30 @@ class Osumo(Resource):
         self.route('GET', ('results', ':jobId'), self.getTaskResults)
         self.route('GET', ('ui', ':key'), self.getUISpecByKey)
         self.route('GET', ('ui',), self.getUISpecs)
+        self.route('POST', ('anonlogin',), self.anonymousLogin)
+
+    @describeRoute(
+        Description('Log in using the "anonymous user".')
+    )
+    @access.public
+    def anonymousLogin(self, params):
+        login = 'anonuser'
+        password = 'anonpassword'
+
+        user = self.model('user').authenticate(login, password)
+
+        setCurrentUser(user)
+        token = self.sendAuthTokenCookie(user)
+
+        return {
+            'user': self.model('user').filter(user, user),
+            'authToken': {
+                'token': token['_id'],
+                'expires': token['expires'],
+                'scope': token['scope']
+            },
+            'message': 'Anonymous login succeeded.'
+        }
 
     @describeRoute(
         Description('Return job status and list of output files.')

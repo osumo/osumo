@@ -17,6 +17,11 @@ restRequests.login = (...args) => {
   return new Promise((resolve, reject) => login(...args).then(resolve, reject));
 };
 
+restRequests.anonLogin = () => restRequests({
+  path: 'osumo/anonlogin',
+  method: 'POST'
+});
+
 restRequests.logout = (...args) => {
   return new Promise((resolve, reject) => logout(...args).then(resolve, reject));
 };

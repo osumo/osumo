@@ -121,7 +121,7 @@ export const addUploadFileEntries = (entries) => promiseAction(
 
 export const loginAnonymousUser = () => promiseAction(
   // TODO: abstract these out of the code entirely.
-  (dispatch, getState) => rest.login('anonuser', 'anonpassword')
+  (dispatch, getState) => rest.anonLogin()
     .then(user => dispatch(setCurrentUser(user, user.token.token, true)))
 );
 
