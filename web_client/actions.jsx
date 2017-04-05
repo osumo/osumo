@@ -828,9 +828,9 @@ export const verifyCurrentUser = () => promiseAction(
     rest({ path: 'token/current' })
       .then(({ response: currentToken }) => (
         currentToken
-          ? rest({ path: 'user/me' }).then(
+          ? rest({ path: 'osumo/user/me' }).then(
               ({ response: user }) => (
-                dispatch(setCurrentUser(user, currentToken._id))
+                dispatch(setCurrentUser(user, currentToken._id, user.anonymous))
               )
           )
 
