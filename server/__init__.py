@@ -454,7 +454,17 @@ def load(info):
     anonpassword = os.environ.get('OSUMO_ANON_PASSWORD')
 
     if not anonuser or not anonpassword:
-        logprint.error('Environment variables OSUMO_ANON_USER and OSUMO_ANON_PASSWORD must be set.')
+        try:
+            with open(os.path.join(info['pluginRootDir'], 'osumo_loginpass.txt')) as f:
+                parts = map(lambda x: x.strip(), f.read().split(' ', 1))
+                anonuser = parts[0]
+                if len(parts) > 1:
+                    anonpassword = parts[1]
+        except IOError:
+            pass
+
+    if not anonuser or not anonpassword:
+        logprint.error('Environment variables OSUMO_ANON_USER and OSUMO_ANON_PASSWORD must be set, or a file osumo_loginpass.txt must exist.')
         raise RuntimeError
 
     Osumo._cp_config['tools.staticdir.dir'] = (
