@@ -1,0 +1,44 @@
+---
+
+name: Feature Match
+description: Fuzzy String Feature Matching
+
+elements:
+  - key: input1
+    name: Input File 1
+    type: fileSelection
+
+  - key: input2
+    name: Input File 2
+    type: fileSelection
+
+  - name: Tabbed Interface
+    type: tabGroup
+    key: tabs
+    elements:
+
+      - name: Compute Feature Match
+        type: group
+        key: computeTab
+        elements:
+
+        - key: matches
+          name: Matches Specification
+          type: field
+
+        - type: button
+          name: Compute
+          action: computeMatch
+
+      - name: Apply Feature Match
+        type: group
+        key: applyTab
+        elements:
+
+        - key: featureMatch
+          name: Feature Match
+          type: fileSelection
+
+        - type: button
+          name: Apply
+          action: applyMatch
