@@ -11,8 +11,10 @@ import ItemModel from 'girder/models/ItemModel';
 
 const uploadAndTag = (handle, metaType, bytesHandler, dispatch) => {
   return (
-    dispatch(actions.uploadFile(
-      handle, {
+    dispatch(actions.ensurePrivateDirectory())
+    .then((parent) => dispatch(actions.uploadFile(
+      handle,
+      {
         callbacks: {
           onChunk: (info) => {
             let { bytes } = info;
@@ -26,7 +28,7 @@ const uploadAndTag = (handle, metaType, bytesHandler, dispatch) => {
         ]
       },
       parent
-    ))
+    )))
 
     .then(({ item }) => item)
   );
@@ -106,6 +108,11 @@ const UploadContainer = connect(
             actions.updateUploadProgress(currentWork, totalWork)
           );
         })
+
+        .then(() => Promise.all([
+          dispatch(actions.ensurePrivateDirectory()),
+          dispatch(actions.ensureScratchDirectory())
+        ]))
 
         .then(() => (
           Promise.all(

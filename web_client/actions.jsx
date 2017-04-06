@@ -223,6 +223,101 @@ export const enableAnalysisPage = (page) => promiseAction(
   }
 );
 
+export const ensurePrivateDirectory = (() => {
+  let singleton;
+
+  return (args) => {
+    if (!singleton) {
+      singleton = ensureUserDirectory({
+        name: 'Private',
+        description: 'Private Directory',
+        ...args
+      });
+    }
+
+    return singleton;
+  };
+})();
+
+export const ensureScratchDirectory = (() => {
+  let singleton;
+
+  return (args) => {
+    if (!singleton) {
+      singleton = ensureUserDirectory({
+        name: '__osumo_tmp',
+        description: 'Temporary Staging Space',
+        ...args
+      });
+    }
+
+    return singleton;
+  };
+})();
+
+export const ensureUserDirectory = (args) => {
+  let {
+    description,
+    name,
+    returnModel,
+    user
+  } = args;
+
+  return promiseAction(
+    (dispatch, getState) => {
+      if (isNil(returnModel)) {
+        returnModel = true;
+      }
+
+      if (isNil(user)) {
+        ({ user } = getState().loginInfo);
+      }
+
+      if (isNil(user)) {
+        throw Error('User must be logged in');
+      }
+
+      let result = rest({
+        path: 'folder',
+        data: {
+          parentType: 'user',
+          parentId: user._id,
+          limit: 1,
+          name: name,
+          offset: 0,
+          sort: 'lowerName',
+          sortdir: 1
+        }
+      }).then(({ response: folderList }) => (
+        folderList.length === 0
+
+          ? rest({
+            path: [
+              'folder?',
+
+              [
+                'parentType=user',
+                `parentId=${user._id}`,
+                `name=${name}`,
+                `description=${description || ''}`
+              ].join('&')
+
+            ].join(''),
+            type: 'POST'
+          }).then(({ response }) => response)
+
+          : folderList[0]
+      ));
+
+      if (returnModel) {
+        result = result.then(getModelFromResource);
+      }
+
+      return result;
+    }
+  );
+};
+
 export const onItemSelect = (...args) => promiseAction(
   () => {
     if (globals.itemSelectedCallback) {
@@ -974,6 +1069,9 @@ export default {
   closeDialog,
   disableAnalysisPage,
   enableAnalysisPage,
+  ensurePrivateDirectory,
+  ensureScratchDirectory,
+  ensureUserDirectory,
   loginAnonymousUser,
   onItemSelect,
   openFileSelectorDialog,
