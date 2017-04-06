@@ -72,18 +72,43 @@ const promiseAction = (callback) => (dispatch, getState) => new Promise(
   }
 );
 
-export const addAnalysisElement = (element, parent) => promiseAction(
-  (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.ADD_ANALYSIS_ELEMENT, element, parent });
+export const addAnalysisElement = (element, parent, _noStrip=false) => (
+  promiseAction(
+    (dispatch, getState) => {
+      let elements;
 
-    let { id } = element;
-    if (isUndefined(id)) {
-      let { analysis } = getState();
-      element = analysis.objects[analysis.idAllocator.id];
+      if (!_noStrip) {
+        ({ elements } = element);
+        elements = elements || [];
+
+        if (elements.length) {
+          let unused;
+          ({ elements: unused, ...element } = element);
+        } else {
+          _noStrip = true;
+        }
+      }
+
+      dispatch({ type: ACTION_TYPES.ADD_ANALYSIS_ELEMENT, element, parent });
+
+      let { id } = element;
+      if (isUndefined(id)) {
+        let { analysis } = getState();
+        element = analysis.objects[analysis.idAllocator.id];
+      }
+
+      return (
+        _noStrip
+
+          ? { ...element }
+
+          : Promise.mapSeries(
+              elements,
+              (e) => dispatch(addAnalysisElement(e, element, true))
+            ).then(() => ({ ...element }))
+      );
     }
-
-    return { ...element };
-  }
+  )
 );
 
 export const addAnalysisPage = (page) => promiseAction(
