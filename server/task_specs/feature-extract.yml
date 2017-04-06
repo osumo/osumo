@@ -1,0 +1,23 @@
+---
+
+name: feature-extract
+mode: python
+
+script: "@include(feature-extract.py)"
+
+inputs:
+  - name: input_path_1
+    type: string
+    target: filepath
+    format: text
+
+  - name: input_path_2
+    type: string
+    target: filepath
+    format: text
+
+outputs:
+  - name: extract_result
+    target: memory
+    type: string
+    format: text
