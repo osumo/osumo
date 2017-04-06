@@ -3,6 +3,11 @@
 name: Feature Selection
 
 elements:
+  - key: selectedFeatures
+    name: Feature Selection
+    type: featureSelection
+    action: featureUpdate
+
   - key: mrnaClusters
     name: mRNA Number of Clusters (k)
     description: The number (k) of clusters used in calculations

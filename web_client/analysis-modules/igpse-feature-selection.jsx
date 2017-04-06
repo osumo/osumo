@@ -1,6 +1,6 @@
 import actions from '../actions';
 import analysisUtils from '../utils/analysis';
-import { Promise } from '../utils/promise';
+import { Promise, delayedSemaphore } from '../utils/promise';
 import { store } from '../globals';
 import igpseSubsetSelection from './igpse-subset-selection';
 
@@ -71,14 +71,76 @@ const actionProcess = (data, page) => {
 
 };
 
+const SUGGESTION_DELAY_MILLISECONDS = 100;
+const MAX_SUGGESTIONS = 10;
+let delayCallback;
+const updateSuggestions = (value) => {
+  if (delayCallback) {
+    delayCallback(value);
+  } else {
+    (
+      delayedSemaphore(
+        (cb) => {
+          delayCallback = cb;
+          cb(value);
+        },
+        SUGGESTION_DELAY_MILLISECONDS
+      )
+
+      .then((value) => {
+        if (value.length < 2) {
+          return [];
+        }
+
+        let v = value.toLowerCase();
+        let suggestions = new Array(MAX_SUGGESTIONS);
+        let i, j;
+        for (i=0, j=0; i<payload.extract_result.length; ++i) {
+          let result = payload.extract_result[i];
+          let testValue = (
+            [result.id, result.description]
+            .join(' ')
+            .toLowerCase()
+          );
+
+          if (testValue.indexOf(v) >= 0) {
+            suggestions[j++] = result;
+            if (j>=MAX_SUGGESTIONS) {
+              break;
+            }
+          }
+        }
+        return suggestions;
+      })
+
+      .then((candidates) => (
+        D(actions.updateAnalysisElementState(
+          payload.elements.featureSelection[0],
+          { candidates }
+        ))
+      ))
+
+      .then(() => (delayCallback = null))
+    );
+  }
+};
+
+const actionFeatureUpdate = (data, page, action, value) => {
+  updateSuggestions(value);
+};
+
 const main = (data) => (
   Promise.resolve(payload = data)
 
-  .then(() => (
+  .then(() => Promise.all([
     D(actions.registerAnalysisAction(
       payload.pages.featureSelection, 'process', actionProcess
+    )),
+
+    D(actions.registerAnalysisAction(
+      payload.pages.featureSelection, 'featureUpdate', actionFeatureUpdate
     ))
-  ))
+  ]))
 
   .then(() => Promise.mapSeries(
     payload.elementObjects.featureSelection,
@@ -86,6 +148,8 @@ const main = (data) => (
       D(actions.addAnalysisElement(element, payload.pages.featureSelection))
     )
   ))
+
+  .then((elements) => (payload.elements.featureSelection = elements))
 
   .then(() => D(actions.enableAnalysisPage(payload.pages.featureSelection)))
 
