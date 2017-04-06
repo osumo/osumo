@@ -1,4 +1,4 @@
-import igpse from './igpse';
+import igpse from './igpse-main';
 import kmeans from './kmeans';
 import silhouette from './silhouette';
 import surv from './surv';

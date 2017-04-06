@@ -1,0 +1,41 @@
+---
+
+name: Input Data
+description: "Interactive Genomics Patient Stratification explorer"
+notes: "Show a survival plot based on clustering of different data sets."
+mainAction: process
+
+elements:
+  - key: mrnaInputId
+    name: Gene Expression Profile
+    description: mRNA data
+    notes: "This must be a CSV file with one column per subject, one header \
+            row, and one data row per gene."
+    type: fileSelection
+    options:
+      onlyFileTypes: dataBlock
+      onlyDataTypes: "^mrna$"
+
+  - key: mirnaInputId
+    name: MicroRNA Expression Profile
+    description: miRNA data
+    notes: "This must be a CSV file with one column per subject, one header \
+            row, and one data row per micro RNA."
+    type: fileSelection
+    options:
+      onlyFileTypes: dataBlock
+      onlyDataTypes: "^mirna$"
+
+  - key: clinicalInputId
+    name: Clinical Profile
+    notes: "This must be a CSV file with a header row and one row per subject, \
+            and columns containing the row description, survival duration, and \
+            an indicator field."
+    type: fileSelection
+    options:
+      onlyFileTypes: dataBlock
+      onlyDataTypes: "^cprofile$"
+
+  - type: button
+    name: Next
+    action: process
