@@ -337,6 +337,10 @@ export const registerAnalysisAction = (
   callback
 ) => promiseAction(
   () => {
+    if (!isString(pageKey) && pageKey && isString(pageKey.key)) {
+      pageKey = pageKey.key;
+    }
+
     globals.analysisActionTable[pageKey] = (
       globals.analysisActionTable[pageKey] || {});
 
