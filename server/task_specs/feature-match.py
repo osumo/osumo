@@ -283,10 +283,14 @@ dialect2 = None
 if matches:
     with open(input_path_1, 'rU') as input1:
         dialect1 = csv.Sniffer().sniff(
-            read_until(input1, '\n', SNIFFER_NUM_LINES), delimiters=',;\t\n|')
+            read_until(input1, '\n', SNIFFER_NUM_LINES),
+            delimiters=SNIFFER_DELIMITERS
+        )
     with open(input_path_2, 'rU') as input2:
         dialect2 = csv.Sniffer().sniff(
-            read_until(input2, '\n', SNIFFER_NUM_LINES), delimiters=',;\t\n|')
+            read_until(input2, '\n', SNIFFER_NUM_LINES),
+            delimiters=SNIFFER_DELIMITERS
+        )
 
 match_result = {}
 for mode in matches:
