@@ -112,7 +112,8 @@ export const pollJob = (
         ++pollCounter;
       }
 
-      return pollJob(jobId, title, taskName, pollCounter, pollInterval);
+      return pollJob(
+        jobId, title, taskName, pollInterval, pollCounter, maxPolls);
     })
 );
 
