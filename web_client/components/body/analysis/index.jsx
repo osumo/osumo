@@ -46,7 +46,11 @@ class Analysis extends React.Component {
               {...page}
               states={states}
               objects={objects}
-              onAction={(action) => onAction({ objects, states }, page, action)}
+              onAction={
+                (action, ...extraArgs) => (
+                  onAction(objects, states, page, action, ...extraArgs)
+                )
+              }
               onFileSelect={onFileSelect}
               onStateChange={onStateChange}
               key={page.id}

@@ -60,7 +60,15 @@ const AnalysisContainer = connect(
         .then((mod) => (mod ? mod() : null))
     ),
 
-    onAction: (...args) => dispatch(actions.triggerAnalysisAction(...args)),
+    onAction: (objects, states, page, action, ...extraArgs) => (
+      dispatch(actions.triggerAnalysisAction({
+        action,
+        extraArgs,
+        objects,
+        page,
+        states
+      }))
+    ),
 
     onFileSelect: (element) => (
       dispatch(actions.setItemSelectedCallback((item) => {

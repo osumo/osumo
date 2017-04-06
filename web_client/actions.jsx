@@ -127,12 +127,13 @@ export const addAnalysisPage = (page) => promiseAction(
       page = objects[lastPageId];
 
       if (pages.length === 1) {
-        promise = dispatch(triggerAnalysisAction(
-          { objects, states },
+        promise = dispatch(triggerAnalysisAction({
+          action: 'tabEnter',
+          nothrow: true,
+          objects,
           page,
-          'tabEnter',
-          { nothrow: true }
-        )).then(
+          states
+        })).then(
           () => ({ ...page })
         );
       }
@@ -442,15 +443,13 @@ export const setCurrentAnalysisPage = (page, key) => promiseAction(
     let { analysis: oldAnalysis } = getState();
     if (!isNil(oldAnalysis.currentPage)) {
       promise = promise.then(
-        () => dispatch(triggerAnalysisAction(
-          {
-            states: oldAnalysis.states || {},
-            objects: oldAnalysis.objects
-          },
-          oldAnalysis.objects[oldAnalysis.currentPage],
-          'tabExit',
-          { nothrow: true }
-        ))
+        () => dispatch(triggerAnalysisAction({
+          action: 'tabExit',
+          nothrow: true,
+          objects: oldAnalysis.objects,
+          page: oldAnalysis.objects[oldAnalysis.currentPage],
+          states: oldAnalysis.states || {}
+        }))
       );
     }
 
@@ -459,9 +458,13 @@ export const setCurrentAnalysisPage = (page, key) => promiseAction(
     })).then(() => {
       let { analysis: { currentPage, states, objects } } = getState();
       let cPage = objects[currentPage];
-      return dispatch(triggerAnalysisAction(
-        { states, objects }, cPage, 'tabEnter', { nothrow: true }
-      )).then(() => cPage);
+      return dispatch(triggerAnalysisAction({
+        action: 'tabEnter',
+        nothrow: true,
+        objects,
+        page: cPage,
+        states
+      })).then(() => cPage);
     });
   }
 );
@@ -671,14 +674,51 @@ export const toggleHeaderDropdown = () => promiseAction(
   }
 );
 
-export const triggerAnalysisAction = (data, page, action, options={}) => {
-  let { nothrow, extraArgs: args } = options;
-
-  nothrow = nothrow || false;
-  args = args || [];
-
+export const triggerAnalysisAction = (args) => {
   return promiseAction(
     (dispatch, getState) => {
+      // (data, page=null, action=null, options={}) => {
+      let {
+        action,
+        extraArgs,
+        nothrow,
+        objects,
+        page,
+        states
+      } = args;
+
+      if (page && page.key) {
+        page = page.key;
+      }
+
+      /* fetch from state */
+      if (isNil(objects) || isNil(states) || isString(page)) {
+        let { analysis } = getState();
+
+        if (isNil(objects)) {
+          ({ objects } = analysis);
+        }
+
+        if (isNil(states)) {
+          ({ states } = analysis);
+        }
+
+        if (isString(page)) {
+          /* grab the first page whose key matches the given string */
+          analysis.pages.some((index) => {
+            let candidate = objects[index];
+            let result = (candidate.key === page);
+            if (result) {
+              page = candidate;
+            }
+            return result;
+          });
+        }
+      }
+
+      nothrow = nothrow || false;
+      extraArgs = extraArgs || [];
+
       let callback = globals.analysisActionTable[page.key];
       if (callback) { callback = callback[action]; }
       if (!callback) {
@@ -695,10 +735,10 @@ export const triggerAnalysisAction = (data, page, action, options={}) => {
           getState,
         }, /* this */
         [
-          data,
+          { objects, states },
           page,
           action,
-          ...args
+          ...extraArgs
         ] /* args */
       );
     }
