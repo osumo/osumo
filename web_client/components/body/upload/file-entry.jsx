@@ -23,7 +23,6 @@ class FileEntry extends React.Component {
     type = type || '';
 
     let buttonClasses = 'g-upload-entry-button btn btn-xs btn-danger';
-    let onButtonClick = onRemove;
     let tagDisplayClasses = 'g-upload-entry-tag hidden';
     let tagSelectClasses = 'g-upload-entry-tag';
     let uploadProgressClasses = 'progress progress-striped hidden';
@@ -31,7 +30,6 @@ class FileEntry extends React.Component {
 
     if (mode === modes.UPLOADING) {
       buttonClasses = 'g-upload-entry-button btn btn-xs btn-danger disabled';
-      onButtonClick = null;
       tagDisplayClasses = 'g-upload-entry-tag';
       tagSelectClasses = 'g-upload-entry-tag hidden';
       uploadProgressClasses = 'progress progress-striped';
@@ -56,7 +54,16 @@ class FileEntry extends React.Component {
 
     return (
       <li className='g-upload-entry'>
-        <button className={buttonClasses} onClick={onButtonClick}>
+        <button
+          className={buttonClasses}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (mode !== modes.UPLOADING) {
+              onRemove(e);
+            }
+          }}
+        >
           <i className='icon-minus' />
         </button>
         <h4 className='g-upload-entry-name'>{name}</h4>
