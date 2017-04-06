@@ -1,6 +1,7 @@
 import React from 'react';
 import modes from './mode-constants';
 import { elements as dataVarietyElements } from './data-variety-table';
+import { TIMES } from '../../../constants';
 
 class FileEntry extends React.Component {
   render () {
@@ -64,7 +65,7 @@ class FileEntry extends React.Component {
             }
           }}
         >
-          <i className='icon-minus' />
+          {TIMES}
         </button>
         <h4 className='g-upload-entry-name'>{name}</h4>
         <h4 className='g-upload-entry-type'>{type}</h4>
