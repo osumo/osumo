@@ -72,57 +72,9 @@ const AnalysisContainer = connect(
 
     onFileSelect: (element) => (
       dispatch(actions.setItemSelectedCallback((item) => {
-        let { _modelType: type } = item;
-
-        let pathPromise;
-        let name, id, metaType;
-
-        name = item.name;
-        id = item._id;
-        metaType = ((item.meta || {}).sumoDataType || null);
-
-        if (type === 'item') {
-          pathPromise = (
-            rest({ path: `item/${id}/rootpath` })
-              .then(({ response }) => [
-                ...response,
-                { type: 'item', object: { name } }
-              ])
-          );
-        } else if (type === 'folder') {
-          pathPromise = getFolderRootpath(item);
-        } else {
-          if (type === 'user') {
-            name = item.login;
-          }
-          pathPromise = Promise.resolve([
-            { type, object: { name: item.name, login: item.login } }
-          ]);
-        }
-
-        return (
-          pathPromise
-            .map(({ type, object: { name, login } }) => (
-              type === 'user' ? `/users/${login}`
-              : type === 'collection' ? `/collections/${name}`
-              : `/${name}`
-            ))
-
-            .reduce((a, b) => a + b, '')
-
-            .then((path) => (
-              dispatch(actions.updateAnalysisElementState(
-                element, {
-                  value: id,
-                  name,
-                  path: `${path}`,
-                  type,
-                  ...(metaType ? { metaType } : {})
-                }
-              ))
-            ))
-
-            .then(() => dispatch(actions.closeDialog()))
+        (
+          dispatch(actions.populateFileSelectionElement(element, item))
+          .then(() => dispatch(actions.closeDialog()))
         );
       }))
 

@@ -362,6 +362,44 @@ export const openRegisterDialog = (byRouter = false) => promiseAction(
   }
 );
 
+export const populateFileSelectionElement = (element, item) => promiseAction(
+  (dispatch, getState) => {
+
+    if (isString(item)) {
+      return (
+        getResourceFromId(item, 'item')
+        .then((item) => dispatch(populateFileSelectionElement(element, item)))
+      );
+    }
+
+    let { _modelType: type } = item;
+    let name, id, metaType;
+
+    name = item.name;
+    id = item._id;
+    metaType = ((item.meta || {}).sumoDataType || null);
+
+    return (
+      rest({
+        path: `resource/${id}/path`,
+        data: { type }
+      })
+
+      .then(({ response: path }) => (
+        dispatch(updateAnalysisElementState(
+          element, {
+            value: id,
+            name,
+            path,
+            type,
+            ...(metaType ? { metaType } : {})
+          }
+        ))
+      ))
+    );
+  }
+);
+
 export const registerAnalysisAction = (
   pageKey,
   actionName,
@@ -942,6 +980,7 @@ export default {
   openLoginDialog,
   openResetPasswordDialog,
   openRegisterDialog,
+  populateFileSelectionElement,
   setCurrentAnalysisPage,
   registerAnalysisAction,
   removeAnalysisElement,
