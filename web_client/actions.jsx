@@ -5,6 +5,7 @@ import { Promise } from './utils/promise';
 import ACTION_TYPES from './reducer/action-types';
 
 import FileModel from 'girder/models/FileModel';
+import ItemModel from 'girder/models/ItemModel';
 import UserModel from 'girder/models/UserModel';
 import CollectionModel from 'girder/models/CollectionModel';
 import FolderModel from 'girder/models/FolderModel';
@@ -790,34 +791,20 @@ export const updateUploadStatusText = (text) => promiseAction(
 export const uploadFile = (file, params=null, parent=null) => promiseAction(
   (dispatch, getState) => {
     params = params || {};
-    let { callbacks, ...restParams } = params;
+    let { callbacks, metaData, ...restParams } = params;
     callbacks = callbacks || {};
 
     if (isNil(parent)) {
-      let currentUser = getState().loginInfo.user;
-      return rest({
-        path: 'folder',
-        data: {
-          parentType: 'user',
-          parentId: currentUser._id,
-          limit: 1,
-          offset: 0,
-          sort: 'lowerName',
-          sordir: 1
-        }
-      }).then(({ response: parentList }) => getModelFromResource(
-        parentList.length > 0
-          ? parentList[0]
-          : currentUser
-      )).then(
-        (parentModel) => dispatch(uploadFile(file, params, parentModel))
+      return (
+        dispatch(ensureScratchDirectory())
+        .then((parentModel) => dispatch(uploadFile(file, params, parentModel)))
       );
     }
 
     if (isString(parent)) {
       return (
         getModelFromId(parent)
-          .then((p) => dispatch(uploadFile(file, params, p)))
+          .then((parent) => dispatch(uploadFile(file, params, parent)))
       );
     }
 
@@ -857,6 +844,30 @@ export const uploadFile = (file, params=null, parent=null) => promiseAction(
       } else {
         fileModel.upload(parent, file, null, restParams);
       }
+    }).then((payload) => {
+      let itemModel;
+      return new Promise((resolve, reject) => {
+        let { file } = payload;
+        itemModel = new ItemModel({ _id: file.attributes.itemId });
+        let req = itemModel.fetch();
+        req.done(() => { resolve(itemModel); });
+        req.error(() => { reject(new Error()); });
+      })
+
+      .then((item) => (
+        Promise.mapSeries(metaData || [], ([k, v]) => (
+          new Promise((resolve, reject) => {
+            item.addMetadata(
+              k,
+              v,
+              () => resolve(item),
+              ({ message }) => reject(new Error(message))
+            )
+          })
+        )
+      )))
+
+      .then(() => ({ item: itemModel, ...payload }))
     });
   }
 );

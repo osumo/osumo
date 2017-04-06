@@ -18,29 +18,17 @@ const uploadAndTag = (handle, metaType, bytesHandler, dispatch) => {
             let { bytes } = info;
             bytesHandler(bytes);
           }
-        }
-      }
+        },
+
+        metaData: [
+          ['sumoFileType', 'dataBlock'],
+          ['sumoDataType', metaType]
+        ]
+      },
+      parent
     ))
 
-    .then(({ file }) => new Promise((resolve, reject) => {
-      let mod = new ItemModel({ _id: file.attributes.itemId })
-      let req = mod.fetch();
-      req.done(() => { resolve(mod); });
-      req.error(() => { reject(new Error()); });
-    }))
-
-    .then((item) => new Promise((resolve, reject) => {
-      if (metaType) {
-        item.addMetadata(
-          'sumoDataType',
-          metaType,
-          () => resolve(item),
-          () => reject(new Error())
-        );
-      } else {
-        resolve(item);
-      }
-    }))
+    .then(({ item }) => item)
   );
 };
 
@@ -104,6 +92,7 @@ const UploadContainer = connect(
 
       (
         dispatch(actions.setUploadModeToUploading())
+
         .then(() => {
           totalWork = (
             fileEntries
