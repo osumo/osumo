@@ -117,7 +117,115 @@ const computeMatch = (data, page) => {
   );
 };
 
-const applyMatch = (data, page) => { /* TODO(opadron): */ };
+const applyMatch = (data, page) => {
+  const truncatePromise = Promise.all([
+    D(actions.truncateAnalysisPages(1, {
+      clear: true,
+      disable: true,
+      remove: false
+    })),
+
+    (
+      applyResultElements
+        ? D(actions.removeAnalysisElement(applyResultElements))
+        : null
+    )
+  ]);
+
+  const state = analysisUtils.aggregateStateData(data, page);
+
+  const metaDataPromise = Promise.all(
+    [state.input1, state.input2].map((input) => (
+      loadModel(input, ItemModel)
+      .then((item) => Object.entries(item.attributes.meta || {}))
+    ))
+  );
+
+  const task = 'feature-apply';
+  const inputs = {
+    input_path_1: `FILE:${state.input1}`,
+    input_path_2: `FILE:${state.input2}`,
+    match_json: `FILE:${state.tabs.applyTab.featureMatch}`
+  };
+  let outputs = {};
+  const title = 'feature-apply';
+  const maxPolls = 40;
+
+  const runPromise = (
+    D(actions.ensureScratchDirectory())
+
+    .then((dir) => {
+      const prefix = `FILE:${dir.attributes._id}`;
+      const { states } = data;
+      outputs.output_path_1 = `${prefix}:${states[page.elements[0]].name}`;
+      outputs.output_path_2 = `${prefix}:${states[page.elements[1]].name}`;
+    })
+
+    .then(() => (
+      analysisUtils.runTask(task, { inputs, outputs }, { title, maxPolls })
+    ))
+
+    .then(
+      ({
+        output_path_1: { itemId: outputId1 },
+        output_path_2: { itemId: outputId2 }
+      }) => ({
+        outputId1,
+        outputId2
+      })
+    )
+  );
+
+  return (
+    Promise.all([
+      truncatePromise,
+      metaDataPromise,
+      runPromise
+    ])
+
+    .then(([, meta, result]) => {
+      let { outputId1, outputId2 } = result;
+      return (
+        Promise.all([
+          loadModel(outputId1, ItemModel),
+          loadModel(outputId2, ItemModel)
+        ])
+
+        .then((items) => (
+          Promise.all(
+            items.map((item, i) => (
+              Promise.mapSeries(
+                meta[i],
+                ([k, v]) => new Promise((resolve, reject) => {
+                  item.addMetadata(
+                    k, v, () => resolve(),
+                    ({ message }) => reject(new Error(message))
+                  )
+                })
+              )
+            ))
+          )
+
+          .then(() => Promise.mapSeries(
+            items,
+            (item) => D(actions.addAnalysisElement(
+              {
+                type: 'girderItem',
+                downloadUrl: item.downloadUrl(),
+                inlineUrl: item.downloadUrl({ contentDisposition: 'inline' }),
+                name: item.name(),
+                size: formatSize(item.get('size'))
+              },
+              applyTabElement
+            ))
+          ))
+        ))
+
+        .then((elements) => { applyResultElements = elements; })
+      )
+    })
+  );
+};
 
 const main = () => (
   Promise.resolve()
