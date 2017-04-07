@@ -274,52 +274,52 @@ def main_metric(a, b):
 # from sys import argv
 # input_path_1 = argv[1]
 # input_path_2 = argv[2]
-# matches      = argv[3]
-
-matches = set(match.strip() for match in matches.lower().split(','))
+# match_spec   = argv[3]
 
 dialect1 = None
 dialect2 = None
-if matches:
-    with open(input_path_1, 'rU') as input1:
-        dialect1 = csv.Sniffer().sniff(
-            read_until(input1, '\n', SNIFFER_NUM_LINES),
-            delimiters=SNIFFER_DELIMITERS
-        )
-    with open(input_path_2, 'rU') as input2:
-        dialect2 = csv.Sniffer().sniff(
-            read_until(input2, '\n', SNIFFER_NUM_LINES),
-            delimiters=SNIFFER_DELIMITERS
-        )
+
+with open(input_path_1, 'rU') as input1:
+    dialect1 = csv.Sniffer().sniff(
+        read_until(input1, '\n', SNIFFER_NUM_LINES),
+        delimiters=SNIFFER_DELIMITERS
+    )
+with open(input_path_2, 'rU') as input2:
+    dialect2 = csv.Sniffer().sniff(
+        read_until(input2, '\n', SNIFFER_NUM_LINES),
+        delimiters=SNIFFER_DELIMITERS
+    )
 
 match_result = {}
-for mode in matches:
-    (mode1, mode2) = mode
-    if mode1 not in 'rc' or mode2 not in 'rc':
-        continue
+match_spec = match_spec.lower()
 
-    list1 = None
-    with open(input_path_1, 'rU') as input1:
-        list1 = [
-            x for x in (
-                ColumnExtractor if mode1 == 'c' else RowExtractor
-            )(input1, dialect1)
-        ]
+(mode1, mode2) = (match_spec[0], match_spec[1])
+if mode1 not in 'rc' or mode2 not in 'rc':
+    raise ValueError('Invalid match specification')
 
-    list2 = None
-    with open(input_path_2, 'rU') as input2:
-        list2 = [
-            x for x in (
-                ColumnExtractor if mode2 == 'c' else RowExtractor
-            )(input2, dialect2)
-        ]
+list1 = None
+with open(input_path_1, 'rU') as input1:
+    list1 = [
+        x for x in (
+            ColumnExtractor if mode1 == 'c' else RowExtractor
+        )(input1, dialect1)
+    ]
 
-    assignments = compute_assignments(list1, list2, main_metric)
+list2 = None
+with open(input_path_2, 'rU') as input2:
+    list2 = [
+        x for x in (
+            ColumnExtractor if mode2 == 'c' else RowExtractor
+        )(input2, dialect2)
+    ]
 
-    match_result[mode] = {
-        'score': assignments.score,
-        'assignments': assignments.assignments
-    }
+assignments = compute_assignments(list1, list2, main_metric)
+
+match_result = {
+    'mode': match_spec,
+    'score': assignments.score,
+    'assignments': assignments.assignments
+}
 
 match_result = json.dumps(match_result)
 

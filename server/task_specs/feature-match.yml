@@ -16,19 +16,17 @@ inputs:
     target: filepath
     format: text
 
-    # comma-separated string of matches to perform
+    # two-character string describing what match to perform
     #
-    # Each match is a two-character string, where each character can be either
-    # 'c' for 'columns' or 'r' for 'rows'.  The first and second characters of
-    # each match specify which entries from the first and second input files to
-    # match, respectively.
+    # Each character can be either 'c' for 'columns' or 'r' for 'rows'.  The
+    # first and second characters specify which entries from the first and
+    # second input files to match, respectively.
     #
     # For examples: "rr" specifies that the rows in the first file should be
     # matched with the rows in the second file, and "cr" specifies that the
     # columns in the first file should be matched with the rows in the second
-    # file.  A matches value of "rr,cr" specifies that both matches should be
-    # performed and their results returned in match_result.
-  - name: matches
+    # file.
+  - name: match_spec
     type: string
     format: text
     default: cc

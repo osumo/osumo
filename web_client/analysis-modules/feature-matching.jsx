@@ -32,11 +32,7 @@ const computeMatch = (data, page) => {
 
     (
       applyResultElements
-        ? Promise.all(
-          applyResultElements
-            .filter((x) => x)
-            .map((e) => D(actions.removeAnalysisElement(e)))
-        )
+        ? D(actions.removeAnalysisElement(applyResultElements))
         : null
     )
   ]);
@@ -47,7 +43,7 @@ const computeMatch = (data, page) => {
   const inputs = {
     input_path_1: `FILE:${state.input1}`,
     input_path_2: `FILE:${state.input2}`,
-    matches: `STRING:${state.tabs.computeTab.matches}`
+    match_spec: `STRING:${state.tabs.computeTab.match_spec}`
   };
   const outputs = { match_result: 'JSON' };
   const title = 'feature-match';
@@ -63,23 +59,6 @@ const computeMatch = (data, page) => {
     Promise.all([truncatePromise, runPromise])
     .then(([, result]) => result)
     .then((result) => {
-      console.log('MATCH RESULTS!');
-      Object.entries(result).forEach(([k, v]) => {
-        console.log('==========')
-        console.log(k);
-        console.log('==========')
-        console.log(`SCORE: ${v.score}`);
-        v.assignments.forEach(({ pair, score }) => {
-          console.log([
-            `    (${pair[0].index}) ${pair[0].value}`,
-            `    (${pair[1].index}) ${pair[1].value}`,
-            `    ${score}`,
-            '\n'
-          ].join('\n'));
-        });
-      });
-      console.log(result);
-
       return (
         D(actions.uploadFile(
           {

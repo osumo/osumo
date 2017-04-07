@@ -22,7 +22,7 @@ elements:
         key: computeTab
         elements:
 
-        - key: matches
+        - key: match_spec
           name: Matches Specification
           type: field
 
