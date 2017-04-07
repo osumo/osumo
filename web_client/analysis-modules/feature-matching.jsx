@@ -4,7 +4,10 @@ import analysisUtils from '../utils/analysis';
 import { Promise } from '../utils/promise';
 import { store, rest } from '../globals';
 
+import loadModel from '../utils/load-model';
+
 import { formatSize } from 'girder/misc';
+import ItemModel from 'girder/models/ItemModel';
 
 const D = store.dispatch.bind(store);
 
