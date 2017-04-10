@@ -5,7 +5,7 @@ import Upload from '../body/upload';
 import actions from '../../actions';
 import { rest } from '../../globals';
 import objectReduce from '../../utils/object-reduce';
-import { Promise } from '../../utils/promise';
+import { Promise, SCHEDULES, map as promiseMap } from '../../utils/promise';
 import scatter from '../../utils/scatter';
 
 import ItemModel from 'girder/models/ItemModel';
@@ -116,11 +116,14 @@ const UploadContainer = connect(
         ]))
 
         .then(() => (
-          Promise.all(
-            fileEntries.map(({ handle, metaType }, index) => (
+          promiseMap({
+            array: fileEntries,
+            factor: 3,
+            schedule: SCHEDULES.DYNAMIC,
+            mapper: ({ handle, metaType }, index) => (
               uploadAndTag(handle, metaType, bytesHandler(index), dispatch)
-            ))
-          )
+            )
+          })
         ))
 
         .then(() => dispatch(actions.updateUploadStatusText('')))
