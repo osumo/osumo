@@ -6,6 +6,7 @@ import actions from '../../actions';
 import { rest } from '../../globals';
 import objectReduce from '../../utils/object-reduce';
 import { Promise } from '../../utils/promise';
+import scatter from '../../utils/scatter';
 
 import ItemModel from 'girder/models/ItemModel';
 
