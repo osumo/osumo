@@ -6,6 +6,7 @@ import TabGroup from './tab-group'
 import FieldElement from './field';
 import FileSelectionElement from './file-selection';
 import Group from './group';
+import GirderItemElement from './girder-item';
 import ImageElement from './image';
 import ParallelSetsElement from './parallel-sets';
 
@@ -125,6 +126,20 @@ class Element extends React.Component {
             {...props}
           />
         );
+        break;
+
+      case 'girderItem':
+        result = (
+          <GirderItemElement
+            key='result'
+            onStateChange={onStateChange}
+            onFileSelect={onFileSelect}
+            state={state}
+            children={children}
+            {...props}
+          />
+        );
+        wrapResult = false;
         break;
 
       case 'image':
