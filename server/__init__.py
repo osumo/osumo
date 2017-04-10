@@ -26,7 +26,7 @@ class Osumo(Resource):
     _cp_config = {'tools.staticdir.on': True,
                   'tools.staticdir.index': 'index.html'}
 
-    def __init__(self, anonuser, anonpassword):
+    def __init__(self, anonuser):
         super(Osumo, self).__init__()
         self.resourceName = 'osumo'
         self.route('GET', ('task', ':key'), self.getTaskSpecByKey)
@@ -39,14 +39,17 @@ class Osumo(Resource):
         self.route('GET', ('user', 'me'), self.getMe)
 
         self.anonuser = anonuser
-        self.anonpassword = anonpassword
 
     @describeRoute(
         Description('Log in using the "anonymous user".')
     )
     @access.public
     def anonymousLogin(self, params):
-        user = self.model('user').authenticate(self.anonuser, self.anonpassword)
+        user_model = self.model('user')
+        user = user_model.findOne({
+            'login': self.anonuser
+        })
+        user = user_model.filter(user, user)
 
         setCurrentUser(user)
         token = self.sendAuthTokenCookie(user)
@@ -462,25 +465,38 @@ class Osumo(Resource):
 def load(info):
     # Check environment variables for anonymous user/password; bail if not set.
     anonuser = os.environ.get('OSUMO_ANON_USER')
-    anonpassword = os.environ.get('OSUMO_ANON_PASSWORD')
-
-    if not anonuser or not anonpassword:
+    if not anonuser:
         try:
-            with open(os.path.join(info['pluginRootDir'], 'osumo_loginpass.txt')) as f:
-                parts = map(lambda x: x.strip(), f.read().split(' ', 1))
-                anonuser = parts[0]
-                if len(parts) > 1:
-                    anonpassword = parts[1]
+            with open(os.path.join(info['pluginRootDir'], 'osumo_anonlogin.txt')) as f:
+                anonuser = f.read().strip()
         except IOError:
             pass
 
-    if not anonuser or not anonpassword:
-        logprint.error('Environment variables OSUMO_ANON_USER and OSUMO_ANON_PASSWORD must be set, or a file osumo_loginpass.txt must exist.')
+    if not anonuser:
+        logprint.error('Environment variable OSUMO_ANON_USER must be set, or a file osumo_anonlogin.txt must exist.')
         raise RuntimeError
+
+    user_model = ModelImporter.model('user')
+    anon_user = user_model.findOne({
+        'login': anonuser
+    })
+
+    if anon_user is None:
+        anon_user = user_model.createUser(
+            login=anonuser,
+            password=None,
+            firstName='Public',
+            lastName='User',
+            email='anon@example.com',
+            admin=False,
+            public=False)
+        anon_user['status'] = 'enabled'
+
+        anon_user = user_model.save(anon_user)
 
     Osumo._cp_config['tools.staticdir.dir'] = (
         os.path.join(info['pluginRootDir'], 'web_client'))
-    osumo = Osumo(anonuser, anonpassword)
+    osumo = Osumo(anonuser)
     registerPluginWebroot(osumo, info['name'])
     info['apiRoot'].osumo = osumo
 
