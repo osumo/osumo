@@ -850,7 +850,13 @@ export const uploadFile = (file, params=null, parent=null) => promiseAction(
         reject(e);
       });
 
-      fileModel.upload(parent, file, null, restParams);
+      let { name, type, contents } = file;
+
+      if (contents) {
+        fileModel.uploadToFolder(parent, contents, name, type);
+      } else {
+        fileModel.upload(parent, file, null, restParams);
+      }
     });
   }
 );
