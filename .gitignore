@@ -11,4 +11,4 @@ __pycache__
 ### PyCharm ###
 .idea/
 _build
-osumo_loginpass.txt
+osumo_anonlogin.txt
