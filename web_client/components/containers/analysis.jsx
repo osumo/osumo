@@ -80,18 +80,22 @@ const AnalysisContainer = connect(
 
       .then(() => {
         let { options } = element;
-        let { onlyNames, onlyTypes } = (options || {});
+        let { onlyNames, onlyDataTypes, onlyFileTypes } = (options || {});
 
         let filter = null;
-        let onlyNameRegex, onlyTypeRegex;
+        let onlyNameRegex, onlyDataTypeRegex, onlyFileTypeRegex;
 
-        if (onlyNames || onlyTypes) {
+        if (onlyNames || onlyDataTypes || onlyFileTypes) {
           if (onlyNames) {
             onlyNameRegex = new RegExp(onlyNames);
           }
 
-          if (onlyTypes) {
-            onlyTypeRegex = new RegExp(onlyTypes);
+          if (onlyDataTypes) {
+            onlyDataTypeRegex = new RegExp(onlyDataTypes);
+          }
+
+          if (onlyFileTypes) {
+            onlyFileTypeRegex = new RegExp(onlyFileTypes);
           }
 
           filter = (item) => {
@@ -100,10 +104,18 @@ const AnalysisContainer = connect(
               if (onlyNames && !onlyNameRegex.test(item.name)) {
                 result = false;
               } else if (
-                onlyTypes &&
+                onlyDataTypes &&
                 (
                   !item.meta ||
-                  !onlyTypeRegex.test(item.meta.sumoDataType)
+                  !onlyDataTypeRegex.test(item.meta.sumoDataType)
+                )
+              ) {
+                result = false;
+              } else if (
+                onlyFileTypes &&
+                (
+                  !item.meta ||
+                  !onlyFileTypeRegex.test(item.meta.sumoFileType)
                 )
               ) {
                 result = false;

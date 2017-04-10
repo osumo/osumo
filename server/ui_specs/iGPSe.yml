@@ -16,7 +16,8 @@ elements:
             row, and one data row per gene."
     type: fileSelection
     options:
-      onlyTypes: "^mrna$"
+      onlyFileTypes: dataBlock
+      onlyDataTypes: "^mrna$"
 
   - key: mrna_clusters
     name: mRNA Number of Clusters (k)
@@ -34,7 +35,8 @@ elements:
             row, and one data row per micro RNA."
     type: fileSelection
     options:
-      onlyTypes: "^mirna$"
+      onlyFileTypes: dataBlock
+      onlyDataTypes: "^mirna$"
 
   - key: mirna_clusters
     name: miRNA Number of Clusters (k)
@@ -52,7 +54,8 @@ elements:
             an indicator field."
     type: fileSelection
     options:
-      onlyTypes: "^cprofile$"
+      onlyFileTypes: dataBlock
+      onlyDataTypes: "^cprofile$"
 
 
   - key: output_dir

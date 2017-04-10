@@ -7,10 +7,14 @@ elements:
   - key: input1
     name: Input File 1
     type: fileSelection
+    options:
+      onlyFileTypes: dataBlock
 
   - key: input2
     name: Input File 2
     type: fileSelection
+    options:
+      onlyFileTypes: dataBlock
 
   - name: Tabbed Interface
     type: tabGroup
@@ -38,6 +42,8 @@ elements:
         - key: featureMatch
           name: Feature Match
           type: fileSelection
+          options:
+            onlyFileTypes: featureMatch
 
         - type: button
           name: Apply
