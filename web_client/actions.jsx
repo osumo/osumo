@@ -72,12 +72,12 @@ const promiseAction = (callback) => (dispatch, getState) => new Promise(
   }
 );
 
-export const addAnalysisElement = (element, parent, _noStrip=false) => (
+const _addAnalysisElementHelper = (element, parent, stripChildren) => (
   promiseAction(
     (dispatch, getState) => {
       let elements;
 
-      if (!_noStrip) {
+      if (stripChildren) {
         ({ elements } = element);
         elements = elements || [];
 
@@ -85,7 +85,7 @@ export const addAnalysisElement = (element, parent, _noStrip=false) => (
           let unused;
           ({ elements: unused, ...element } = element);
         } else {
-          _noStrip = true;
+          stripChildren = false;
         }
       }
 
@@ -98,17 +98,21 @@ export const addAnalysisElement = (element, parent, _noStrip=false) => (
       }
 
       return (
-        _noStrip
+        stripChildren
 
-          ? { ...element }
-
-          : Promise.mapSeries(
+          ? Promise.mapSeries(
               elements,
-              (e) => dispatch(addAnalysisElement(e, element, true))
+              (e) => dispatch(_addAnalysisElementHelper(e, element, false))
             ).then(() => ({ ...element }))
+
+          : { ...element }
       );
     }
   )
+);
+
+export const addAnalysisElement = (element, parent) => (
+  _addAnalysisElementHelper(element, parent, true)
 );
 
 export const addAnalysisPage = (page) => promiseAction(
