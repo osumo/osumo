@@ -5,9 +5,12 @@ import actions from '../../actions';
 
 const HeaderContainer = connect(
   ({
-    loginInfo: { user: currentUser },
+    loginInfo: {
+      user: currentUser,
+      anonymous
+    },
     header: { dropdownOpened }
-  }) => ({ currentUser, dropdownOpened }),
+  }) => ({ currentUser, dropdownOpened, anonymous }),
 
   (dispatch) => ({
     onDropdown: () => dispatch(actions.toggleHeaderDropdown()),

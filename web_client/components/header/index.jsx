@@ -4,6 +4,7 @@ import User from './user';
 class Header extends React.Component {
   render () {
     let {
+      anonymous,
       currentUser,
       dropdownOpened,
       onDropdown,
@@ -23,6 +24,7 @@ class Header extends React.Component {
           </div>
           <User
             currentUser={currentUser}
+            anonymous={anonymous}
             dropdownOpened={dropdownOpened}
             onDropdown={onDropdown}
             onFolders={onFolders}

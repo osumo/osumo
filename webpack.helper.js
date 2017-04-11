@@ -1,6 +1,10 @@
 'use strict';
 
 module.exports = function (cfg, pluginBuildData) {
+  cfg.watchOptions = {
+    poll: 1000
+  };
+
   cfg.module.loaders.push({
     test: /\.jsx?$/,
     exclude: /(node_modules|bower_components)/,

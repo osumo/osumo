@@ -9,7 +9,7 @@ export const apiRoot = girderRest.apiRoot;
 import restRequests from './utils/rest-requests';
 import events from './utils/events';
 export const staticRoot = 'static';
-export const rest = restRequests({ events, apiRoot });
+export const rest = restRequests;
 
 import reducer from './reducer';
 
@@ -20,7 +20,10 @@ export const IN_PRODUCTION = (
 export const store = (
   IN_PRODUCTION
   ? createStore(reducer, applyMiddleware(thunk))
-  : createStore(reducer, applyMiddleware(thunk, createLogger()))
+  : createStore(reducer, applyMiddleware(thunk, createLogger({
+    diff: true,
+    collapsed: () => true
+  })))
 );
 
 import Promise from 'bluebird';

@@ -134,8 +134,7 @@ const dialog = (state = {}, action) => {
     type === ACTION_TYPES.OPEN_FILE_SELECTOR_DIALOG ||
     type === ACTION_TYPES.OPEN_LOGIN_DIALOG ||
     type === ACTION_TYPES.OPEN_RESET_PASSWORD_DIALOG ||
-    type === ACTION_TYPES.OPEN_REGISTER_DIALOG ||
-    type === ACTION_TYPES.SET_LOGIN_INFO
+    type === ACTION_TYPES.OPEN_REGISTER_DIALOG
   ) {
     state = (
       setDialogComponent(

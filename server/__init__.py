@@ -9,10 +9,10 @@ import tempfile
 RE_ARG_SPEC = re.compile(r'''([^\(]+)(\((.+)\))?''')
 
 from bson.objectid import ObjectId
-from girder import events
+from girder import events, logprint
 from girder.api import access
 from girder.api.describe import Description, describeRoute
-from girder.api.rest import Resource, RestException
+from girder.api.rest import Resource, RestException, setCurrentUser, getCurrentUser
 from girder.constants import AccessType, TokenScope
 from girder.utility.model_importer import ModelImporter
 from girder.utility.plugin_utilities import registerPluginWebroot
@@ -26,7 +26,7 @@ class Osumo(Resource):
     _cp_config = {'tools.staticdir.on': True,
                   'tools.staticdir.index': 'index.html'}
 
-    def __init__(self):
+    def __init__(self, anonuser):
         super(Osumo, self).__init__()
         self.resourceName = 'osumo'
         self.route('GET', ('task', ':key'), self.getTaskSpecByKey)
@@ -35,6 +35,44 @@ class Osumo(Resource):
         self.route('GET', ('results', ':jobId'), self.getTaskResults)
         self.route('GET', ('ui', ':key'), self.getUISpecByKey)
         self.route('GET', ('ui',), self.getUISpecs)
+        self.route('POST', ('anonlogin',), self.anonymousLogin)
+        self.route('GET', ('user', 'me'), self.getMe)
+
+        self.anonuser = anonuser
+
+    @describeRoute(
+        Description('Log in using the "anonymous user".')
+    )
+    @access.public
+    def anonymousLogin(self, params):
+        user_model = self.model('user')
+        user = user_model.findOne({
+            'login': self.anonuser
+        })
+        user = user_model.filter(user, user)
+
+        setCurrentUser(user)
+        token = self.sendAuthTokenCookie(user)
+
+        return {
+            'user': self.model('user').filter(user, user),
+            'authToken': {
+                'token': token['_id'],
+                'expires': token['expires'],
+                'scope': token['scope']
+            },
+            'message': 'Anonymous login succeeded.'
+        }
+
+    @describeRoute(
+        Description('Query for the currently logged in user, including a flag for whether this is the "anonymous user".')
+    )
+    @access.public
+    def getMe(self, params):
+        rawuser = getCurrentUser()
+        user = self.model('user').filter(rawuser, rawuser)
+        user['anonymous'] = user['login'] == self.anonuser
+        return user
 
     @describeRoute(
         Description('Return job status and list of output files.')
@@ -425,9 +463,40 @@ class Osumo(Resource):
 
 
 def load(info):
+    # Check environment variables for anonymous user/password; bail if not set.
+    anonuser = os.environ.get('OSUMO_ANON_USER')
+    if not anonuser:
+        try:
+            with open(os.path.join(info['pluginRootDir'], 'osumo_anonlogin.txt')) as f:
+                anonuser = f.read().strip()
+        except IOError:
+            pass
+
+    if not anonuser:
+        logprint.error('Environment variable OSUMO_ANON_USER must be set, or a file osumo_anonlogin.txt must exist.')
+        raise RuntimeError
+
+    user_model = ModelImporter.model('user')
+    anon_user = user_model.findOne({
+        'login': anonuser
+    })
+
+    if anon_user is None:
+        anon_user = user_model.createUser(
+            login=anonuser,
+            password=None,
+            firstName='Public',
+            lastName='User',
+            email='anon@example.com',
+            admin=False,
+            public=False)
+        anon_user['status'] = 'enabled'
+
+        anon_user = user_model.save(anon_user)
+
     Osumo._cp_config['tools.staticdir.dir'] = (
         os.path.join(info['pluginRootDir'], 'web_client'))
-    osumo = Osumo()
+    osumo = Osumo(anonuser)
     registerPluginWebroot(osumo, info['name'])
     info['apiRoot'].osumo = osumo
 
