@@ -85,7 +85,7 @@ if (((length(groups$GROUP1$node) > 0 && length(groups$GROUP1$node[[1]]) > 0) ||
   }
 
   TIME <- c(clinical.m$time[which(idx.1)],clinical.m$time[which(idx.2)])
-  STATUS <- c(clinical.m$cencer[which(idx.1)],clinical.m$cencer[which(idx.2)])
+  STATUS <- c(clinical.m$cancer[which(idx.1)],clinical.m$cancer[which(idx.2)])
 
   fit<-survfit(Surv(TIME, STATUS) ~ as.factor(c(rep(1, sum(idx.1)), rep(2, sum(idx.2)))))
   sdf<-survdiff(Surv(TIME, STATUS) ~ as.factor(c(rep(1, sum(idx.1)), rep(2, sum(idx.2)))))
