@@ -29,18 +29,18 @@ inputs:
 outputs:
   - name: output_mrna_dim
     target: memory
-    type: r
-    format: object
+    type: string
+    format: text
 
   - name: output_mirna_dim
     target: memory
-    type: r
-    format: object
+    type: string
+    format: text
 
   - name: output_clinical_dim
     target: memory
-    type: r
-    format: object
+    type: string
+    format: text
 
   - name: output_mrna_heatmap
     target: filepath
@@ -61,3 +61,4 @@ outputs:
     target: memory
     type: string
     format: text
+

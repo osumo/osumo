@@ -37,19 +37,17 @@ const actionProcess = (data, page) => {
   const runPromise = (
     analysisUtils.runTask(task, { inputs, outputs }, { title, maxPolls })
 
-    .then((files) => {
-      let fitId;
-      let sdfId;
-      let dataplotId;
-
-      files.forEach(({ fileId: fid, name }) => {
-        if (name === 'fit.rdata') { fitId = fid; }
-        if (name === 'sdf.rdata') { sdfId = fid; }
-        if (name === 'survivor-plot.png') { dataplotId = fid; }
-      });
-
-      return { fitId, sdfId, dataplotId, page2, survPlotElement };
-    })
+    .then(({
+      fit: { fileId: fitId },
+      sdf: { fileId: sdfId },
+      dataplot: { fileId: dataplotId }
+    }) => ({
+      fitId,
+      sdfId,
+      dataplotId,
+      page2,
+      page2Elements
+    }))
   );
 
   return (

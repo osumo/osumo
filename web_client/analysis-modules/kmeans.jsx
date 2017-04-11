@@ -30,17 +30,13 @@ const actionProcess = (data, page) => {
   const runPromise = (
     analysisUtils.runTask(task, { inputs, outputs }, { title, maxPolls })
 
-    .then((files) => {
-      let centersId;
-      let clustersId;
-
-      files.forEach(({ fileId: fid, name }) => {
-        if (name === 'centers.csv') { centersId = fid; }
-        if (name === 'clusters.csv') { clustersId = fid; }
-      });
-
-      return { centersId, clustersId };
-    })
+    .then(({
+      centers: { fileId: centersId },
+      clusters: { fileId: clustersId },
+    }) => ({
+      centersId,
+      clustersId
+    }))
   );
 
   return (

@@ -6,14 +6,18 @@ import os
 import re
 import tempfile
 
+from six.moves import urllib
+
 RE_ARG_SPEC = re.compile(r'''([^\(]+)(\((.+)\))?''')
 
+from bson import json_util
 from bson.objectid import ObjectId
 from girder import events, logprint
 from girder.api import access
 from girder.api.describe import Description, describeRoute
 from girder.api.rest import Resource, RestException, setCurrentUser, getCurrentUser
 from girder.constants import AccessType, TokenScope
+from girder.utility.config import getConfig
 from girder.utility.model_importer import ModelImporter
 from girder.utility.plugin_utilities import registerPluginWebroot
 from girder.plugins.worker import utils as workerUtils
@@ -83,14 +87,36 @@ class Osumo(Resource):
     def getTaskResults(self, jobId, params, **kwargs):
         jobId = ObjectId(jobId)
         jobuser = self.model('jobuser', 'osumo').findOne({'jobId': jobId})
+        jobpayload = (
+                self.model('jobpayload', 'osumo').findOne({'_jobId': jobId}))
         job = self.model('job', 'jobs').findOne({'_id': jobId})
+        job['kwargs'] = json_util.loads(job['kwargs'])
 
         if not jobuser:
             raise RestException('Job result not found.', 404)
 
         result = {'status': job['status']}
         if result['status'] == 3:  # success
-            result['files'] = jobuser.get('processedFiles', [])
+            processedFiles = jobuser.get('processedFiles', [])
+            payload = {}
+
+            for (output_variable, output) in job['kwargs']['outputs'].items():
+                mode = output.get('mode')
+
+                if mode == 'girder':
+                    for f in processedFiles:
+                        if f['name'] == output.get('name'):
+                            payload[output_variable] = {'mode': 'girder'}
+                            payload[output_variable].update(f)
+                            break
+                elif mode == 'sumo':
+                    converter = output.get('converter')
+                    data = jobpayload[output_variable]
+
+                    payload[output_variable] = {'mode': 'inline'}
+                    payload[output_variable]['data'] = data
+
+            result['results'] = payload
 
         return result
 
@@ -272,6 +298,9 @@ class Osumo(Resource):
             token = self.model('token').createToken(
                 user, days=1, scope=TokenScope.USER_AUTH)
 
+        jobpayload = self.model('jobpayload', 'osumo').createJobpayload(
+                job['_id'], user['_id'])
+
         job_inputs = {}
         for input_spec in task_spec['inputs']:
             input_name = input_spec['name']
@@ -386,6 +415,42 @@ class Osumo(Resource):
                             name=resource_name,
                             dataType=data_type,
                             dataFormat=data_format))
+
+            elif output_type in (
+                    'INTEGER', 'FLOAT', 'STRING', 'BOOLEAN', 'JSON'):
+                parse_result = urllib.parse.urlparse(
+                        getConfig()['database']['uri'])
+
+                job_output['mode'] = 'sumo'
+                job_output['db'] = parse_result.path[1:]
+                job_output['collection'] = 'jobpayload'
+                job_output['host'] = parse_result.netloc
+                job_output['id'] = jobpayload['_id']
+                job_output['key'] = output_name
+
+                if output_type == 'INTEGER':
+                    job_output['type'] = 'number'
+                    job_output['format'] = 'number'
+                    job_output['converter'] = 'int'
+
+                elif output_type == 'FLOAT':
+                    job_output['type'] = 'number'
+                    job_output['format'] = 'number'
+                    job_output['converter'] = 'float'
+
+                elif output_type == 'STRING':
+                    job_output['type'] = 'string'
+                    job_output['format'] = 'text'
+
+                elif output_type == 'BOOLEAN':
+                    job_output['type'] = 'boolean'
+                    job_output['format'] = 'boolean'
+                    job_output['converter'] = 'bool'
+
+                elif output_type == 'JSON':
+                    job_output['type'] = 'string'
+                    job_output['format'] = 'text'
+                    job_output['converter'] = 'json'
 
             else:
                 raise NotImplementedError(

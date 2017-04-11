@@ -87,7 +87,7 @@ export const pollJob = (
 ) => (
   Promise.delay(pollInterval)
     .then(() => rest({ path: `osumo/results/${jobId}` }))
-    .then(({ response: { status, files } }) => {
+    .then(({ response: { status, results } }) => {
       if (status === 4) {  /* error */
         throw new Error(
           `OSUMO task "${title}" (${taskName}/${jobId})` +
@@ -98,7 +98,7 @@ export const pollJob = (
           `OSUMO task "${title}" (${taskName}/${jobId}) was canceled`
         );
       } else if (status === 3) {  /* success */
-        return files;
+        return results;
       }
 
       if (maxPolls > 0) {

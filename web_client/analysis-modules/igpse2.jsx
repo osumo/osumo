@@ -36,18 +36,12 @@ const actionProcess = (data, page) => {
   const runPromise = (
     analysisUtils.runTask(task, { inputs, outputs }, { title, maxPolls })
 
-    .then((files) => {
-      let dataPlotId;
-
-      files.forEach(({ fileId: fid, name }) => {
-        if (name === 'dataplot.png') { dataPlotId = fid; }
-      });
-
-      return {
-        survPlotId: dataPlotId,
-        ...priorData
-      };
-    })
+    .then(({
+      dataplot: { fileId: survPlotId }
+    }) => ({
+      survPlotId,
+      ...priorData
+    }))
   );
 
   return (
