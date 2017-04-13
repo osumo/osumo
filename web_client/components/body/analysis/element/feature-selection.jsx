@@ -1,12 +1,20 @@
 import React from 'react';
-import TextField from '../../../common/text-field.jsx';
+import { isNil } from 'lodash';
 
+import TextField from '../../../common/text-field.jsx';
 import { TIMES } from '../../../../constants';
 
 const addEntries = (currentEntries, newEntries) => {
   let result = [].concat(currentEntries);
   (
     newEntries
+    .map((s) => (
+      s
+      .split(' ')
+      .filter(({ length }) => length)
+      .join(' ')
+    ))
+    .filter(({ length }) => length)
     .forEach((e) => {
       if (result.indexOf(e) < 0) {
         result.push(e);
@@ -35,7 +43,9 @@ class FeatureSelection extends React.Component {
       currentText,
       value: chosenSet,
       extendedText,
-      buttonVisible
+      buttonVisible,
+      singleMode,
+      transitioning
     } = state;
 
     candidates = candidates || [];
@@ -43,192 +53,184 @@ class FeatureSelection extends React.Component {
     chosenSet = chosenSet || [];
     extendedText = extendedText || '';
     buttonVisible = buttonVisible || false;
+    singleMode = singleMode || isNil(singleMode);
+    transitioning = Boolean(transitioning);
 
     const handleNewEntries = () => {
-      onStateChange({
-        value: addEntries(
-          chosenSet,
-          (
-            [state.currentText].concat(
-              extendedText.split('\n')
-            )
+      if (singleMode) {
+        onStateChange({
+          value: addEntries(chosenSet, [currentText]),
+          currentText: ''
+        });
 
-            .map((s) => (
-              s
-              .split(' ')
-              .filter(({ length }) => length)
-              .join(' ')
-            ))
-
-            .filter(({ length }) => length)
-          )
-        ),
-
-        currentText: '',
-        extendedText: ''
-      });
-
-      onAction(action, '');
+        onAction(action, '');
+      } else {
+        onStateChange({
+          value: addEntries(chosenSet, extendedText.split('\n')),
+          extendedText: ''
+        });
+      }
     };
 
     return (
-      <div>
+      <div
+        className='feature-select'
+        style={{
+          alignItems: 'center',
+          display: 'flex',
+          paddingBottom: 5,
+          paddingTop: 5
+        }}
+      >
         <div
-          className='col-md-6'
+          className='input-group'
           style={{
-            paddingRight: 0
-            // verticalAlign: 'top',
-            // marginRight: 2
+            width: '45%',
+            marginRight: '0.5%'
           }}
         >
-          <label>Search for features</label>
-          <br />
-          <div
-            className='col-md-10'
-            style={{
-              marginRight: 0,
-              paddingRight: 0
-            }}
-          >
-            <input
-              className='form-control'
-              list='types'
-              onChange={(e) => {
-                let { target: { value: currentText } } = e;
-                onStateChange({ currentText });
-                onAction(action, currentText);
-              }}
-
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleNewEntries();
-                }
-              }}
-
-              placeholder='Enter Feature'
-              style={{
-                // width: 200,
-                // display: 'inline',
-                // verticalAlign: 'top'
-              }}
-              type='search'
-              value={currentText}
-            />
-            <datalist id='types'>
-              {candidates.map(({id, description}) => (
-                <option key={id} value={id}>{description}</option>
-              ))}
-            </datalist>
-          </div>
-          <div
-            className='col-md-2'
-            style={{
-              marginRight: 0,
-              padding: 0
-            }}
-          >
+          <span className='input-group-btn'>
             <button
-              className='btn btn-primary'
+              className='btn btn-default'
+              type='button'
+              style={{
+                height: (singleMode ? 33 : 100),
+                marginBottom: 0,
+                marginTop: 0,
+                minWidth: 70,
+                transition: 'height 0.1s ease'
+              }}
               onClick={(e) => {
                 e.preventDefault();
-                handleNewEntries();
-              }}
-              style={{
-                margin: 0
-                // marginRight: 1,
-                // paddingTop: 8,
-                // paddingLeft: 7,
-                // height: 33,
-                // width: 35,
-                // verticalAlign: 'top'
+                onStateChange({
+                  singleMode: !singleMode,
+                  transitioning: true
+                });
               }}
             >
-              <i className='icon-plus' />
+              {
+                transitioning
+                  ? (singleMode ? 'Multi' : 'Search')
+                  : (singleMode ? 'Search' : 'Multi')
+              }
             </button>
-          </div>
-          <br />
-          <div
-            className='col-md-12'
+          </span>
+          <input
+            type='text'
+            list='types'
+            className='form-control'
+            placeholder={transitioning ? '' : 'Search features'}
             style={{
-              paddingRight: 19
+              height: singleMode ? 33 : 100,
+              transition: 'height 0.1s ease',
+              ...(
+                (singleMode || transitioning)
+                  ? {} : { position: 'fixed', visibility: 'hidden' }
+              )
             }}
-          >
-            <div
-              className='form-control'
-              style={{
-                paddingLeft: 0,
-                height: 164,
-                overflowX: 'hidden',
-                overflowY: 'auto'
-                // display: 'inline-block',
-                // paddingRight: 5
-              }}
-            >
-              {chosenSet.map((value) => (
-                <div key={value}>
-                  <button
-                    style={{
-                      verticalAlign: 'middle',
-                      height: 20
-                    }}
-                    className='btn btn-xs btn-danger'
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onStateChange({
-                        value: chosenSet.filter((e) => (e !== value))
-                      });
-                    }}
-                  >
-                    {TIMES}
-                  </button>
-                  <h4
-                    style={{
-                      display: 'inline',
-                      verticalAlign: 'middle'
-                    }}
-                  >
-                    {value}
-                  </h4>
-                </div>
-              ))}
-            </div>
-          </div>
+            onTransitionEnd={(e) => {
+              onStateChange({ transitioning: false })
+            }}
+            onChange={(e) => {
+              let { value } = e.target;
+              onStateChange({ currentText: value });
+              onAction(action, value);
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleNewEntries();
+              }
+            }}
+            value={transitioning ? '' : currentText}
+          />
+          <datalist id='types'>
+            {
+              candidates.map(({ id, description }) => (
+                <option key={id} value={id}>{description}</option>
+              ))
+            }
+          </datalist>
+          <textarea
+            className={
+              'form-control' + (
+                (singleMode || transitioning)
+                  ? ' hidden'
+                  : ''
+              )
+            }
+            style={{
+              marginTop: 0,
+              height: singleMode ? 33 : 100,
+              resize: 'none'
+            }}
+            onChange={(e) => {
+              let { value } = e.target;
+              onStateChange({ extendedText: value });
+            }}
+            value={extendedText}
+          />
         </div>
-
-        <div
-          className='col-md-6'
+        <button
+          className='btn btn-primary'
+          type='button'
           style={{
-            paddingLeft: 0
+            width: 34,
+            height: 33,
+            paddingLeft: 6,
+            paddingRight: 6
+          }}
+          onClick={(e) => {
+            e.preventDefault();
+            if (!transitioning) {
+              handleNewEntries();
+            }
           }}
         >
-          <label>Enter multiple features</label>
-          <div
-            className='col-md-12'
-            style={{
-            }}
-          >
-            <textarea
-              onChange={(e) => {
-                let { target: { value: extendedText } } = e;
-                onStateChange({ extendedText });
-              }}
-              className='form-control'
-              rows='2'
-              cols='50'
-              value={extendedText}
-              style={{
-                // width: 239,
-                // margin: 0,
-                // maxWidth: 239,
-                // minWidth: 239,
-                minHeight: 199,
-                height: 199,
-                maxHeight: 199
-              }}
-              default='Enter Multiple Features'
-            />
-          </div>
+          <span className='icon-plus' />
+        </button>
+        <div
+          className='display'
+          style={{
+            border: '1px solid lightgray',
+            borderRadius: 3,
+            height: 100,
+            marginLeft: '0.5%',
+            marginTop: 0,
+            overflowX: 'hidden',
+            overflowY: 'auto',
+            width: '45%'
+          }}
+        >
+          {
+            chosenSet.map((value) => (
+              <div key={value}>
+                <button
+                  style={{
+                    verticalAlign: 'middle',
+                    height: 20
+                  }}
+                  className='btn btn-xs btn-danger'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onStateChange({
+                      value: chosenSet.filter((entry) => (entry !== value))
+                    });
+                  }}
+                >
+                  {TIMES}
+                </button>
+                <h4
+                  style={{
+                    display: 'inline',
+                    verticalAlign: 'middle'
+                  }}
+                >
+                  {value}
+                </h4>
+              </div>
+            ))
+          }
         </div>
       </div>
     );
