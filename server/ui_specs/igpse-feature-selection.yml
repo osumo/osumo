@@ -3,28 +3,15 @@
 name: Feature Selection
 
 elements:
-  - key: selectedFeatures
-    name: Feature Selection
+  - key: mrnaFeatures
+    name: mRNA Feature Selection
     type: featureSelection
-    action: featureUpdate
+    action: mrnaFeatureUpdate
 
-  - key: mrnaClusters
-    name: mRNA Number of Clusters (k)
-    description: The number (k) of clusters used in calculations
-    notes: Clustering is performed via k-means.
-    type: field
-    options:
-      dataType: integer
-      default: 5
-
-  - key: mirnaClusters
-    name: miRNA Number of Clusters (k)
-    description: The number (k) of clusters used in calculations
-    notes: Clustering is performed via k-means.
-    type: field
-    options:
-      dataType: integer
-      default: 5
+  - key: mirnaFeatures
+    name: MicroRNA Feature Selection
+    type: featureSelection
+    action: mirnaFeatureUpdate
 
   - type: button
     name: Process

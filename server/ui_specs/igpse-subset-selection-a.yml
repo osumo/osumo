@@ -1,0 +1,27 @@
+---
+
+name: Heatmaps and Subset Selection
+
+elements:
+  - key: mrnaClusters
+    name: mRNA Number of Clusters (k)
+    description: The number (k) of clusters used in calculations
+    notes: Clustering is performed via k-means.
+    type: field
+    options:
+      dataType: integer
+      default: 5
+
+  - key: mirnaClusters
+    name: miRNA Number of Clusters (k)
+    description: The number (k) of clusters used in calculations
+    notes: Clustering is performed via k-means.
+    type: field
+    options:
+      dataType: integer
+      default: 5
+
+  - type: button
+    name: Process
+    action: cluster
+

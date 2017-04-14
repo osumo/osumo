@@ -14,6 +14,19 @@ import AccessControlledModel from 'girder/models/AccessControlledModel';
 
 let { rest } = globals;
 
+export const addItemMetadata = (item, metaData) => (
+  Promise.mapSeries(metaData || [], ([k, v]) => (
+    new Promise((resolve, reject) => {
+      item.addMetadata(
+        k,
+        v,
+        () => resolve(item),
+        ({ message }) => reject(new Error(message))
+      )
+    })
+  ))
+);
+
 const getResourceFromId = (id, type = null) => {
   let promise;
   (
@@ -1028,18 +1041,7 @@ export const uploadFile = (file, params = null, parent = null) => promiseAction(
         req.done(() => { resolve(itemModel); });
         req.error(() => { reject(new Error()); });
       })
-      .then((item) => (
-        Promise.mapSeries(metaData || [], ([k, v]) => (
-          new Promise((resolve, reject) => {
-            item.addMetadata(
-              k,
-              v,
-              () => resolve(item),
-              ({ message }) => reject(new Error(message))
-            );
-          })
-        )
-      )))
+      .then((item) => addItemMetadata(item, metaData))
       .then(() => ({ item: itemModel, ...payload }));
     });
   }

@@ -26,6 +26,10 @@ const addEntries = (currentEntries, newEntries) => {
 };
 
 class FeatureSelection extends React.Component {
+  componentWillMount() {
+    this.randomId = `candidates-${Math.floor(1e17*Math.random())}`;
+  }
+
   render () {
     let {
       action,
@@ -117,7 +121,7 @@ class FeatureSelection extends React.Component {
           </span>
           <input
             type='text'
-            list='types'
+            list={this.randomId}
             className='form-control'
             placeholder={transitioning ? '' : 'Search features'}
             style={{
@@ -144,7 +148,7 @@ class FeatureSelection extends React.Component {
             }}
             value={transitioning ? '' : currentText}
           />
-          <datalist id='types'>
+          <datalist id={this.randomId}>
             {
               candidates.map(({ id, description }) => (
                 <option key={id} value={id}>{description}</option>

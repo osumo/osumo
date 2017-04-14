@@ -1,0 +1,27 @@
+---
+
+name: feature-slice
+mode: python
+
+script: "@include(feature-slice.py)"
+
+inputs:
+  - name: input_path
+    type: string
+    target: filepath
+    format: text
+
+  - name: selections
+    type: string
+    format: text
+
+  - name: slice_columns
+    type: boolean
+    format: boolean
+
+outputs:
+  - name: sliced_output
+    target: filepath
+    type: string
+    format: text
+
