@@ -1,4 +1,5 @@
-import { isNil, isString, isUndefined } from 'lodash'; import URI from 'urijs';
+import { isNil, isString, isUndefined } from 'lodash';
+import URI from 'urijs';
 
 import globals from './globals';
 import { Promise } from './utils/promise';
@@ -13,7 +14,7 @@ import AccessControlledModel from 'girder/models/AccessControlledModel';
 
 let { rest } = globals;
 
-const getResourceFromId = (id, type=null) => {
+const getResourceFromId = (id, type = null) => {
   let promise;
   (
     (
@@ -54,8 +55,7 @@ const getModelFromResource = (obj) => {
   });
 };
 
-
-const getModelFromId = (id, type=null) => {
+const getModelFromId = (id, type = null) => {
   return (
     getResourceFromId(id, type)
       .then(getModelFromResource)
@@ -83,8 +83,8 @@ const _addAnalysisElementHelper = (element, parent, stripChildren) => (
         elements = elements || [];
 
         if (elements.length) {
-          let unused;
-          ({ elements: unused, ...element } = element);
+          element = { ...element };
+          delete element.elements;
         } else {
           stripChildren = false;
         }
@@ -459,7 +459,6 @@ export const openRegisterDialog = (byRouter = false) => promiseAction(
 
 export const populateFileSelectionElement = (element, item) => promiseAction(
   (dispatch, getState) => {
-
     if (isString(item)) {
       return (
         getResourceFromId(item, 'item')
@@ -529,42 +528,42 @@ export const removeAnalysisPage = (page, key) => promiseAction(
 
 export const removeUploadFileEntry = (index) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.REMOVE_UPLOAD_FILE_ENTRY, index })
+    dispatch({ type: ACTION_TYPES.REMOVE_UPLOAD_FILE_ENTRY, index });
     return [...getState().upload.fileEntries];
   }
 );
 
 export const resetUploadState = () => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.RESET_UPLOAD_STATE })
+    dispatch({ type: ACTION_TYPES.RESET_UPLOAD_STATE });
     return { ...getState().upload };
   }
 );
 
 export const setUploadModeToDefault = () => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DEFAULT })
+    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DEFAULT });
     return getState().upload.mode;
   }
 );
 
 export const setUploadModeToDragging = () => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DRAGGING })
+    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DRAGGING });
     return getState().upload.mode;
   }
 );
 
 export const setUploadModeToDone = () => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DONE })
+    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DONE });
     return getState().upload.mode;
   }
 );
 
 export const setUploadModeToUploading = () => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_UPLOADING })
+    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_UPLOADING });
     return getState().upload.mode;
   }
 );
@@ -602,7 +601,7 @@ export const setCurrentAnalysisPage = (page, key) => promiseAction(
   }
 );
 
-export const setCurrentUser = (user, token, anonymous=false) => promiseAction(
+export const setCurrentUser = (user, token, anonymous = false) => promiseAction(
   (dispatch, getState) => {
     dispatch({ type: ACTION_TYPES.SET_LOGIN_INFO, token, user, anonymous });
     return (
@@ -707,7 +706,7 @@ export const submitLoginForm = (form) => promiseAction(
       rest
         .logout()
         .then(() => rest.login(login, password))
-        .catch(({ responseJSON: { message }}) => (
+        .catch(({ responseJSON: { message } }) => (
           dispatch(setDialogError('login', message))
             .then(() => dispatch(loginAnonymousUser()))
             .then(() => Promise.reject(new Error(message)))
@@ -810,7 +809,6 @@ export const toggleHeaderDropdown = () => promiseAction(
 export const triggerAnalysisAction = (args) => {
   return promiseAction(
     (dispatch, getState) => {
-      // (data, page=null, action=null, options={}) => {
       let {
         action,
         extraArgs,
@@ -865,7 +863,7 @@ export const triggerAnalysisAction = (args) => {
       return callback.apply(
         {
           dispatch,
-          getState,
+          getState
         }, /* this */
         [
           { objects, states },
@@ -878,7 +876,7 @@ export const triggerAnalysisAction = (args) => {
   );
 };
 
-export const truncateAnalysisPages = (count, options={}) => promiseAction(
+export const truncateAnalysisPages = (count, options = {}) => promiseAction(
   (dispatch, getState) => {
     dispatch({
       type: ACTION_TYPES.TRUNCATE_ANALYSIS_PAGES,
@@ -930,14 +928,14 @@ export const updateDialogForm = (form) => promiseAction(
 
 export const updateUploadBrowseText = (text) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_BROWSE_TEXT, text })
+    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_BROWSE_TEXT, text });
     return getState().upload.browseText;
   }
 );
 
 export const updateUploadFileEntry = (index, state) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_FILE_ENTRY, index, state })
+    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_FILE_ENTRY, index, state });
     let result = getState().upload.fileEntries[index];
     if (result) {
       result = { ...result };
@@ -948,7 +946,7 @@ export const updateUploadFileEntry = (index, state) => promiseAction(
 
 export const updateUploadProgress = (current, goal) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_PROGRESS, current, goal })
+    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_PROGRESS, current, goal });
     let { upload } = getState();
     return [upload.progress, upload.progressGoal];
   }
@@ -956,12 +954,12 @@ export const updateUploadProgress = (current, goal) => promiseAction(
 
 export const updateUploadStatusText = (text) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_STATUS_TEXT, text })
+    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_STATUS_TEXT, text });
     return getState().upload.statusText;
   }
 );
 
-export const uploadFile = (file, params=null, parent=null) => promiseAction(
+export const uploadFile = (file, params = null, parent = null) => promiseAction(
   (dispatch, getState) => {
     params = params || {};
     let { callbacks, metaData, ...restParams } = params;
@@ -999,14 +997,14 @@ export const uploadFile = (file, params=null, parent=null) => promiseAction(
       fileModel.on('g:upload.error', (info) => {
         let e = new Error('Upload Error');
         e.info = info;
-        e.type = 'upload'
+        e.type = 'upload';
         reject(e);
       });
 
       fileModel.on('g:upload.errorStarting', (info) => {
         let e = new Error('Upload Start Error');
         e.info = info;
-        e.type = 'uploadStart'
+        e.type = 'uploadStart';
         reject(e);
       });
 
@@ -1035,12 +1033,12 @@ export const uploadFile = (file, params=null, parent=null) => promiseAction(
               v,
               () => resolve(item),
               ({ message }) => reject(new Error(message))
-            )
+            );
           })
         )
       )))
 
-      .then(() => ({ item: itemModel, ...payload }))
+      .then(() => ({ item: itemModel, ...payload }));
     });
   }
 );
@@ -1085,7 +1083,6 @@ export default {
   removeAnalysisPage,
   removeUploadFileEntry,
   resetUploadState,
-  updateAnalysisElementState,
   setCurrentUser,
   setDialogError,
   setFileNavigationRoot,

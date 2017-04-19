@@ -2,7 +2,7 @@
 import actions from '../actions';
 import analysisUtils from '../utils/analysis';
 import { Promise } from '../utils/promise';
-import { store, rest } from '../globals';
+import { store } from '../globals';
 
 import loadModel from '../utils/load-model';
 
@@ -20,25 +20,37 @@ let applyTabElement;
 let matchChooserElement;
 
 const computeMatch = (data, page) => {
-  const truncatePromise = Promise.all([
-    D(actions.truncateAnalysisPages(1, {
+  let truncatePromises = [null, null, null];
+
+  /* always dispatch the truncate action */
+  truncatePromises[0] = D(actions.truncateAnalysisPages(
+    1,
+    {
       clear: true,
       disable: true,
       remove: false
-    })),
+    }
+  ));
 
-    (
-      computeResultElement
-        ? D(actions.removeAnalysisElement(computeResultElement))
-        : null
-    ),
+  /*
+   * If there are results from the computation step,
+   * remove them from the page.
+   */
+  if (computeResultElement) {
+    truncatePromises[1] = D(actions.removeAnalysisElement(
+        computeResultElement));
+  }
 
-    (
-      applyResultElements
-        ? D(actions.removeAnalysisElement(applyResultElements))
-        : null
-    )
-  ]);
+  /*
+   * If there are results from the application step,
+   * remove them from the page.
+   */
+  if (applyResultElements) {
+    truncatePromises[2] = D(actions.removeAnalysisElement(
+        applyResultElements));
+  }
+
+  const truncatePromise = Promise.all(truncatePromises);
 
   const state = analysisUtils.aggregateStateData(data, page);
 
@@ -54,8 +66,7 @@ const computeMatch = (data, page) => {
 
   const runPromise = (
     analysisUtils.runTask(task, { inputs, outputs }, { title, maxPolls })
-
-    .then(({ match_result: { data: result } }) => result)
+      .then(({ match_result: { data: result } }) => result)
   );
 
   return (
@@ -100,27 +111,37 @@ const computeMatch = (data, page) => {
 };
 
 const applyMatch = (data, page) => {
-  const truncatePromise = Promise.all([
-    D(actions.truncateAnalysisPages(1, {
+  let truncatePromises = [null, null];
+
+  /* always dispatch the truncate action */
+  truncatePromises[0] = D(actions.truncateAnalysisPages(
+    1,
+    {
       clear: true,
       disable: true,
       remove: false
-    })),
+    }
+  ));
 
-    (
-      applyResultElements
-        ? D(actions.removeAnalysisElement(applyResultElements))
-        : null
-    )
-  ]);
+  /*
+   * If there are results from the application step,
+   * remove them from the page.
+   */
+  if (applyResultElements) {
+    truncatePromises[1] = D(actions.removeAnalysisElement(
+        applyResultElements));
+  }
+
+  const truncatePromise = Promise.all(truncatePromises);
 
   const state = analysisUtils.aggregateStateData(data, page);
 
-  const metaDataPromise = Promise.all(
-    [state.input1, state.input2].map((input) => (
+  const metaDataPromise = Promise.map(
+    [state.input1, state.input2],
+    (input) => (
       loadModel(input, ItemModel)
-      .then((item) => Object.entries(item.attributes.meta || {}))
-    ))
+        .then((item) => Object.entries(item.attributes.meta || {}))
+    )
   );
 
   const task = 'feature-apply';
@@ -167,27 +188,25 @@ const applyMatch = (data, page) => {
 
     .then(([, meta, result]) => {
       let { outputId1, outputId2 } = result;
-      return (
-        Promise.all([
-          loadModel(outputId1, ItemModel),
-          loadModel(outputId2, ItemModel)
-        ])
-
+      return Promise.all([
+        loadModel(outputId1, ItemModel),
+        loadModel(outputId2, ItemModel)
+      ])
         .then((items) => (
-          Promise.all(
-            items.map((item, i) => (
+          Promise.map(
+            items,
+            (item, i) => (
               Promise.mapSeries(
                 meta[i],
                 ([k, v]) => new Promise((resolve, reject) => {
                   item.addMetadata(
                     k, v, () => resolve(),
                     ({ message }) => reject(new Error(message))
-                  )
+                  );
                 })
               )
-            ))
+            )
           )
-
           .then(() => Promise.mapSeries(
             items,
             (item) => D(actions.addAnalysisElement(
@@ -202,9 +221,7 @@ const applyMatch = (data, page) => {
             ))
           ))
         ))
-
-        .then((elements) => { applyResultElements = elements; })
-      )
+        .then((elements) => { applyResultElements = elements; });
     })
   );
 };

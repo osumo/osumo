@@ -2,7 +2,7 @@
 import actions from '../actions';
 import analysisUtils from '../utils/analysis';
 import { Promise } from '../utils/promise';
-import { store, rest } from '../globals';
+import { store } from '../globals';
 import igpse2 from './igpse2';
 
 const D = store.dispatch.bind(store);

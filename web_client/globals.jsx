@@ -7,7 +7,6 @@ import { rest as girderRest } from 'girder';
 export const apiRoot = girderRest.apiRoot;
 
 import restRequests from './utils/rest-requests';
-import events from './utils/events';
 export const staticRoot = 'static';
 export const rest = restRequests;
 

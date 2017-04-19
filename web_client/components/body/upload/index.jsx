@@ -1,19 +1,9 @@
 import React from 'react';
-import { isNull } from 'lodash';
-import $ from 'jquery';
-
-import ItemModel from 'girder/models/ItemModel';
-
-import { Promise } from '../../../utils/promise';
-import objectReduce from '../../../utils/object-reduce';
-import TextField from '../../common/text-field';
-import { rest } from '../../../globals';
 
 import FileEntry from './file-entry';
 import UploadDone from './upload-done';
 import UploadPanel from './panel';
 
-import dataVarietyTable from './data-variety-table';
 import modes from './mode-constants';
 import './style.styl';
 
@@ -37,8 +27,7 @@ class Upload extends React.Component {
       onFileEntryTypeChange,
       onReset,
       onUploadSubmit,
-      removeFileEntry,
-      updateFileEntryUploaded
+      removeFileEntry
     } = this.props;
 
     if (!browseText) {

@@ -3,7 +3,7 @@ import React from 'react';
 import modes from './mode-constants';
 
 class UploadDone extends React.Component {
-  render() {
+  render () {
     let {
       mode,
       onReset,

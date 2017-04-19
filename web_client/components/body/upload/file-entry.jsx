@@ -52,7 +52,6 @@ class FileEntry extends React.Component {
       width: '150px'
     };
 
-
     return (
       <li className='g-upload-entry'>
         <button

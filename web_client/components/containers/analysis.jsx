@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { isNil } from 'lodash';
 
 import Analysis from '../body/analysis';
 import actions from '../../actions';

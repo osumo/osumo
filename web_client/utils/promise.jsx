@@ -48,7 +48,6 @@ export const map = (args) => {
           if (remainingChains <= 0) {
             Promise.all(resultArray).then(resolve).catch(reject);
           }
-
         } else {
           resultArray[i] = Promise.resolve().then(
             () => mapper(array[i], i, array, pIndex, factor)

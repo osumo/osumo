@@ -32,7 +32,7 @@ const actionProcess = (data, page) => {
 
     .then(({
       centers: { fileId: centersId },
-      clusters: { fileId: clustersId },
+      clusters: { fileId: clustersId }
     }) => ({
       centersId,
       clustersId

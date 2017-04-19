@@ -1,8 +1,5 @@
 import React from 'react';
 
-import { isNil } from 'lodash';
-import { Promise } from '../../../../utils/promise';
-
 class GirderItem extends React.Component {
   render () {
     let {

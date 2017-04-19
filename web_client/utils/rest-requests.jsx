@@ -1,8 +1,6 @@
 import { restRequest } from 'girder/rest';
 import { login, logout } from 'girder/auth';
 import { Promise } from './promise';
-import { search as searchCookies } from './cookie';
-import ajax from './ajax';
 
 const restRequests = (...args) => {
   const wrap = (response, status, jqXHR) => ({
@@ -10,11 +8,17 @@ const restRequests = (...args) => {
     status,
     jqXHR
   });
-  return new Promise((resolve, reject) => restRequest(...args).then((...a) => resolve(wrap(...a)), reject));
+
+  return new Promise(
+    (resolve, reject) => restRequest(...args)
+      .then((...a) => resolve(wrap(...a)), reject)
+  );
 };
 
 restRequests.login = (...args) => {
-  return new Promise((resolve, reject) => login(...args).then(resolve, reject));
+  return new Promise(
+    (resolve, reject) => login(...args).then(resolve, reject)
+  );
 };
 
 restRequests.anonLogin = () => restRequests({
@@ -23,7 +27,9 @@ restRequests.anonLogin = () => restRequests({
 });
 
 restRequests.logout = (...args) => {
-  return new Promise((resolve, reject) => logout(...args).then(resolve, reject));
+  return new Promise(
+    (resolve, reject) => logout(...args).then(resolve, reject)
+  );
 };
 
 export default restRequests;
