@@ -3,8 +3,7 @@
 name: feature-extract
 mode: python
 
-script: >
-  @include<feature-extract.py>
+script: "#include<feature-extract.py>"
 
 inputs:
   - name: input_path_1

@@ -1,31 +1,12 @@
+"""YAML loading and processing functions."""
+
 import yaml
-import os.path
-from re import compile, MULTILINE
 
-RE_INCLUDE = compile(r"""^\s*@include\<([^\<\>]+)\>\s*$""", MULTILINE)
+from .preprocessor import preprocess
 
-def preprocess(value, path):
-    try:
-        match = RE_INCLUDE.search(value)
-    except TypeError:
-        return value
-    else:
-        while match is not None:
-            rel_path = match.group(1)
-            file_path = os.path.join(path, rel_path)
-            local_dirname = os.path.dirname(file_path)
-            span = match.span()
-            with open(file_path) as f:
-                value = ''.join(filter(None, (
-                        value[:span[0]],
-                        preprocess(f.read(), local_dirname),
-                        value[span[1]:])))
-
-            match = RE_INCLUDE.search(value)
-
-    return value
 
 def post_process(value, path):
+    """Process a parsed YAML document."""
     is_dict = True
     is_array = False
     try:
@@ -35,18 +16,24 @@ def post_process(value, path):
         is_array = not isinstance(value, basestring)
         if is_array:
             try:
-                generator = ( post_process(x, path) for x in value )
+                generator = (post_process(x, path) for x in value)
             except TypeError:
                 is_array = False
 
     if is_dict:
-        return { k: post_process(v, path) for k, v in generator }
+        return {k: post_process(v, path) for k, v in generator}
 
     if is_array:
         return list(generator)
 
-    return preprocess(value, os.path.dirname(path))
+    try:
+        value = preprocess(value, path)
+    except TypeError:
+        pass
+
+    return value
 
 
 def load(path):
+    """Load and process a YAML file."""
     return post_process(yaml.load(open(path)), path)

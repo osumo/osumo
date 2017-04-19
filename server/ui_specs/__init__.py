@@ -17,6 +17,8 @@
 #  limitations under the License.
 ##############################################################################
 
+"""UI specifications for OSUMO workflows."""
+
 import os.path
 
 from glob import iglob
@@ -37,7 +39,6 @@ ui_specs = {  # dictionary
 for key in ui_specs:
     if 'tags' in ui_specs[key]:
         ui_specs[key]['tags'] = set(
-                filter(bool, (
-                    x.lower().strip() for x in ui_specs[key]['tags'])))
+            filter(None, (x.lower().strip() for x in ui_specs[key]['tags'])))
 
     ui_specs[key]['key'] = key.lower()

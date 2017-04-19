@@ -17,6 +17,8 @@
 #  limitations under the License.
 ##############################################################################
 
+"""Task specifications for OSUMO jobs."""
+
 import os.path
 
 from glob import iglob
@@ -36,4 +38,3 @@ task_specs = {  # dictionary
 
 for key in task_specs:
     task_specs[key]['key'] = key.lower()
-

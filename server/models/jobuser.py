@@ -1,9 +1,18 @@
+"""Companion model for jobs created by OSUMO."""
 
 from girder.models.model_base import AccessControlledModel, ValidationException
 from girder.constants import AccessType
 
+
 class Jobuser(AccessControlledModel):
+    """Companion model for jobs created by OSUMO.
+
+    Jobuser objects contain additional information about the user that created
+    the job, and the list of new Girder files and items created by it.
+    """
+
     def initialize(self):
+        """Initialize an empty Jobuser object."""
         self.name = 'jobuser'
         self.ensureIndices(('jobId', 'userId'))
 
@@ -11,6 +20,7 @@ class Jobuser(AccessControlledModel):
             '_id', 'jobId', 'userId', 'processedFiles'))
 
     def validate(self, doc):
+        """Validate this Jobuser object."""
         doc['processedFiles'] = doc.get('processedFiles', [])
 
         for modelType, key in (
@@ -21,31 +31,29 @@ class Jobuser(AccessControlledModel):
 
             if not childId:
                 raise ValidationException(
-                        'Jobuser {} must not be empty.'.format(key), key)
+                    'Jobuser {} must not be empty.'.format(key), key)
 
             childDoc = self.model(*modelType).findOne(
-                    {'_id': childId}, fields=['_id'])
+                {'_id': childId}, fields=['_id'])
 
             if not childDoc:
                 raise ValidationException(
-                        ('Jobuser referenced {} not found: {}.'
-                            .format(modelType[0], childId)), key)
+                    'Jobuser referenced {} not found: {}.'.format(
+                        modelType[0], childId),
+                    key)
 
         for processedFile in doc['processedFiles']:
-            fileId = processedFile.get('fileId')
-            itemId = processedFile.get('itemId')
-            name = processedFile.get('name')
-
             for key in ('fileId', 'itemId', 'name'):
                 if key not in processedFile:
                     raise ValidationException(
-                            ('Jobuser processedFile entry must have a {}.'
-                                .format(key)),
-                            'processedFile')
+                        'Jobuser processedFile entry must have a {}.'.format(
+                            key),
+                        'processedFile')
 
         return doc
 
     def createJobuser(self, jobId, userId, processedFiles=[]):
+        """Create a new Jobuser object."""
         jobuser = {
             'jobId': jobId,
             'userId': userId,
@@ -55,6 +63,7 @@ class Jobuser(AccessControlledModel):
         return self.save(jobuser)
 
     def appendFile(self, jobuser, fileId, itemId, name):
+        """Add a file entry to this object's list of processed files."""
         pfiles = jobuser.get('processedFiles', [])
         pfiles.append({
             'fileId': fileId,
@@ -66,8 +75,8 @@ class Jobuser(AccessControlledModel):
         return self.save(jobuser)
 
     def appendFiles(self, jobuser, pfiles):
+        """Add several file entries to this object's list of processed files."""
         pfiles = jobuser.get('processedFiles', [])
         pfiles.extend(pfiles)
         jobuser['processedFiles'] = pfiles
         return self.save(jobuser)
-

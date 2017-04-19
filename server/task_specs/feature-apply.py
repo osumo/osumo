@@ -1,10 +1,20 @@
-@include<lib/csv.py>
+"""Apply a previously-computed feature matching to the given data sets."""
 
 import json
 
-def main(input_path_1, input_path_2, match_input_path,
-        output_path_1, output_path_2):
+# include<lib/csv.py>
 
+# ifdef<LINTING>
+from included_files import get_dialect, read_csv, write_csv
+from girder_worker_environment import input_path_1, input_path_2, match_json
+# endif
+
+
+def main(
+        input_path_1, input_path_2,
+        match_input_path, output_path_1,
+        output_path_2):
+    """Main entry point."""
     dialect_1 = get_dialect(input_path_1)
     dialect_2 = get_dialect(input_path_2)
 
@@ -12,9 +22,9 @@ def main(input_path_1, input_path_2, match_input_path,
     data2, rows2, columns2 = read_csv(input_path_2, dialect_2)
 
     try:
-        match_results = json.loads(match_json)
+        match_results = json.loads(match_input_path)
     except Exception:
-        with open(match_json) as f:
+        with open(match_input_path) as f:
             match_results = json.load(f)
 
     mode1, mode2 = match_results.get('mode', 'cc').lower()
@@ -59,4 +69,4 @@ else:
     output_path_1 = 'output_1.csv'
     output_path_2 = 'output_2.csv'
 
-main(input_path_1, input_path_2, match_input_path, output_path_1, output_path_2)
+main(input_path_1, input_path_2, match_json, output_path_1, output_path_2)

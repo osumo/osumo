@@ -3,8 +3,7 @@
 name: feature-match
 mode: python
 
-script: >
-  @include<feature-match.py>
+script: "#include<feature-match.py>"
 
 inputs:
   - name: input_path_1

@@ -3,8 +3,7 @@
 name: feature-apply
 mode: python
 
-script: >
-  @include<feature-apply.py>
+script: "#include<feature-apply.py>"
 
 inputs:
   - name: input_path_1

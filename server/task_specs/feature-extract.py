@@ -1,6 +1,14 @@
-@include<lib/csv.py>
+"""Extract the columns from one or two data sets."""
+
+# include<lib/csv.py>
 
 import json
+
+# ifdef<LINTING>
+from included_files import get_dialect, ColumnExtractor
+from girder_worker_environment import input_path_1, input_path_2
+# endif
+
 
 dialect1 = get_dialect(input_path_1)
 dialect2 = get_dialect(input_path_2)
@@ -13,11 +21,12 @@ list2 = None
 with open(input_path_2, 'rU') as input2:
     list2 = list(ColumnExtractor(input2, dialect2))
 
-extract_result = list(sorted(
-            ({'id': (a if len(a) < len(b) else b),
-                'description': '{}/{}'.format(a, b)}
-            for (a, b) in zip(list1, list2)),
-            key=(lambda x: x['id'])))
+values = (
+    {'id': (a if len(a) < len(b) else b),
+        'description': '{}/{}'.format(a, b)}
+    for (a, b) in zip(list1, list2))
+
+extract_result = list(sorted(values, key=(lambda x: x['id'])))
 
 lastId = None
 counter = 0
