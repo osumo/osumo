@@ -270,7 +270,7 @@ export const ensureUserDirectory = (args) => {
       }
 
       if (isNil(user)) {
-        ({ user } = getState().loginInfo);
+        user = getState().loginInfo.user;
       }
 
       if (isNil(user)) {
@@ -288,26 +288,30 @@ export const ensureUserDirectory = (args) => {
           sort: 'lowerName',
           sortdir: 1
         }
-      }).then(({ response: folderList }) => (
-        folderList.length === 0
+      }).then(({ response: folderList }) => {
+        let result;
+        if (folderList.length > 0) {
+          result = folderList[0];
+        } else {
+          let restPath = {
+            parentType: 'user',
+            parentId: user._id,
+            name,
+            description: description || ''
+          };
 
-          ? rest({
-            path: [
-              'folder?',
+          restPath = Object.entries(restPath)
+            .map((entry) => entry.join('='))
+            .join('&');
 
-              [
-                'parentType=user',
-                `parentId=${user._id}`,
-                `name=${name}`,
-                `description=${description || ''}`
-              ].join('&')
+          restPath = ['folder', restPath].join('?');
 
-            ].join(''),
-            type: 'POST'
-          }).then(({ response }) => response)
+          result = rest({ path: restPath, type: 'POST' })
+            .then(({ response }) => response);
+        }
 
-          : folderList[0]
-      ));
+        return result;
+      });
 
       if (returnModel) {
         result = result.then(getModelFromResource);
@@ -827,11 +831,11 @@ export const triggerAnalysisAction = (args) => {
         let { analysis } = getState();
 
         if (isNil(objects)) {
-          ({ objects } = analysis);
+          objects = analysis.objects;
         }
 
         if (isNil(states)) {
-          ({ states } = analysis);
+          states = analysis.states;
         }
 
         if (isString(page)) {
@@ -1024,7 +1028,6 @@ export const uploadFile = (file, params = null, parent = null) => promiseAction(
         req.done(() => { resolve(itemModel); });
         req.error(() => { reject(new Error()); });
       })
-
       .then((item) => (
         Promise.mapSeries(metaData || [], ([k, v]) => (
           new Promise((resolve, reject) => {
@@ -1037,7 +1040,6 @@ export const uploadFile = (file, params = null, parent = null) => promiseAction(
           })
         )
       )))
-
       .then(() => ({ item: itemModel, ...payload }));
     });
   }

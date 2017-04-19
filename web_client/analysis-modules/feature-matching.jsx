@@ -64,13 +64,12 @@ const computeMatch = (data, page) => {
   const title = 'feature-match';
   const maxPolls = 40;
 
-  const runPromise = (
-    analysisUtils.runTask(task, { inputs, outputs }, { title, maxPolls })
-      .then(({ match_result: { data: result } }) => result)
-  );
+  const runPromise = analysisUtils.runTask(
+      task, { inputs, outputs }, { title, maxPolls }
+    )
+    .then(({ match_result: { data: result } }) => result);
 
-  return (
-    Promise.all([truncatePromise, runPromise])
+  return Promise.all([truncatePromise, runPromise])
     .then(([, result]) => result)
     .then((result) => {
       return (
@@ -86,7 +85,6 @@ const computeMatch = (data, page) => {
             ]
           }
         ))
-
         .then(({ item }) => Promise.all([
           D(actions.addAnalysisElement(
             {
@@ -98,16 +96,13 @@ const computeMatch = (data, page) => {
             },
             computeTabElement
           )),
-
           D(actions.populateFileSelectionElement(
             matchChooserElement, item.attributes
           ))
         ]))
-
         .then(([e]) => { computeResultElement = e; })
       );
-    })
-  );
+    });
 };
 
 const applyMatch = (data, page) => {
@@ -154,20 +149,16 @@ const applyMatch = (data, page) => {
   const title = 'feature-apply';
   const maxPolls = 40;
 
-  const runPromise = (
-    D(actions.ensureScratchDirectory())
-
+  const runPromise = D(actions.ensureScratchDirectory())
     .then((dir) => {
       const prefix = `FILE:${dir.attributes._id}`;
       const { states } = data;
       outputs.output_path_1 = `${prefix}:${states[page.elements[0]].name}`;
       outputs.output_path_2 = `${prefix}:${states[page.elements[1]].name}`;
     })
-
     .then(() => (
       analysisUtils.runTask(task, { inputs, outputs }, { title, maxPolls })
     ))
-
     .then(
       ({
         output_path_1: { itemId: outputId1 },
@@ -176,16 +167,9 @@ const applyMatch = (data, page) => {
         outputId1,
         outputId2
       })
-    )
-  );
+    );
 
-  return (
-    Promise.all([
-      truncatePromise,
-      metaDataPromise,
-      runPromise
-    ])
-
+  return Promise.all([truncatePromise, metaDataPromise, runPromise])
     .then(([, meta, result]) => {
       let { outputId1, outputId2 } = result;
       return Promise.all([
@@ -200,7 +184,9 @@ const applyMatch = (data, page) => {
                 meta[i],
                 ([k, v]) => new Promise((resolve, reject) => {
                   item.addMetadata(
-                    k, v, () => resolve(),
+                    k,
+                    v,
+                    () => resolve(),
                     ({ message }) => reject(new Error(message))
                   );
                 })
@@ -222,23 +208,17 @@ const applyMatch = (data, page) => {
           ))
         ))
         .then((elements) => { applyResultElements = elements; });
-    })
-  );
+    });
 };
 
-const main = () => (
-  Promise.resolve()
-
+const main = () => Promise.resolve()
   .then(() => D(actions.registerAnalysisAction(
     'feature-match', 'computeMatch', computeMatch))
   )
-
   .then(() => D(actions.registerAnalysisAction(
     'feature-match', 'applyMatch', applyMatch))
   )
-
   .then(() => analysisUtils.fetchAnalysisPage('feature-match'))
-
   .then((page) => {
     let tabGroup = page.elements[2];
     page.elements = page.elements.slice(0, 2);
@@ -249,29 +229,20 @@ const main = () => (
     let applyTabElements = applyTab.elements;
     delete applyTab.elements;
 
-    return (
-      D(actions.addAnalysisPage({ ...page, enabled: false }))
-
+    return D(actions.addAnalysisPage({ ...page, enabled: false }))
       .then((page) => (page1 = page))
-
       .then(() => D(actions.addAnalysisElement(tabGroup, page1)))
       .then((e) => (tabGroupElement = e))
-
       .then(() => D(actions.addAnalysisElement(computeTab, tabGroupElement)))
       .then((e) => (computeTabElement = e))
-
       .then(() => D(actions.addAnalysisElement(applyTab, tabGroupElement)))
       .then((e) => (applyTabElement = e))
-
       .then(() => Promise.mapSeries(
         applyTabElements,
         (e) => D(actions.addAnalysisElement(e, applyTabElement))
       ))
-      .then(([e]) => (matchChooserElement = e))
-    );
+      .then(([e]) => (matchChooserElement = e));
   })
-
-  .then(() => D(actions.enableAnalysisPage(page1)))
-);
+  .then(() => D(actions.enableAnalysisPage(page1)));
 
 export default main;

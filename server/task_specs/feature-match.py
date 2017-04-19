@@ -235,12 +235,6 @@ def main_metric(a, b):
     """
     return jaro(a, b)
 
-# # uncomment to test in the command line
-# from sys import argv
-# input_path_1 = argv[1]
-# input_path_2 = argv[2]
-# match_spec   = argv[3]
-
 dialect1 = get_dialect(input_path_1)
 dialect2 = get_dialect(input_path_2)
 

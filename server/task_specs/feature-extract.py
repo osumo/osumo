@@ -9,7 +9,6 @@ from included_files import get_dialect, ColumnExtractor
 from girder_worker_environment import input_path_1, input_path_2
 # endif
 
-
 dialect1 = get_dialect(input_path_1)
 dialect2 = get_dialect(input_path_2)
 
