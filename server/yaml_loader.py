@@ -1,8 +1,29 @@
 import yaml
 import os.path
-from re import compile
+from re import compile, MULTILINE
 
-RE_INCLUDE = compile(r"""^@include\(([^\(\)]+)\)""")
+RE_INCLUDE = compile(r"""^\s*@include\<([^\<\>]+)\>\s*$""", MULTILINE)
+
+def preprocess(value, path):
+    try:
+        match = RE_INCLUDE.search(value)
+    except TypeError:
+        return value
+    else:
+        while match is not None:
+            rel_path = match.group(1)
+            file_path = os.path.join(path, rel_path)
+            local_dirname = os.path.dirname(file_path)
+            span = match.span()
+            with open(file_path) as f:
+                value = ''.join(filter(None, (
+                        value[:span[0]],
+                        preprocess(f.read(), local_dirname),
+                        value[span[1]:])))
+
+            match = RE_INCLUDE.search(value)
+
+    return value
 
 def post_process(value, path):
     is_dict = True
@@ -24,17 +45,7 @@ def post_process(value, path):
     if is_array:
         return list(generator)
 
-    try:
-        match = RE_INCLUDE.match(value)
-    except TypeError:
-        pass
-    else:
-        if match is not None:
-            rel_path = match.group(1)
-            file_path = os.path.join(os.path.dirname(path), rel_path)
-            value = open(file_path).read()
-
-    return value
+    return preprocess(value, os.path.dirname(path))
 
 
 def load(path):

@@ -3,7 +3,8 @@
 name: silhouette
 mode: r
 
-script: "@include(silhouette.r)"
+script: >
+  @include<silhouette.r>
 
 inputs:
   - name: input_path

@@ -3,7 +3,8 @@
 name: kmeans
 mode: r
 
-script: "@include(kmeans.r)"
+script: >
+  @include<kmeans.r>
 
 inputs:
   - name: input_path

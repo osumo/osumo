@@ -1,22 +1,13 @@
+@include<lib/csv.py>
 
 import collections
-import csv
 import json
 
 import itertools as it
 import numpy as np
-import scipy as sp
 
-from functools import wraps
-from time import time
 from scipy import optimize
 from Levenshtein import jaro
-
-ROW_SCAN_SIZE = 1024
-
-SNIFFER_SIZE = 1024
-SNIFFER_NUM_LINES = 3
-SNIFFER_DELIMITERS = ',;\t\n|'
 
 AssignmentResult = collections.namedtuple(
         'AssignmentResult', ('assignments', 'score'))
@@ -178,91 +169,7 @@ def split_string(x):
     if current:
         result.append(''.join(current))
 
-    return [x for x in result if x]
-
-
-class ColumnExtractor(object):
-    def __init__(self, file, dialect):
-        self.file = file
-        self.dialect = dialect
-        self.reader = csv.reader(file, dialect)
-        self._columns = None
-        self._index = None
-
-    def _get_columns(self):
-        if self._columns is None:
-            self._columns = next(self.reader)[1:]
-
-        return self._columns
-
-    def next(self):
-        self._get_columns()
-
-        if self._index is None:
-            self._index = 0
-        else:
-            self._index += 1
-
-        result = self._columns[self._index:self._index + 1]
-        if not result:
-            raise StopIteration
-
-        return result[0]
-
-    def __iter__(self):
-        return self
-
-
-class RowExtractor(object):
-    def __init__(self, file, dialect):
-        self.file = file
-        self.dialect = dialect
-
-    def next(self):
-        read_until(self.file, '\n')
-        field = read_until(self.file, self.dialect.delimiter)
-        if not field:
-            raise StopIteration
-
-        if (
-                field[0] == field[-1] and
-                field[0] == self.dialect.quotechar and
-                self.dialect.quoting):
-            field = field[1:-1]
-
-        return field
-
-    def __iter__(self):
-        return self
-
-
-def read_until(f, char, num=1):
-    result = ''
-    if num > 0:
-        while True:
-            sample = f.read(SNIFFER_SIZE)
-            if not sample:
-                break
-
-            num -= sum(1 if c == char else 0 for c in sample)
-            result += sample
-
-            if num <= 0:
-                break
-
-        while num <= 0:
-            n = result.rfind(char)
-
-            if n < 0:
-                break
-
-            n -= len(result)
-            f.seek(n, 1)
-            result = result[:n]
-            num += 1
-
-    return result + f.read(1)
-
+    return filter(None, result)
 
 @transform_metric(split_string)
 @combinatorial_match_metric
@@ -276,19 +183,8 @@ def main_metric(a, b):
 # input_path_2 = argv[2]
 # match_spec   = argv[3]
 
-dialect1 = None
-dialect2 = None
-
-with open(input_path_1, 'rU') as input1:
-    dialect1 = csv.Sniffer().sniff(
-        read_until(input1, '\n', SNIFFER_NUM_LINES),
-        delimiters=SNIFFER_DELIMITERS
-    )
-with open(input_path_2, 'rU') as input2:
-    dialect2 = csv.Sniffer().sniff(
-        read_until(input2, '\n', SNIFFER_NUM_LINES),
-        delimiters=SNIFFER_DELIMITERS
-    )
+dialect1 = get_dialect(input_path_1)
+dialect2 = get_dialect(input_path_2)
 
 match_result = {}
 match_spec = match_spec.lower()
@@ -298,20 +194,14 @@ if mode1 not in 'rc' or mode2 not in 'rc':
     raise ValueError('Invalid match specification')
 
 list1 = None
+extractor = ColumnExtractor if mode1 == 'c' else RowExtractor
 with open(input_path_1, 'rU') as input1:
-    list1 = [
-        x for x in (
-            ColumnExtractor if mode1 == 'c' else RowExtractor
-        )(input1, dialect1)
-    ]
+    list1 = list(extractor(input1, dialect1))
 
 list2 = None
+extractor = ColumnExtractor if mode2 == 'c' else RowExtractor
 with open(input_path_2, 'rU') as input2:
-    list2 = [
-        x for x in (
-            ColumnExtractor if mode2 == 'c' else RowExtractor
-        )(input2, dialect2)
-    ]
+    list2 = list(extractor(input2, dialect2))
 
 assignments = compute_assignments(list1, list2, main_metric)
 
@@ -322,4 +212,3 @@ match_result = {
 }
 
 match_result = json.dumps(match_result)
-
