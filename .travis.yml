@@ -18,8 +18,10 @@ before_install:
   - nvm install v6
   - nvm use v6
   - npm config set python `which python`
+  - npm install -g npm
 
 script:
+  - npm install
   - npm run lint
   - npm run lint:server
 
