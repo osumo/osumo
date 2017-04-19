@@ -9,17 +9,14 @@ export const SCHEDULES = {
   STATIC: 'static'
 };
 
-export const map = (args) => {
-  let {
-    array,
-    factor,
-    mapper,
-    schedule
-  } = args;
-
-  factor = factor || 1;
-  schedule = schedule || SCHEDULES.STATIC;
-
+export const map = (
+  array,
+  mapper,
+  {
+    factor = 1,
+    schedule = SCHEDULES.STATIC
+  } = {}
+) => {
   /* run sequentially: in this case, there's no difference between schedules */
   if (factor === 1) {
     return Promise.mapSeries(

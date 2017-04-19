@@ -93,15 +93,12 @@ const UploadContainer = connect(
           dispatch(actions.ensurePrivateDirectory()),
           dispatch(actions.ensureScratchDirectory())
         ]))
-        .then(() => (
-          promiseMap({
-            array: fileEntries,
-            factor: 3,
-            schedule: SCHEDULES.DYNAMIC,
-            mapper: ({ handle, metaType }, index) => (
-              uploadAndTag(handle, metaType, bytesHandler(index), dispatch)
-            )
-          })
+        .then(() => promiseMap(
+          fileEntries,
+          ({ handle, metaType }, index) => (
+            uploadAndTag(handle, metaType, bytesHandler(index), dispatch)
+          ),
+          { factor: 3, schedule: SCHEDULES.DYNAMIC }
         ))
         .then(() => dispatch(actions.updateUploadStatusText('')))
         .then(() => dispatch(actions.setUploadModeToDone()))
