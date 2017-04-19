@@ -29,6 +29,7 @@
     "build": "webpack",
     "build:watch": "webpack --watch --progress",
     "lint": "semistandard --verbose --color | snazzy --color",
+    "lint:server": "python -m flake8 --config=.flake8.cfg server",
     "test:frontend": "babel-tape-runner 'web_client/tests/**/*.js*' | tap-spec"
   },
   "devDependencies": {

@@ -58,15 +58,6 @@ def main(
     write_csv(new_data1, new_rows1, new_cols1, output_path_1, dialect_1)
     write_csv(new_data2, new_rows2, new_cols2, output_path_2, dialect_2)
 
-if __name__ == '__main__':
-    from sys import argv
-    input_path_1 = argv[1]
-    input_path_2 = argv[2]
-    match_input_path = argv[3]
-    output_path_1 = argv[4]
-    output_path_2 = argv[5]
-else:
-    output_path_1 = 'output_1.csv'
-    output_path_2 = 'output_2.csv'
-
+output_path_1 = 'output_1.csv'
+output_path_2 = 'output_2.csv'
 main(input_path_1, input_path_2, match_json, output_path_1, output_path_2)
