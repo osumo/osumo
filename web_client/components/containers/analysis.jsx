@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { isNil } from 'lodash';
 
 import Analysis from '../body/analysis';
 import actions from '../../actions';
@@ -60,78 +59,42 @@ const AnalysisContainer = connect(
         .then((mod) => (mod ? mod() : null))
     ),
 
-    onAction: (...args) => dispatch(actions.triggerAnalysisAction(...args)),
+    onAction: (objects, states, page, action, ...extraArgs) => (
+      dispatch(actions.triggerAnalysisAction({
+        action,
+        extraArgs,
+        objects,
+        page,
+        states
+      }))
+    ),
 
     onFileSelect: (element) => (
       dispatch(actions.setItemSelectedCallback((item) => {
-        let { _modelType: type } = item;
-
-        let pathPromise;
-        let name, id, metaType;
-
-        name = item.name;
-        id = item._id;
-        metaType = ((item.meta || {}).sumoDataType || null);
-
-        if (type === 'item') {
-          pathPromise = (
-            rest({ path: `item/${id}/rootpath` })
-              .then(({ response }) => [
-                ...response,
-                { type: 'item', object: { name } }
-              ])
-          );
-        } else if (type === 'folder') {
-          pathPromise = getFolderRootpath(item);
-        } else {
-          if (type === 'user') {
-            name = item.login;
-          }
-          pathPromise = Promise.resolve([
-            { type, object: { name: item.name, login: item.login } }
-          ]);
-        }
-
-        return (
-          pathPromise
-            .map(({ type, object: { name, login } }) => (
-              type === 'user' ? `/users/${login}`
-              : type === 'collection' ? `/collections/${name}`
-              : `/${name}`
-            ))
-
-            .reduce((a, b) => a + b, '')
-
-            .then((path) => (
-              dispatch(actions.updateAnalysisElementState(
-                element, {
-                  value: id,
-                  name,
-                  path: `${path}`,
-                  type,
-                  ...(metaType ? { metaType } : {})
-                }
-              ))
-            ))
-
-            .then(() => dispatch(actions.closeDialog()))
+        (
+          dispatch(actions.populateFileSelectionElement(element, item))
+          .then(() => dispatch(actions.closeDialog()))
         );
       }))
 
       .then(() => {
         let { options } = element;
-        let { onlyNames, onlyTypes } = (options || {});
+        let { onlyNames, onlyDataTypes, onlyFileTypes } = (options || {});
 
         let filter = null;
-        let onlyNameRegex, onlyTypeRegex;
+        let onlyNameRegex, onlyDataTypeRegex, onlyFileTypeRegex;
 
-        if (onlyNames || onlyTypes) {
+        if (onlyNames || onlyDataTypes || onlyFileTypes) {
           if (onlyNames) {
             onlyNameRegex = new RegExp(onlyNames);
           }
 
-          if (onlyTypes) {
-            onlyTypeRegex = new RegExp(onlyTypes);
+          if (onlyDataTypes) {
+            onlyDataTypeRegex = new RegExp(onlyDataTypes);
+          }
+
+          if (onlyFileTypes) {
+            onlyFileTypeRegex = new RegExp(onlyFileTypes);
           }
 
           filter = (item) => {
@@ -140,10 +103,18 @@ const AnalysisContainer = connect(
               if (onlyNames && !onlyNameRegex.test(item.name)) {
                 result = false;
               } else if (
-                onlyTypes &&
+                onlyDataTypes &&
                 (
                   !item.meta ||
-                  !onlyTypeRegex.test(item.meta.sumoDataType)
+                  !onlyDataTypeRegex.test(item.meta.sumoDataType)
+                )
+              ) {
+                result = false;
+              } else if (
+                onlyFileTypes &&
+                (
+                  !item.meta ||
+                  !onlyFileTypeRegex.test(item.meta.sumoFileType)
                 )
               ) {
                 result = false;

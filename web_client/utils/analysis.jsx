@@ -1,11 +1,10 @@
-import { isArray, isString, isUndefined } from 'lodash';
+import { isArray, isUndefined } from 'lodash';
 
 import { rest, store } from '../globals';
 import objectReduce from './object-reduce';
 import { Promise } from './promise';
-import actions from '../actions';
 
-const aggregateStateDataHelper = (data, obj, cache={}) => {
+const aggregateStateDataHelper = (data, obj, cache = {}) => {
   let { objects, states } = data;
   objects = objects || {};
   states = states || {};
@@ -112,7 +111,8 @@ export const pollJob = (
         ++pollCounter;
       }
 
-      return pollJob(jobId, title, taskName, pollCounter, pollInterval);
+      return pollJob(
+        jobId, title, taskName, pollInterval, pollCounter, maxPolls);
     })
 );
 

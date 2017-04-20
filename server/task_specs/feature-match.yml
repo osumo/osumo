@@ -1,0 +1,42 @@
+---
+
+name: feature-match
+mode: python
+
+script: "#include<feature-match.py>"
+
+inputs:
+  - name: input_path_1
+    type: string
+    target: filepath
+    format: text
+
+  - name: input_path_2
+    type: string
+    target: filepath
+    format: text
+
+    # two-character string describing what match to perform
+    #
+    # Each character can be either 'c' for 'columns' or 'r' for 'rows'.  The
+    # first and second characters specify which entries from the first and
+    # second input files to match, respectively.
+    #
+    # For examples: "rr" specifies that the rows in the first file should be
+    # matched with the rows in the second file, and "cr" specifies that the
+    # columns in the first file should be matched with the rows in the second
+    # file.
+  - name: match_spec
+    type: string
+    format: text
+    default: cc
+
+outputs:
+    # JSON-encoded string object with the results of all matches specified in
+    # matches.  Each attribute in the JSON object is a match specified in
+    # matches, and they map to the result of performing that match.
+  - name: match_result
+    target: memory
+    type: string
+    format: text
+

@@ -3,10 +3,12 @@ import ACTION_TYPES from './action-types';
 
 const ensure = (x, def) => (isNil(x) ? def : x);
 
-const setLoginInfo = (loginInfo, user, token, anonymous=false) => {
+const setLoginInfo = (loginInfo, user, token, anonymous = false) => {
   token = ensure(token, (user ? user.token : undefined));
 
-  if (loginInfo.user !== user || loginInfo.token !== token || loginInfo.anonymous !== anonymous) {
+  if (loginInfo.user !== user ||
+        loginInfo.token !== token ||
+        loginInfo.anonymous !== anonymous) {
     loginInfo = { ...loginInfo, token, user, anonymous };
   }
 

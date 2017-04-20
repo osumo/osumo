@@ -1,10 +1,12 @@
-import yaml
-import os.path
-from re import compile
+"""YAML loading and processing functions."""
 
-RE_INCLUDE = compile(r"""^@include\(([^\(\)]+)\)""")
+import yaml
+
+from .preprocessor import preprocess
+
 
 def post_process(value, path):
+    """Process a parsed YAML document."""
     is_dict = True
     is_array = False
     try:
@@ -14,28 +16,24 @@ def post_process(value, path):
         is_array = not isinstance(value, basestring)
         if is_array:
             try:
-                generator = ( post_process(x, path) for x in value )
+                generator = (post_process(x, path) for x in value)
             except TypeError:
                 is_array = False
 
     if is_dict:
-        return { k: post_process(v, path) for k, v in generator }
+        return {k: post_process(v, path) for k, v in generator}
 
     if is_array:
         return list(generator)
 
     try:
-        match = RE_INCLUDE.match(value)
+        value = preprocess(value, path)
     except TypeError:
         pass
-    else:
-        if match is not None:
-            rel_path = match.group(1)
-            file_path = os.path.join(os.path.dirname(path), rel_path)
-            value = open(file_path).read()
 
     return value
 
 
 def load(path):
+    """Load and process a YAML file."""
     return post_process(yaml.load(open(path)), path)

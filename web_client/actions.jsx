@@ -1,10 +1,12 @@
-import { isNil, isString, isUndefined } from 'lodash'; import URI from 'urijs';
+import { isNil, isString, isUndefined } from 'lodash';
+import URI from 'urijs';
 
 import globals from './globals';
 import { Promise } from './utils/promise';
 import ACTION_TYPES from './reducer/action-types';
 
 import FileModel from 'girder/models/FileModel';
+import ItemModel from 'girder/models/ItemModel';
 import UserModel from 'girder/models/UserModel';
 import CollectionModel from 'girder/models/CollectionModel';
 import FolderModel from 'girder/models/FolderModel';
@@ -12,7 +14,7 @@ import AccessControlledModel from 'girder/models/AccessControlledModel';
 
 let { rest } = globals;
 
-const getResourceFromId = (id, type=null) => {
+const getResourceFromId = (id, type = null) => {
   let promise;
   (
     (
@@ -53,8 +55,7 @@ const getModelFromResource = (obj) => {
   });
 };
 
-
-const getModelFromId = (id, type=null) => {
+const getModelFromId = (id, type = null) => {
   return (
     getResourceFromId(id, type)
       .then(getModelFromResource)
@@ -72,18 +73,47 @@ const promiseAction = (callback) => (dispatch, getState) => new Promise(
   }
 );
 
-export const addAnalysisElement = (element, parent) => promiseAction(
-  (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.ADD_ANALYSIS_ELEMENT, element, parent });
+const _addAnalysisElementHelper = (element, parent, stripChildren) => (
+  promiseAction(
+    (dispatch, getState) => {
+      let elements;
 
-    let { id } = element;
-    if (isUndefined(id)) {
-      let { analysis } = getState();
-      element = analysis.objects[analysis.idAllocator.id];
+      if (stripChildren) {
+        ({ elements } = element);
+        elements = elements || [];
+
+        if (elements.length) {
+          element = { ...element };
+          delete element.elements;
+        } else {
+          stripChildren = false;
+        }
+      }
+
+      dispatch({ type: ACTION_TYPES.ADD_ANALYSIS_ELEMENT, element, parent });
+
+      let { id } = element;
+      if (isUndefined(id)) {
+        let { analysis } = getState();
+        element = analysis.objects[analysis.idAllocator.id];
+      }
+
+      return (
+        stripChildren
+
+          ? Promise.mapSeries(
+              elements,
+              (e) => dispatch(_addAnalysisElementHelper(e, element, false))
+            ).then(() => ({ ...element }))
+
+          : { ...element }
+      );
     }
+  )
+);
 
-    return { ...element };
-  }
+export const addAnalysisElement = (element, parent) => (
+  _addAnalysisElementHelper(element, parent, true)
 );
 
 export const addAnalysisPage = (page) => promiseAction(
@@ -97,12 +127,13 @@ export const addAnalysisPage = (page) => promiseAction(
       page = objects[lastPageId];
 
       if (pages.length === 1) {
-        promise = dispatch(triggerAnalysisAction(
-          { objects, states },
+        promise = dispatch(triggerAnalysisAction({
+          action: 'tabEnter',
+          nothrow: true,
+          objects,
           page,
-          'tabEnter',
-          { nothrow: true }
-        )).then(
+          states
+        })).then(
           () => ({ ...page })
         );
       }
@@ -191,6 +222,105 @@ export const enableAnalysisPage = (page) => promiseAction(
     return page;
   }
 );
+
+export const ensurePrivateDirectory = (() => {
+  let singleton;
+
+  return (args) => {
+    if (!singleton) {
+      singleton = ensureUserDirectory({
+        name: 'Private',
+        description: 'Private Directory',
+        ...args
+      });
+    }
+
+    return singleton;
+  };
+})();
+
+export const ensureScratchDirectory = (() => {
+  let singleton;
+
+  return (args) => {
+    if (!singleton) {
+      singleton = ensureUserDirectory({
+        name: '__osumo_tmp',
+        description: 'Temporary Staging Space',
+        ...args
+      });
+    }
+
+    return singleton;
+  };
+})();
+
+export const ensureUserDirectory = (args) => {
+  let {
+    description,
+    name,
+    returnModel,
+    user
+  } = args;
+
+  return promiseAction(
+    (dispatch, getState) => {
+      if (isNil(returnModel)) {
+        returnModel = true;
+      }
+
+      if (isNil(user)) {
+        user = getState().loginInfo.user;
+      }
+
+      if (isNil(user)) {
+        throw Error('User must be logged in');
+      }
+
+      let result = rest({
+        path: 'folder',
+        data: {
+          parentType: 'user',
+          parentId: user._id,
+          limit: 1,
+          name: name,
+          offset: 0,
+          sort: 'lowerName',
+          sortdir: 1
+        }
+      }).then(({ response: folderList }) => {
+        let result;
+        if (folderList.length > 0) {
+          result = folderList[0];
+        } else {
+          let restPath = {
+            parentType: 'user',
+            parentId: user._id,
+            name,
+            description: description || ''
+          };
+
+          restPath = Object.entries(restPath)
+            .map((entry) => entry.join('='))
+            .join('&');
+
+          restPath = ['folder', restPath].join('?');
+
+          result = rest({ path: restPath, type: 'POST' })
+            .then(({ response }) => response);
+        }
+
+        return result;
+      });
+
+      if (returnModel) {
+        result = result.then(getModelFromResource);
+      }
+
+      return result;
+    }
+  );
+};
 
 export const onItemSelect = (...args) => promiseAction(
   () => {
@@ -331,12 +461,53 @@ export const openRegisterDialog = (byRouter = false) => promiseAction(
   }
 );
 
+export const populateFileSelectionElement = (element, item) => promiseAction(
+  (dispatch, getState) => {
+    if (isString(item)) {
+      return (
+        getResourceFromId(item, 'item')
+        .then((item) => dispatch(populateFileSelectionElement(element, item)))
+      );
+    }
+
+    let { _modelType: type } = item;
+    let name, id, metaType;
+
+    name = item.name;
+    id = item._id;
+    metaType = ((item.meta || {}).sumoDataType || null);
+
+    return (
+      rest({
+        path: `resource/${id}/path`,
+        data: { type }
+      })
+
+      .then(({ response: path }) => (
+        dispatch(updateAnalysisElementState(
+          element, {
+            value: id,
+            name,
+            path,
+            type,
+            ...(metaType ? { metaType } : {})
+          }
+        ))
+      ))
+    );
+  }
+);
+
 export const registerAnalysisAction = (
   pageKey,
   actionName,
   callback
 ) => promiseAction(
   () => {
+    if (!isString(pageKey) && pageKey && isString(pageKey.key)) {
+      pageKey = pageKey.key;
+    }
+
     globals.analysisActionTable[pageKey] = (
       globals.analysisActionTable[pageKey] || {});
 
@@ -361,42 +532,42 @@ export const removeAnalysisPage = (page, key) => promiseAction(
 
 export const removeUploadFileEntry = (index) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.REMOVE_UPLOAD_FILE_ENTRY, index })
+    dispatch({ type: ACTION_TYPES.REMOVE_UPLOAD_FILE_ENTRY, index });
     return [...getState().upload.fileEntries];
   }
 );
 
 export const resetUploadState = () => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.RESET_UPLOAD_STATE })
+    dispatch({ type: ACTION_TYPES.RESET_UPLOAD_STATE });
     return { ...getState().upload };
   }
 );
 
 export const setUploadModeToDefault = () => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DEFAULT })
+    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DEFAULT });
     return getState().upload.mode;
   }
 );
 
 export const setUploadModeToDragging = () => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DRAGGING })
+    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DRAGGING });
     return getState().upload.mode;
   }
 );
 
 export const setUploadModeToDone = () => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DONE })
+    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DONE });
     return getState().upload.mode;
   }
 );
 
 export const setUploadModeToUploading = () => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_UPLOADING })
+    dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_UPLOADING });
     return getState().upload.mode;
   }
 );
@@ -408,15 +579,13 @@ export const setCurrentAnalysisPage = (page, key) => promiseAction(
     let { analysis: oldAnalysis } = getState();
     if (!isNil(oldAnalysis.currentPage)) {
       promise = promise.then(
-        () => dispatch(triggerAnalysisAction(
-          {
-            states: oldAnalysis.states || {},
-            objects: oldAnalysis.objects
-          },
-          oldAnalysis.objects[oldAnalysis.currentPage],
-          'tabExit',
-          { nothrow: true }
-        ))
+        () => dispatch(triggerAnalysisAction({
+          action: 'tabExit',
+          nothrow: true,
+          objects: oldAnalysis.objects,
+          page: oldAnalysis.objects[oldAnalysis.currentPage],
+          states: oldAnalysis.states || {}
+        }))
       );
     }
 
@@ -425,14 +594,18 @@ export const setCurrentAnalysisPage = (page, key) => promiseAction(
     })).then(() => {
       let { analysis: { currentPage, states, objects } } = getState();
       let cPage = objects[currentPage];
-      return dispatch(triggerAnalysisAction(
-        { states, objects }, cPage, 'tabEnter', { nothrow: true }
-      )).then(() => cPage);
+      return dispatch(triggerAnalysisAction({
+        action: 'tabEnter',
+        nothrow: true,
+        objects,
+        page: cPage,
+        states
+      })).then(() => cPage);
     });
   }
 );
 
-export const setCurrentUser = (user, token, anonymous=false) => promiseAction(
+export const setCurrentUser = (user, token, anonymous = false) => promiseAction(
   (dispatch, getState) => {
     dispatch({ type: ACTION_TYPES.SET_LOGIN_INFO, token, user, anonymous });
     return (
@@ -537,7 +710,7 @@ export const submitLoginForm = (form) => promiseAction(
       rest
         .logout()
         .then(() => rest.login(login, password))
-        .catch(({ responseJSON: { message }}) => (
+        .catch(({ responseJSON: { message } }) => (
           dispatch(setDialogError('login', message))
             .then(() => dispatch(loginAnonymousUser()))
             .then(() => Promise.reject(new Error(message)))
@@ -637,14 +810,50 @@ export const toggleHeaderDropdown = () => promiseAction(
   }
 );
 
-export const triggerAnalysisAction = (data, page, action, options={}) => {
-  let { nothrow, extraArgs: args } = options;
-
-  nothrow = nothrow || false;
-  args = args || [];
-
+export const triggerAnalysisAction = (args) => {
   return promiseAction(
     (dispatch, getState) => {
+      let {
+        action,
+        extraArgs,
+        nothrow,
+        objects,
+        page,
+        states
+      } = args;
+
+      if (page && page.key) {
+        page = page.key;
+      }
+
+      /* fetch from state */
+      if (isNil(objects) || isNil(states) || isString(page)) {
+        let { analysis } = getState();
+
+        if (isNil(objects)) {
+          objects = analysis.objects;
+        }
+
+        if (isNil(states)) {
+          states = analysis.states;
+        }
+
+        if (isString(page)) {
+          /* grab the first page whose key matches the given string */
+          analysis.pages.some((index) => {
+            let candidate = objects[index];
+            let result = (candidate.key === page);
+            if (result) {
+              page = candidate;
+            }
+            return result;
+          });
+        }
+      }
+
+      nothrow = nothrow || false;
+      extraArgs = extraArgs || [];
+
       let callback = globals.analysisActionTable[page.key];
       if (callback) { callback = callback[action]; }
       if (!callback) {
@@ -658,20 +867,20 @@ export const triggerAnalysisAction = (data, page, action, options={}) => {
       return callback.apply(
         {
           dispatch,
-          getState,
+          getState
         }, /* this */
         [
-          data,
+          { objects, states },
           page,
           action,
-          ...args
+          ...extraArgs
         ] /* args */
       );
     }
   );
 };
 
-export const truncateAnalysisPages = (count, options={}) => promiseAction(
+export const truncateAnalysisPages = (count, options = {}) => promiseAction(
   (dispatch, getState) => {
     dispatch({
       type: ACTION_TYPES.TRUNCATE_ANALYSIS_PAGES,
@@ -723,14 +932,14 @@ export const updateDialogForm = (form) => promiseAction(
 
 export const updateUploadBrowseText = (text) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_BROWSE_TEXT, text })
+    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_BROWSE_TEXT, text });
     return getState().upload.browseText;
   }
 );
 
 export const updateUploadFileEntry = (index, state) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_FILE_ENTRY, index, state })
+    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_FILE_ENTRY, index, state });
     let result = getState().upload.fileEntries[index];
     if (result) {
       result = { ...result };
@@ -741,7 +950,7 @@ export const updateUploadFileEntry = (index, state) => promiseAction(
 
 export const updateUploadProgress = (current, goal) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_PROGRESS, current, goal })
+    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_PROGRESS, current, goal });
     let { upload } = getState();
     return [upload.progress, upload.progressGoal];
   }
@@ -749,42 +958,28 @@ export const updateUploadProgress = (current, goal) => promiseAction(
 
 export const updateUploadStatusText = (text) => promiseAction(
   (dispatch, getState) => {
-    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_STATUS_TEXT, text })
+    dispatch({ type: ACTION_TYPES.UPDATE_UPLOAD_STATUS_TEXT, text });
     return getState().upload.statusText;
   }
 );
 
-export const uploadFile = (file, params=null, parent=null) => promiseAction(
+export const uploadFile = (file, params = null, parent = null) => promiseAction(
   (dispatch, getState) => {
     params = params || {};
-    let { callbacks, ...restParams } = params;
+    let { callbacks, metaData, ...restParams } = params;
     callbacks = callbacks || {};
 
     if (isNil(parent)) {
-      let currentUser = getState().loginInfo.user;
-      return rest({
-        path: 'folder',
-        data: {
-          parentType: 'user',
-          parentId: currentUser._id,
-          limit: 1,
-          offset: 0,
-          sort: 'lowerName',
-          sordir: 1
-        }
-      }).then(({ response: parentList }) => getModelFromResource(
-        parentList.length > 0
-          ? parentList[0]
-          : currentUser
-      )).then(
-        (parentModel) => dispatch(uploadFile(file, params, parentModel))
+      return (
+        dispatch(ensureScratchDirectory())
+        .then((parentModel) => dispatch(uploadFile(file, params, parentModel)))
       );
     }
 
     if (isString(parent)) {
       return (
         getModelFromId(parent)
-          .then((p) => dispatch(uploadFile(file, params, p)))
+          .then((parent) => dispatch(uploadFile(file, params, parent)))
       );
     }
 
@@ -806,18 +1001,46 @@ export const uploadFile = (file, params=null, parent=null) => promiseAction(
       fileModel.on('g:upload.error', (info) => {
         let e = new Error('Upload Error');
         e.info = info;
-        e.type = 'upload'
+        e.type = 'upload';
         reject(e);
       });
 
       fileModel.on('g:upload.errorStarting', (info) => {
         let e = new Error('Upload Start Error');
         e.info = info;
-        e.type = 'uploadStart'
+        e.type = 'uploadStart';
         reject(e);
       });
 
-      fileModel.upload(parent, file, null, restParams);
+      let { name, type, contents } = file;
+
+      if (contents) {
+        fileModel.uploadToFolder(parent, contents, name, type);
+      } else {
+        fileModel.upload(parent, file, null, restParams);
+      }
+    }).then((payload) => {
+      let itemModel;
+      return new Promise((resolve, reject) => {
+        let { file } = payload;
+        itemModel = new ItemModel({ _id: file.attributes.itemId });
+        let req = itemModel.fetch();
+        req.done(() => { resolve(itemModel); });
+        req.error(() => { reject(new Error()); });
+      })
+      .then((item) => (
+        Promise.mapSeries(metaData || [], ([k, v]) => (
+          new Promise((resolve, reject) => {
+            item.addMetadata(
+              k,
+              v,
+              () => resolve(item),
+              ({ message }) => reject(new Error(message))
+            );
+          })
+        )
+      )))
+      .then(() => ({ item: itemModel, ...payload }));
     });
   }
 );
@@ -846,19 +1069,22 @@ export default {
   closeDialog,
   disableAnalysisPage,
   enableAnalysisPage,
+  ensurePrivateDirectory,
+  ensureScratchDirectory,
+  ensureUserDirectory,
   loginAnonymousUser,
   onItemSelect,
   openFileSelectorDialog,
   openLoginDialog,
   openResetPasswordDialog,
   openRegisterDialog,
+  populateFileSelectionElement,
   setCurrentAnalysisPage,
   registerAnalysisAction,
   removeAnalysisElement,
   removeAnalysisPage,
   removeUploadFileEntry,
   resetUploadState,
-  updateAnalysisElementState,
   setCurrentUser,
   setDialogError,
   setFileNavigationRoot,

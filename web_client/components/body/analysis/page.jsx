@@ -1,5 +1,5 @@
 import React from 'react';
-import { isNil, isUndefined } from 'lodash';
+import { isNil } from 'lodash';
 
 import Element from './element';
 

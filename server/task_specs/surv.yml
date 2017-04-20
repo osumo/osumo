@@ -3,7 +3,7 @@
 name: Survival Plot
 mode: r
 
-script: "@include(surv.r)"
+script: "#include<surv.r>"
 
 inputs:
   - name: input_rdata

@@ -5,6 +5,8 @@ class TabGroup extends React.Component {
   render () {
     let { children, state, onStateChange } = this.props;
 
+    children = children || [];
+
     let { activeIndex } = state;
     activeIndex = activeIndex || 0;
 

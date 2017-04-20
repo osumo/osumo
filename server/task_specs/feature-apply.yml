@@ -1,0 +1,32 @@
+---
+
+name: feature-apply
+mode: python
+
+script: "#include<feature-apply.py>"
+
+inputs:
+  - name: input_path_1
+    type: string
+    target: filepath
+    format: text
+
+  - name: input_path_2
+    type: string
+    target: filepath
+    format: text
+
+  - name: match_json
+    type: string
+    format: text
+
+outputs:
+  - name: output_path_1
+    type: string
+    target: filepath
+    format: text
+
+  - name: output_path_2
+    type: string
+    target: filepath
+    format: text

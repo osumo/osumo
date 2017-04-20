@@ -1,5 +1,5 @@
 
-import analysisUtils from '../utils/analysis';
+import actions from '../actions';
 import { Promise } from '../utils/promise';
 import { store } from '../globals';
 

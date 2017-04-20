@@ -1,6 +1,5 @@
-import { isArray, isNil, isNumber, isString, isUndefined } from 'lodash';
+import { isNil } from 'lodash';
 import ACTION_TYPES from './action-types';
-import objectReduce from '../utils/object-reduce';
 
 import modes from '../components/body/upload/mode-constants';
 
@@ -16,11 +15,11 @@ const defaultState = {
   validationFailedMessage: null
 };
 
-const resetUploadState = (state=defaultState) => {
+const resetUploadState = (state = defaultState) => {
   return defaultState;
 };
 
-const updateUploadStatusText = (state=defaultState, statusText) => {
+const updateUploadStatusText = (state = defaultState, statusText) => {
   let { statusText: oldStatusText } = state;
   if (oldStatusText !== statusText) {
     state = {
@@ -32,7 +31,7 @@ const updateUploadStatusText = (state=defaultState, statusText) => {
   return state;
 };
 
-const updateUploadBrowseText = (state=defaultState, browseText) => {
+const updateUploadBrowseText = (state = defaultState, browseText) => {
   let { browseText: oldBrowseText } = state;
   if (oldBrowseText !== browseText) {
     state = {
@@ -44,7 +43,7 @@ const updateUploadBrowseText = (state=defaultState, browseText) => {
   return state;
 };
 
-const updateUploadProgress = (state=defaultState, current, goal) => {
+const updateUploadProgress = (state = defaultState, current, goal) => {
   let { progress, progressGoal } = state;
 
   if (progress !== current) {
@@ -64,7 +63,7 @@ const updateUploadProgress = (state=defaultState, current, goal) => {
   return state;
 };
 
-const setUploadMode = (state=defaultState, mode) => {
+const setUploadMode = (state = defaultState, mode) => {
   let { mode: oldMode } = state;
 
   if (
@@ -86,9 +85,9 @@ const setUploadMode = (state=defaultState, mode) => {
   return state;
 };
 
-const addUploadFileEntries = (state=defaultState, entries) => {
+const addUploadFileEntries = (state = defaultState, entries) => {
   let newFiles = new Array(entries.length);
-  for(let i=0; i<entries.length; ++i) {
+  for (let i = 0; i < entries.length; ++i) {
     let { name, size, type } = entries[i];
     newFiles[i] = {
       handle: entries[i],
@@ -110,7 +109,7 @@ const addUploadFileEntries = (state=defaultState, entries) => {
   return setUploadMode(state, modes.DEFAULT);
 };
 
-const updateUploadFileEntry = (state=defaultState, index, newState) => {
+const updateUploadFileEntry = (state = defaultState, index, newState) => {
   state = {
     ...state,
     fileEntries: state.fileEntries.map((entry, i) => (
@@ -123,7 +122,7 @@ const updateUploadFileEntry = (state=defaultState, index, newState) => {
   return state;
 };
 
-const removeUploadFileEntry = (state=defaultState, index) => {
+const removeUploadFileEntry = (state = defaultState, index) => {
   state = {
     ...state,
     fileEntries: state.fileEntries.filter((entry, i) => (i !== index))
@@ -132,7 +131,7 @@ const removeUploadFileEntry = (state=defaultState, index) => {
   return state;
 };
 
-const analysis = (state=defaultState, action) => {
+const analysis = (state = defaultState, action) => {
   const { type } = action;
   if (type === ACTION_TYPES.ADD_UPLOAD_FILE_ENTRIES) {
     const { entries } = action;

@@ -3,7 +3,7 @@
 name: iGPSePart2
 mode: r
 
-script: "@include(iGPSe2.r)"
+script: "#include<iGPSe2.r>"
 
 inputs:
   - name: transferData

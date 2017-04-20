@@ -1,5 +1,5 @@
 
-import analysisUtils from '../utils/analysis';
+import actions from '../actions';
 import { store } from '../globals';
 
 const D = store.dispatch.bind(store);

@@ -1,6 +1,7 @@
 import React from 'react';
 import modes from './mode-constants';
 import { elements as dataVarietyElements } from './data-variety-table';
+import { TIMES } from '../../../constants';
 
 class FileEntry extends React.Component {
   render () {
@@ -23,7 +24,6 @@ class FileEntry extends React.Component {
     type = type || '';
 
     let buttonClasses = 'g-upload-entry-button btn btn-xs btn-danger';
-    let onButtonClick = onRemove;
     let tagDisplayClasses = 'g-upload-entry-tag hidden';
     let tagSelectClasses = 'g-upload-entry-tag';
     let uploadProgressClasses = 'progress progress-striped hidden';
@@ -31,7 +31,6 @@ class FileEntry extends React.Component {
 
     if (mode === modes.UPLOADING) {
       buttonClasses = 'g-upload-entry-button btn btn-xs btn-danger disabled';
-      onButtonClick = null;
       tagDisplayClasses = 'g-upload-entry-tag';
       tagSelectClasses = 'g-upload-entry-tag hidden';
       uploadProgressClasses = 'progress progress-striped';
@@ -53,11 +52,19 @@ class FileEntry extends React.Component {
       width: '150px'
     };
 
-
     return (
       <li className='g-upload-entry'>
-        <button className={buttonClasses} onClick={onButtonClick}>
-          <i className='icon-minus' />
+        <button
+          className={buttonClasses}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (mode !== modes.UPLOADING) {
+              onRemove(e);
+            }
+          }}
+        >
+          {TIMES}
         </button>
         <h4 className='g-upload-entry-name'>{name}</h4>
         <h4 className='g-upload-entry-type'>{type}</h4>

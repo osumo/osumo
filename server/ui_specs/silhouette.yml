@@ -17,7 +17,8 @@ elements:
             one header row, and one data row per micro RNA"
     type: fileSelection
     options:
-      onlyTypes: "^mirna$"
+      onlyFileTypes: dataBlock
+      onlyDataTypes: "^mirna$"
 
   - key: num_clusters
     name: "Number of Clusters (k)"

@@ -1,21 +1,19 @@
+"""Main OSUMO server-side module."""
 
-import copy
 import inspect
 import json
 import os
 import re
-import tempfile
 
 from six.moves import urllib
-
-RE_ARG_SPEC = re.compile(r'''([^\(]+)(\((.+)\))?''')
 
 from bson import json_util
 from bson.objectid import ObjectId
 from girder import events, logprint
 from girder.api import access
 from girder.api.describe import Description, describeRoute
-from girder.api.rest import Resource, RestException, setCurrentUser, getCurrentUser
+from girder.api.rest import \
+    Resource, RestException, setCurrentUser, getCurrentUser
 from girder.constants import AccessType, TokenScope
 from girder.utility.config import getConfig
 from girder.utility.model_importer import ModelImporter
@@ -25,12 +23,18 @@ from girder.plugins.worker import utils as workerUtils
 from .task_specs import task_specs
 from .ui_specs import ui_specs
 
+RE_ARG_SPEC = re.compile(r'''([^\(]+)(\((.+)\))?''')
+
+
 class Osumo(Resource):
+    """OSUMO plugin class."""
+
     # NOTE(opadron): 'tools.staticdir.dir' is set in load()
     _cp_config = {'tools.staticdir.on': True,
                   'tools.staticdir.index': 'index.html'}
 
     def __init__(self, anonuser):
+        """Initialize the OSUMO plugin."""
         super(Osumo, self).__init__()
         self.resourceName = 'osumo'
         self.route('GET', ('task', ':key'), self.getTaskSpecByKey)
@@ -49,6 +53,7 @@ class Osumo(Resource):
     )
     @access.public
     def anonymousLogin(self, params):
+        """Log in using the "anonymous user"."""
         user_model = self.model('user')
         user = user_model.findOne({
             'login': self.anonuser
@@ -69,10 +74,17 @@ class Osumo(Resource):
         }
 
     @describeRoute(
-        Description('Query for the currently logged in user, including a flag for whether this is the "anonymous user".')
+        Description(' '.join((
+            'Query for the currently logged in user, including',
+            'a flag for whether this is the "anonymous user".')))
     )
     @access.public
     def getMe(self, params):
+        """Query for the currently logged in user.
+
+        Queries for the currently logged in user.  Includes a flag indicating
+        whether this is the "anonymous user".
+        """
         rawuser = getCurrentUser()
         user = self.model('user').filter(rawuser, rawuser)
         user['anonymous'] = user['login'] == self.anonuser
@@ -80,15 +92,16 @@ class Osumo(Resource):
 
     @describeRoute(
         Description('Return job status and list of output files.')
-            .param('jobId', 'Id of the job', paramType='path')
-            .errorResponse('Job not found.', 404)
+        .param('jobId', 'Id of the job', paramType='path')
+        .errorResponse('Job not found.', 404)
     )
     @access.public
     def getTaskResults(self, jobId, params, **kwargs):
+        """Return job status and list of output files."""
         jobId = ObjectId(jobId)
         jobuser = self.model('jobuser', 'osumo').findOne({'jobId': jobId})
         jobpayload = (
-                self.model('jobpayload', 'osumo').findOne({'_jobId': jobId}))
+            self.model('jobpayload', 'osumo').findOne({'_jobId': jobId}))
         job = self.model('job', 'jobs').findOne({'_id': jobId})
         job['kwargs'] = json_util.loads(job['kwargs'])
 
@@ -110,7 +123,6 @@ class Osumo(Resource):
                             payload[output_variable].update(f)
                             break
                 elif mode == 'sumo':
-                    converter = output.get('converter')
                     data = jobpayload[output_variable]
 
                     payload[output_variable] = {'mode': 'inline'}
@@ -127,6 +139,7 @@ class Osumo(Resource):
     )
     @access.public
     def getTaskSpecByKey(self, key, params, **kwargs):
+        """Fetch task spec with the given name."""
         key = key.lower()
 
         task_list = [
@@ -153,6 +166,7 @@ class Osumo(Resource):
     )
     @access.public
     def getUISpecByKey(self, key, params, **kwargs):
+        """Fetch UI spec with the given key."""
         key = key.lower()
 
         ui_list = [
@@ -179,6 +193,7 @@ class Osumo(Resource):
     )
     @access.public
     def getTaskSpecs(self, params, **kwargs):
+        """Find task specs that match the given parameters."""
         name = params.get('name', '').lower()
         mode = params.get('mode', '').lower()
 
@@ -203,6 +218,7 @@ class Osumo(Resource):
     )
     @access.public
     def getUISpecs(self, params, **kwargs):
+        """Find UI specs that match the given parameters."""
         key = params.get('key', '').lower()
         name = params.get('name', '').lower()
         tags = params.get('tags', '').lower()
@@ -226,6 +242,13 @@ class Osumo(Resource):
             )
         ]
 
+    # TODO(opadron): break this up into multiple functions/simplify
+    # NOTE(opadron): Suppressing using "# noqa" is broken for C901.  All errors
+    #                are getting supressed until I can fix this function since
+    #                that's the only way to shut flake8 up.
+    #
+    # Remove or modify to see other errors.
+    # flake8: noqa
     @access.public
     @describeRoute(
         Description('Create a job from the given task spec')
@@ -235,6 +258,7 @@ class Osumo(Resource):
         .param('title', 'Title of the job', required=False)
     )
     def runTaskSpec(self, key, params, **kwargs):
+        """Create a job from the given task spec."""
         task_spec = task_specs.get(key)
         if task_spec is None:
             raise RestException('No task named %s.' % key)
@@ -251,13 +275,13 @@ class Osumo(Resource):
                 # If not, raise an exception.
                 if 'default' not in input_spec:
                     raise RestException(
-                            'No binding provided for input "{}".'.format(
-                                input_name))
+                        'No binding provided for input "{}".'
+                        .format(input_name))
 
             if RE_ARG_SPEC.match(payload) is None:
                 raise RestException(
-                        'invalid payload for input "{}": "{}"'.format(
-                            input_name, payload))
+                    'invalid payload for input "{}": "{}"'
+                    .format(input_name, payload))
 
         # validate output bindings
         for output_spec in task_spec['outputs']:
@@ -271,8 +295,8 @@ class Osumo(Resource):
 
             if RE_ARG_SPEC.match(payload) is None:
                 raise RestException(
-                        'invalid payload for output "{}": "{}"'.format(
-                            output_name, payload))
+                    'invalid payload for output "{}": "{}"'
+                    .format(output_name, payload))
 
         #
         # validation complete
@@ -298,8 +322,9 @@ class Osumo(Resource):
             token = self.model('token').createToken(
                 user, days=1, scope=TokenScope.USER_AUTH)
 
-        jobpayload = self.model('jobpayload', 'osumo').createJobpayload(
-                job['_id'], user['_id'])
+        jobpayload = (
+            self.model('jobpayload', 'osumo')
+            .createJobpayload(job['_id'], user['_id']))
 
         job_inputs = {}
         for input_spec in task_spec['inputs']:
@@ -326,17 +351,17 @@ class Osumo(Resource):
                 resource_id = pos_args[1]
                 resource_type = input_type.lower()
                 data_type = extra_args.get(
-                        'type', input_spec.get('type', 'string'))
+                    'type', input_spec.get('type', 'string'))
                 data_format = extra_args.get(
-                        'format', input_spec.get('format', 'text'))
+                    'format', input_spec.get('format', 'text'))
 
                 job_input.update(
-                        workerUtils.girderInputSpec(
-                            self._getResource(resource_type, resource_id, user),
-                            resourceType=resource_type,
-                            token=token,
-                            dataType=data_type,
-                            dataFormat=data_format))
+                    workerUtils.girderInputSpec(
+                        self._getResource(resource_type, resource_id, user),
+                        resourceType=resource_type,
+                        token=token,
+                        dataType=data_type,
+                        dataFormat=data_format))
 
             elif input_type == 'HTTP':
                 # TODO(opadron): maybe we'll want to implement this, someday?
@@ -372,7 +397,7 @@ class Osumo(Resource):
 
             else:
                 raise NotImplementedError(
-                        'Input type "{}" not supported'.format(input_type))
+                    'Input type "{}" not supported'.format(input_type))
 
             job_input.update(extra_args)
             job_inputs[input_name] = job_input
@@ -402,24 +427,24 @@ class Osumo(Resource):
                 parent_id, resource_name = (pos_args + [None])[1:3]
                 parent_type = ('folder' if output_type == 'FILE' else 'file')
                 data_type = extra_args.get(
-                        'type', output_spec.get('type', 'string'))
+                    'type', output_spec.get('type', 'string'))
                 data_format = extra_args.get(
-                        'format', output_spec.get('format', 'text'))
+                    'format', output_spec.get('format', 'text'))
 
                 parent = self._getResource(parent_type, parent_id, user)
                 job_output.update(
-                        workerUtils.girderOutputSpec(
-                            parent,
-                            parentType=parent_type,
-                            token=token,
-                            name=resource_name,
-                            dataType=data_type,
-                            dataFormat=data_format))
+                    workerUtils.girderOutputSpec(
+                        parent,
+                        parentType=parent_type,
+                        token=token,
+                        name=resource_name,
+                        dataType=data_type,
+                        dataFormat=data_format))
 
             elif output_type in (
                     'INTEGER', 'FLOAT', 'STRING', 'BOOLEAN', 'JSON'):
                 parse_result = urllib.parse.urlparse(
-                        getConfig()['database']['uri'])
+                    getConfig()['database']['uri'])
 
                 job_output['mode'] = 'sumo'
                 job_output['db'] = parse_result.path[1:]
@@ -454,7 +479,7 @@ class Osumo(Resource):
 
             else:
                 raise NotImplementedError(
-                        'Output type "{}" not supported'.format(output_type))
+                    'Output type "{}" not supported'.format(output_type))
 
             job_output.update(extra_args)
             job_outputs[output_name] = job_output
@@ -462,8 +487,7 @@ class Osumo(Resource):
         job['kwargs'].update(
             task=task_spec,
             inputs=job_inputs,
-            outputs=job_outputs
-        )
+            outputs=job_outputs)
 
         job = self.model('job', 'jobs').save(job)
         self.model('jobuser', 'osumo').createJobuser(job['_id'], user['_id'])
@@ -475,8 +499,9 @@ class Osumo(Resource):
         }
 
     def _getResource(self, type, id, user):
-        """
-        Get a Girder resource.  If a file is requested and the id is from an
+        """Get a Girder resource.
+
+        Gets a Girder resource.  If a file is requested and the id is from an
         item, and that item has a single file, use the file.
 
         :param type: the girder resource type.
@@ -502,44 +527,54 @@ class Osumo(Resource):
         return value
 
     def dataProcess(self, event):
-        """
-        Called when a file is uploaded.  If it is from one of our jobs, record
+        """Process a newly-uploaded file.
+
+        Processes a newly-uploaded file.  If it is from one of our jobs, record
         the details.
 
         :param event: the event with the file information.
         """
         reference = event.info['reference']
         jobuser = self.model('jobuser', 'osumo').findOne(
-                {'jobId': ObjectId(reference)})
+            {'jobId': ObjectId(reference)})
 
         user = self.model('user').findOne({'_id': jobuser['userId']})
         job = self.model('job', 'jobs').load(
-                jobuser['jobId'], user=user, level=AccessType.ADMIN)
+            jobuser['jobId'], user=user, level=AccessType.ADMIN)
 
         self.model('jobuser', 'osumo').appendFile(
-                jobuser,
-                event.info['file']['_id'],
-                event.info['file']['itemId'],
-                event.info['file']['name'])
+            jobuser,
+            event.info['file']['_id'],
+            event.info['file']['itemId'],
+            event.info['file']['name'])
 
         self.model('job', 'jobs').updateJob(
-                job,
-                log='Added processed file %s' % event.info['file']['name'])
+            job,
+            log='Added processed file %s' % event.info['file']['name'])
 
 
 def load(info):
+    """OSUMO plugin entry point."""
     # Check environment variables for anonymous user/password; bail if not set.
     anonuser = os.environ.get('OSUMO_ANON_USER')
     if not anonuser:
         try:
-            with open(os.path.join(info['pluginRootDir'], 'osumo_anonlogin.txt')) as f:
+            f = open(os.path.join(
+                info['pluginRootDir'],
+                'osumo_anonlogin.txt'))
+
+            with f:
                 anonuser = f.read().strip()
         except IOError:
             pass
 
     if not anonuser:
-        logprint.error('Environment variable OSUMO_ANON_USER must be set, or a file osumo_anonlogin.txt must exist.')
-        raise RuntimeError
+        error_message = ' '.join((
+            'Environment variable OSUMO_ANON_USER must be set, or the',
+            'file "osumo_anonlogin.txt" must exist.'))
+
+        logprint.error(error_message)
+        raise RuntimeError(error_message)
 
     user_model = ModelImporter.model('user')
     anon_user = user_model.findOne({

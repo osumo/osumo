@@ -1,9 +1,10 @@
 import React from 'react';
+import $ from 'jquery';
 
 import modes from './mode-constants';
 
 class UploadPanel extends React.Component {
-  render() {
+  render () {
     let {
       browseText,
       mode,
@@ -66,7 +67,7 @@ class UploadPanel extends React.Component {
       fileSelectButtonClasses = 'g-drop-zone g-dropzone-show';
       fileSelectButtonMarginLeft = '0px';
       fileSelectIconClasses = 'icon-bullseye';
-    } else if(mode !== modes.DEFAULT) {
+    } else if (mode !== modes.DEFAULT) {
       fileSelectButtonClasses = 'g-drop-zone hidden';
     }
 

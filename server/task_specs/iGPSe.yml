@@ -3,7 +3,7 @@
 name: iGPSe
 mode: r
 
-script: "@include(iGPSe.r)"
+script: "#include<iGPSe.r>"
 
 inputs:
   - name: mrna_input_path

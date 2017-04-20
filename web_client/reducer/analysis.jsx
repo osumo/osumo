@@ -429,7 +429,7 @@ const removeAnalysisPageByKey = (analysis, key) => {
   return analysis;
 };
 
-const truncateAnalysisPages = (analysis, numPages, options={}) => {
+const truncateAnalysisPages = (analysis, numPages, options = {}) => {
   let { pages, objects } = analysis;
   pages = ensure(pages, []);
 
@@ -464,10 +464,8 @@ const truncateAnalysisPages = (analysis, numPages, options={}) => {
 };
 
 const updateAnalysisElement = (analysis, element, props) => {
-  let { forms, objects, parents } = analysis;
-  forms = ensure(forms, {});
+  let { objects } = analysis;
   objects = ensure(objects, {});
-  parents = ensure(parents, {});
 
   element = ensure(element, 'no-element');
   if (element === 'no-element') { return analysis; }
@@ -478,15 +476,12 @@ const updateAnalysisElement = (analysis, element, props) => {
   props = ensure(props, 'no-props');
   if (props === 'no-props') { return analysis; }
 
-  let {
-    /* list of attributes that can *not* be changed once set */
-    id,
-    key,
-    type,
+  let restProps = { ...props };
 
-    /* we take the rest and carry on */
-    ...restProps
-  } = props;
+  /* list of attributes that can *not* be changed once set */
+  delete restProps.id;
+  delete restProps.key;
+  delete restProps.type;
 
   let changed = false;
   let newObjects = (
@@ -522,8 +517,6 @@ const updateAnalysisElementState = (analysis, element, state) => {
   state = ensure(state, 'no-state');
   if (state === 'no-state') { return analysis; }
 
-  let keys = [];
-
   states = { ...states };
   states[element.id] = {
     ...states[element.id],
@@ -536,10 +529,8 @@ const updateAnalysisElementState = (analysis, element, state) => {
 };
 
 const setAnalysisPageEnabled = (analysis, page, callback) => {
-  let { lastPageId, objects, pages, parents } = analysis;
+  let { lastPageId, objects } = analysis;
   objects = ensure(objects, []);
-  pages = ensure(pages, []);
-  parents = ensure(parents, {});
 
   page = ensure(page, lastPageId);
   page = ensure(page, 'no-page');
@@ -611,7 +602,7 @@ const setCurrentAnalysisPage = (analysis, page) => {
 };
 
 const setCurrentAnalysisPageByKey = (analysis, key) => {
-  let { currentPage, objects, pages } = analysis;
+  let { objects, pages } = analysis;
   objects = ensure(objects, []);
   pages = ensure(pages, []);
 
@@ -670,7 +661,8 @@ const analysis = (state = {}, action) => {
     const { count, clear, disable, remove } = action;
     state = truncateAnalysisPages(state, count, { clear, disable, remove });
   } else if (type === ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT) {
-    const { type, element, ...props } = action;
+    let { element, ...props } = action;
+    delete props.type;
     state = updateAnalysisElement(state, element, props);
   } else if (type === ACTION_TYPES.UPDATE_ANALYSIS_ELEMENT_STATE) {
     const { element, state: newState } = action;
