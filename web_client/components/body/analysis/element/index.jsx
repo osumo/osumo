@@ -2,7 +2,7 @@ import React from 'react';
 import { isUndefined } from 'lodash';
 
 import ButtonElement from './button';
-import TabGroup from './tab-group'
+import TabGroup from './tab-group';
 import FeatureSelection from './feature-selection';
 import FieldElement from './field';
 import FileSelectionElement from './file-selection';

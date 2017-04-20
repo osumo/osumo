@@ -6,7 +6,8 @@ import json
 
 # ifdef<LINTING>
 from included_files import get_dialect, ColumnExtractor, RowExtractor
-from girder_worker_environment import input_path_1, input_path_2
+from girder_worker_environment import \
+    extract_columns, input_path_1, input_path_2, single_mode
 # endif
 
 if single_mode:
@@ -17,8 +18,8 @@ if single_mode:
         extractor = (ColumnExtractor if extract_columns else RowExtractor)
         list1 = list(extractor(input1, dialect1))
 
-    values = ({'id': a, 'description': a}
-        for a in set(list1))
+    values = (
+        {'id': a, 'description': a} for a in set(list1))
     extract_result = list(sorted(values, key=(lambda x: x['id'])))
 
 else:

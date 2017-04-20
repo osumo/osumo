@@ -20,7 +20,7 @@ const D = store.dispatch.bind(store);
 const noop = () => {};
 
 export class IGPSEWorkflow {
-  constructor() {
+  constructor () {
     this.elementObjects = {};
     this.elements = {};
     this.pages = {};
@@ -30,11 +30,11 @@ export class IGPSEWorkflow {
 
     this.constructPromise = Promise.mapSeries(
       [
-        ['igpse-input'             , 'input'           , true , true],
-        ['igpse-feature-selection' , 'featureSelection', true , true],
-        ['igpse-subset-selection-a', 'subsetSelection' , true , true],
+        ['igpse-input', 'input', true, true],
+        ['igpse-feature-selection', 'featureSelection', true, true],
+        ['igpse-subset-selection-a', 'subsetSelection', true, true],
         ['igpse-subset-selection-b', 'subsetSelectionB', false, true],
-        ['igpse-survival-plot'     , 'survivalPlot'    , true , true]
+        ['igpse-survival-plot', 'survivalPlot', true, true]
       ],
       (args) => this.processPage(...args)
     );
@@ -42,7 +42,7 @@ export class IGPSEWorkflow {
     window.G = this;
   }
 
-  processPage(pageKey, attrName, addPage=true, construct=false) {
+  processPage (pageKey, attrName, addPage = true, construct = false) {
     return (
       (
         construct ? Promise.resolve() : this.constructPromise
@@ -61,10 +61,10 @@ export class IGPSEWorkflow {
         this.elementObjects[attrName] = e;
         if (p) { this.pages[attrName] = p; }
       })
-    )
+    );
   }
 
-  runWorkflowStep(key) {
+  runWorkflowStep (key) {
     let result = this.workflowTableCache[key];
     if (!result) {
       let func = workflowTable[key];
@@ -80,8 +80,11 @@ export class IGPSEWorkflow {
     return result;
   }
 
-  registerAction(key, action) {
-    let actionCallback = this[`_action_${key}_${action}`].bind(this);
+  registerAction (key, action) {
+    let capitalizedKey = [key[0].toUpperCase(), key.slice(1)].join('');
+    let capitalizedAction = [action[0].toUpperCase(), action.slice(1)].join('');
+    let prop = ['__action', capitalizedKey, capitalizedAction].join('');
+    let actionCallback = this[prop].bind(this);
     return (
       this.constructPromise
 
@@ -93,7 +96,7 @@ export class IGPSEWorkflow {
     );
   }
 
-  triggerAction(key, action) {
+  triggerAction (key, action) {
     return (
       this.constructPromise
 
@@ -106,7 +109,7 @@ export class IGPSEWorkflow {
     );
   }
 
-  renderElements(elementKey, pageKey=null) {
+  renderElements (elementKey, pageKey = null) {
     pageKey = pageKey || elementKey;
 
     return (
@@ -119,27 +122,23 @@ export class IGPSEWorkflow {
         )
       ))
 
-      .then((elements) => {this.elements[elementKey] = elements;})
+      .then((elements) => {
+        this.elements[elementKey] = elements;
+      })
     );
   }
 
-  enablePage(key) {
-    return (
-      this.constructPromise
-
-      .then(() => D(actions.enableAnalysisPage(this.pages[key])))
-    );
+  enablePage (key) {
+    return this.constructPromise
+      .then(() => D(actions.enableAnalysisPage(this.pages[key])));
   }
 
-  switchPage(key) {
-    return (
-      this.constructPromise
-
-      .then(() => D(actions.setCurrentAnalysisPage(this.pages[key])))
-    );
+  switchPage (key) {
+    return this.constructPromise
+      .then(() => D(actions.setCurrentAnalysisPage(this.pages[key])));
   }
 
-  _action_input_process(data, page) {
+  __actionInputProcess (data, page) {
     let state;
     this.index = 0;
     return (
@@ -166,7 +165,7 @@ export class IGPSEWorkflow {
     );
   }
 
-  _action_featureSelection_process(data, page) {
+  __actionFeatureSelectionProcess (data, page) {
     let state;
     this.index = 1;
     return (
@@ -190,7 +189,7 @@ export class IGPSEWorkflow {
     );
   }
 
-  _action_subsetSelection_cluster(data, page) {
+  __actionSubsetSelectionCluster (data, page) {
     let state;
     this.index = 2;
     return (
@@ -203,21 +202,19 @@ export class IGPSEWorkflow {
         this.mirnaClusters = state.mirnaClusters;
       })
 
-      .then(() => (
-        Promise.all([
-          this.truncatePages(),
-          (
-            this.elements.subsetSelectionB
+      .then(() => {
+        let promises = [null, null, null];
 
-              ? D(actions.removeAnalysisElement(
-                  this.elements.subsetSelectionB
-                ))
+        promises[0] = this.truncatePages();
+        promises[1] = this.runSubsetClusterJob(state);
 
-              : null
-          ),
-          this.runSubsetClusterJob(state)
-        ])
-      ))
+        if (this.elements.subsetSelectionB) {
+          promises[2] = D(actions.removeAnalysisElement(
+            this.elements.subsetSelectionB));
+        }
+
+        return Promise.all(promises);
+      })
 
       .then(() => {
         let sss = this.elementObjects.subsetSelectionB;
@@ -230,7 +227,7 @@ export class IGPSEWorkflow {
     );
   }
 
-  _action_subsetSelection_process(data, page) {
+  __actionSubsetSelectionProcess (data, page) {
     let state;
     this.index = 2;
     return (
@@ -257,7 +254,7 @@ export class IGPSEWorkflow {
     );
   }
 
-  truncatePages() {
+  truncatePages () {
     return (
       this.constructPromise
 
@@ -270,7 +267,7 @@ export class IGPSEWorkflow {
     );
   }
 
-  runFeatureExtractJobs(state) {
+  runFeatureExtractJobs (state) {
     return (
       this.constructPromise
 
@@ -300,7 +297,7 @@ export class IGPSEWorkflow {
 
         return (
           Promise.all([
-            run(state.mrnaInputId , 'mrnaExtractResult' ),
+            run(state.mrnaInputId, 'mrnaExtractResult'),
             run(state.mirnaInputId, 'mirnaExtractResult')
           ])
         );
@@ -308,7 +305,7 @@ export class IGPSEWorkflow {
     );
   }
 
-  runFeatureSliceJobs(state) {
+  runFeatureSliceJobs (state) {
     return (
       this.constructPromise
 
@@ -333,7 +330,7 @@ export class IGPSEWorkflow {
           let inputs = {
             ..._inputs,
             input_path: `ITEM:${inputId}`,
-            selections: `STRING:${JSON.stringify(features)}`,
+            selections: `STRING:${JSON.stringify(features)}`
           };
 
           return (
@@ -365,13 +362,13 @@ export class IGPSEWorkflow {
                 })
               );
             })
-          )
+          );
         };
 
         return (
           Promise.mapSeries(
             [
-              [this.mrnaInputId , this.mrnaFeatures , 'slicedMrnaInputId' ],
+              [this.mrnaInputId, this.mrnaFeatures, 'slicedMrnaInputId'],
               [this.mirnaInputId, this.mirnaFeatures, 'slicedMirnaInputId']
             ],
             (args) => run(...args)
@@ -381,7 +378,7 @@ export class IGPSEWorkflow {
     );
   }
 
-  runSubsetClusterJob(state) {
+  runSubsetClusterJob (state) {
     return (
       this.constructPromise
 
@@ -439,7 +436,7 @@ export class IGPSEWorkflow {
     );
   }
 
-  runSubsetProcessJob(state) {
+  runSubsetProcessJob (state) {
     return (
       this.constructPromise
 
@@ -486,17 +483,15 @@ export class IGPSEWorkflow {
     );
   }
 
-  makeAutocompleteHandler({
-    delay,
-    maxSuggestions,
-    minSubstringLength,
-    getSuggestionIterator,
-    updateSuggestions
-  }) {
-    delay = delay || 100;
-    maxSuggestions = maxSuggestions || 10;
-    minSubstringLength = minSubstringLength || 1;
-
+  makeAutocompleteHandler (
+    {
+      delay = 100,
+      maxSuggestions = 10,
+      minSubstringLength = 1,
+      getSuggestionIterator,
+      updateSuggestions
+    } = {}
+  ) {
     let delayCallback;
     const result = (value) => {
       if (delayCallback) {
@@ -548,7 +543,7 @@ export class IGPSEWorkflow {
     return result;
   }
 
-  _action_featureSelection_mrnaFeatureUpdate(data, page, action, value) {
+  __actionFeatureSelectionMrnaFeatureUpdate (data, page, action, value) {
     let handler = this._mrnaHandler;
     if (!handler) {
       handler = this.makeAutocompleteHandler({
@@ -570,7 +565,7 @@ export class IGPSEWorkflow {
     this._mrnaHandler(value);
   }
 
-  _action_featureSelection_mirnaFeatureUpdate(data, page, action, value) {
+  __actionFeatureSelectionMirnaFeatureUpdate (data, page, action, value) {
     let handler = this._mirnaHandler;
     if (!handler) {
       handler = this.makeAutocompleteHandler({
@@ -590,30 +585,6 @@ export class IGPSEWorkflow {
     }
 
     this._mirnaHandler(value);
-  }
-
-  tmp_dbg_0() {
-    return (
-      this.constructPromise
-
-      .then(() => (
-        Promise.all(
-          [
-            [0, '58daec3488628a186899d63b'],
-            [1, '58daec3488628a186899d645'],
-            [2, '58daec3488628a186899d63f']
-          ].map(([i, id]) => (
-            D(actions.populateFileSelectionElement(
-              this.elements.input[i], id
-            ))
-          ))
-        )
-      ))
-
-      .delay(10)
-
-      .then(() => this.triggerAction('input', 'process'))
-    );
   }
 }
 

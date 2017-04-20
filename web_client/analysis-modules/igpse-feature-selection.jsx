@@ -5,8 +5,8 @@ const main = (igpse) => (
   Promise.resolve()
 
   .then(() => Promise.all([
-    igpse.registerAction('featureSelection', 'process'           ),
-    igpse.registerAction('featureSelection', 'mrnaFeatureUpdate' ),
+    igpse.registerAction('featureSelection', 'process'),
+    igpse.registerAction('featureSelection', 'mrnaFeatureUpdate'),
     igpse.registerAction('featureSelection', 'mirnaFeatureUpdate')
   ]))
 

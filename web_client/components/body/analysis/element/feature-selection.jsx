@@ -1,7 +1,6 @@
 import React from 'react';
 import { isNil } from 'lodash';
 
-import TextField from '../../../common/text-field.jsx';
 import { TIMES } from '../../../../constants';
 
 const addEntries = (currentEntries, newEntries) => {
@@ -26,8 +25,8 @@ const addEntries = (currentEntries, newEntries) => {
 };
 
 class FeatureSelection extends React.Component {
-  componentWillMount() {
-    this.randomId = `candidates-${Math.floor(1e17*Math.random())}`;
+  componentWillMount () {
+    this.randomId = `candidates-${Math.floor(1e17 * Math.random())}`;
   }
 
   render () {
@@ -36,27 +35,19 @@ class FeatureSelection extends React.Component {
       mainAction,
       onAction,
       onStateChange,
-      state
+      state = {}
     } = this.props;
 
-    action = action || mainAction;
-    state = state || {};
-
     let {
-      candidates,
-      currentText,
-      value: chosenSet,
-      extendedText,
-      buttonVisible,
+      candidates = [],
+      currentText = '',
+      value: chosenSet = [],
+      extendedText = '',
       singleMode,
       transitioning
     } = state;
 
-    candidates = candidates || [];
-    currentText = currentText || '';
-    chosenSet = chosenSet || [];
-    extendedText = extendedText || '';
-    buttonVisible = buttonVisible || false;
+    action = action || mainAction;
     singleMode = singleMode || isNil(singleMode);
     transitioning = Boolean(transitioning);
 
@@ -133,7 +124,7 @@ class FeatureSelection extends React.Component {
               )
             }}
             onTransitionEnd={(e) => {
-              onStateChange({ transitioning: false })
+              onStateChange({ transitioning: false });
             }}
             onChange={(e) => {
               let { value } = e.target;

@@ -22,7 +22,7 @@ export const addItemMetadata = (item, metaData) => (
         v,
         () => resolve(item),
         ({ message }) => reject(new Error(message))
-      )
+      );
     })
   ))
 );
