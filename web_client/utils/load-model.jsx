@@ -9,7 +9,9 @@ const loadModel = (id, Model) => (
       e.payload = payload;
       reject(e);
     });
-    req.then(() => { resolve(result); });
+    req.then(() => {
+      resolve(result);
+    });
   })
 );
 
