@@ -309,6 +309,8 @@ class Osumo(Resource):
         job = self.model('job', 'jobs').createJob(
             title=job_title, type='sumo', user=user, handler='worker_handler')
 
+        scratchDirectory = self._ensureJobDirectory(user, job['_id'])
+
         jobToken = self.model('job', 'jobs').createJobToken(job)
 
         job['kwargs']['jobInfo'] = workerUtils.jobInfoSpec(
@@ -431,11 +433,10 @@ class Osumo(Resource):
                 data_format = extra_args.get(
                     'format', output_spec.get('format', 'text'))
 
-                parent = self._getResource(parent_type, parent_id, user)
                 job_output.update(
                     workerUtils.girderOutputSpec(
-                        parent,
-                        parentType=parent_type,
+                        scratchDirectory,
+                        parentType='folder',
                         token=token,
                         name=resource_name,
                         dataType=data_type,
@@ -495,6 +496,7 @@ class Osumo(Resource):
 
         return {
             'job': self.model('job', 'jobs').filter(job, user),
+            'folder': self.model('folder').filter(scratchDirectory, user),
             'token': str(token['_id'])
         }
 
@@ -525,6 +527,29 @@ class Osumo(Resource):
                     value = self.model('file').load(
                         files[0]['_id'], user=user, level=AccessType.READ)
         return value
+
+
+    def _ensureScratchDirectory(self, user):
+        """Ensure that the user's scratch directory exists."""
+        return self.model('folder').createFolder(
+            parent=user,
+            name='__osumo_tmp',
+            description='Temporary Staging Space',
+            parentType='user',
+            creator=user,
+            reuseExisting=True)
+
+    def _ensureJobDirectory(self, user, jobId):
+        """Ensure that the user's scratch directory exists."""
+        scratchDirectory = self._ensureScratchDirectory(user)
+        jobIdString = str(jobId)
+        return self.model('folder').createFolder(
+            parent=scratchDirectory,
+            name=jobIdString,
+            description=''.join(('Job Staging #', jobIdString)),
+            parentType='folder',
+            creator=user,
+            reuseExisting=True)
 
     def dataProcess(self, event):
         """Process a newly-uploaded file.
