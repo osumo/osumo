@@ -9,7 +9,7 @@ const addEntries = (currentEntries, newEntries) => {
   const isNonEmpty = ({ length }) => (length > 0);
 
   newEntries
-    .map((s) => (s.split(' ').filter(isNonEmpty).join(' ')))
+    .map((s) => s.split(' ').filter(isNonEmpty).join(' '))
     .filter(isNonEmpty)
     .forEach((e) => {
       if (result.indexOf(e) < 0) {
