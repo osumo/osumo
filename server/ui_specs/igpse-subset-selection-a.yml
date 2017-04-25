@@ -24,4 +24,3 @@ elements:
   - type: button
     name: Process
     action: cluster
-

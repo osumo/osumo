@@ -10,13 +10,14 @@ from girder_worker_environment import \
     extract_columns, input_path_1, input_path_2, single_mode
 # endif
 
+feature_extractor = ColumnExtractor if extract_columns else RowExtractor
+
 if single_mode:
     dialect1 = get_dialect(input_path_1)
 
     list1 = None
     with open(input_path_1, 'rU') as input1:
-        extractor = (ColumnExtractor if extract_columns else RowExtractor)
-        list1 = list(extractor(input1, dialect1))
+        list1 = list(feature_extractor(input1, dialect1))
 
     values = (
         {'id': a, 'description': a} for a in set(list1))
@@ -28,13 +29,11 @@ else:
 
     list1 = None
     with open(input_path_1, 'rU') as input1:
-        extractor = (ColumnExtractor if extract_columns else RowExtractor)
-        list1 = list(extractor(input1, dialect1))
+        list1 = list(feature_extractor(input1, dialect1))
 
     list2 = None
     with open(input_path_2, 'rU') as input2:
-        extractor = (ColumnExtractor if extract_columns else RowExtractor)
-        list2 = list(extractor(input2, dialect2))
+        list2 = list(feature_extractor(input2, dialect2))
 
     values = (
         {'id': (a if len(a) < len(b) else b),

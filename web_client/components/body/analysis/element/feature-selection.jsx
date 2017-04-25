@@ -5,21 +5,17 @@ import { TIMES } from '../../../../constants';
 
 const addEntries = (currentEntries, newEntries) => {
   let result = [].concat(currentEntries);
-  (
-    newEntries
-    .map((s) => (
-      s
-      .split(' ')
-      .filter(({ length }) => length)
-      .join(' ')
-    ))
-    .filter(({ length }) => length)
+
+  const isNonEmpty = ({ length }) => (length > 0);
+
+  newEntries
+    .map((s) => (s.split(' ').filter(isNonEmpty).join(' ')))
+    .filter(isNonEmpty)
     .forEach((e) => {
       if (result.indexOf(e) < 0) {
         result.push(e);
       }
-    })
-  );
+    });
 
   return result;
 };

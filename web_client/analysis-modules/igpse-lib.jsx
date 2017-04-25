@@ -1,4 +1,3 @@
-
 import ItemModel from 'girder/models/ItemModel';
 
 import actions, { addItemMetadata } from '../actions';
@@ -38,8 +37,6 @@ export class IGPSEWorkflow {
       ],
       (args) => this.processPage(...args)
     );
-
-    window.G = this;
   }
 
   processPage (pageKey, attrName, addPage = true, construct = false) {
@@ -587,4 +584,3 @@ export class IGPSEWorkflow {
     this._mirnaHandler(value);
   }
 }
-

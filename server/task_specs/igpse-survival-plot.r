@@ -1,4 +1,3 @@
-
 require(jsonlite)
 require(survival)
 
@@ -104,4 +103,3 @@ if (((length(groups$GROUP1$node) > 0 && length(groups$GROUP1$node[[1]]) > 0) ||
 
 dev.off()
 }
-

@@ -88,16 +88,12 @@ class Element extends React.Component {
         break;
 
       case 'featureSelection':
-        result = (
-          <FeatureSelection
-            key='result'
-            onAction={onAction}
-            onStateChange={onStateChange}
-            state={state}
-            children={children}
-            {...props}
-          />
-        );
+        result = <FeatureSelection key='result'
+          onAction={onAction}
+          onStateChange={onStateChange}
+          state={state}
+          children={children}
+          {...props} />;
         break;
 
       case 'field':

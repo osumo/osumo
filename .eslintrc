@@ -1,8 +1,0 @@
-{
-  "extends": "semistandard",
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    }
-  }
-}
