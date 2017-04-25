@@ -1,4 +1,3 @@
-
 import { Promise } from '../utils/promise';
 
 const main = (igpse) => (
@@ -8,4 +7,3 @@ const main = (igpse) => (
 );
 
 export default main;
-

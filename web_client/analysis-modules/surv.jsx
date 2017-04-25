@@ -1,4 +1,3 @@
-
 import actions from '../actions';
 import analysisUtils from '../utils/analysis';
 import { Promise } from '../utils/promise';
@@ -75,4 +74,3 @@ const main = () => (
 );
 
 export default main;
-

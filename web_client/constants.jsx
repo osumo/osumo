@@ -1,4 +1,3 @@
-
 const ABOUT_URL = (
     'https://github.com/osumo/osumo');
 const BUG_URL = 'https://github.com/osumo/osumo/issues/new';

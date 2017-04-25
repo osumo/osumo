@@ -1,4 +1,3 @@
-
 import { Promise } from '../utils/promise';
 
 const main = (igpse) => (

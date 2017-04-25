@@ -1,4 +1,3 @@
-
 import { createStore } from 'redux';
 import rootReducer from '../reducer';
 import ACTION_TYPES from '../reducer/action-types';
@@ -29,4 +28,3 @@ test('add analysis page', (t) => {
 
   t.end();
 });
-

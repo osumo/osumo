@@ -49,4 +49,3 @@ export default ([
   .map((x) => [x, x])
   .reduce(objectReduce, {})
 );
-

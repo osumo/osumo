@@ -190,7 +190,7 @@
     "import/export": "error",
     "import/first": "error",
     "import/no-duplicates": "error",
-    "import/no-webpack-loader-syntax": "error",
+    "import/no-webpack-loader-syntax": "off",
 
     "promise/param-names": "error",
 
