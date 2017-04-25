@@ -142,7 +142,7 @@ export const runTask = (taskName, params, options = {}) => {
   );
 
   return rest({ path, type: 'POST', data })
-    .then(({ response }) => response)
+    .then((result) => result.response)
     .then(({
       job: { _id: id },
       folder
