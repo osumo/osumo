@@ -26,14 +26,24 @@
     "urijs": "^1.18.4"
   },
   "scripts": {
-    "build": "webpack",
-    "build:watch": "webpack --watch --progress",
-    "lint": "semistandard --verbose --color | snazzy --color",
-    "lint:server": "python -m flake8 --config=.flake8.cfg server",
+    "lint": "npm run -s lint:server && npm run -s lint:client",
+
+    "lint:client": "npm run -s lint:client:eslint && npm run -s lint:client:semi",
+    "lint:client:semi": "semistandard --verbose --color | snazzy --color",
+    "lint:client:eslint": "eslint --color -c .eslintrc.json --ext js --ext jsx web_client",
+
+    "lint:server": "npm run -s lint:server:flake8",
+    "lint:server:flake8": "python -m flake8 --config=.flake8.cfg server",
+
     "test:frontend": "babel-tape-runner 'web_client/tests/**/*.js*' | tap-spec"
   },
   "devDependencies": {
     "babel-tape-runner": "^2.0.1",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.3",
     "redux-logger": "^2.6.1",
     "semistandard": "^9.0.0",
     "snazzy": "^6.0.0",

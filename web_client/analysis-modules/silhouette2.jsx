@@ -1,4 +1,3 @@
-
 import actions from '../actions';
 import { Promise } from '../utils/promise';
 import { store } from '../globals';
@@ -25,4 +24,3 @@ const main = (data) => {
 };
 
 export default main;
-

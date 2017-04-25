@@ -136,7 +136,7 @@ class OsumoTasksTest(base.TestCase):
         if filelist is None:
             filelist = ['brca.rdata', 'Medium.csv', 'miRNA.sample.csv',
                         'mRNA.sample.csv', 'sil_miRNA_Exp.csv', 'Small.csv',
-                        'time.cencer.csv']
+                        'time.cancer.csv']
         files = {}
         for filename in filelist:
             file = self._uploadFile(self.inputFolder, os.path.join(
@@ -312,7 +312,7 @@ class OsumoTasksTest(base.TestCase):
 
     def testTaskIgpse(self):
         files = self._uploadTestFiles([
-            'miRNA.sample.csv', 'mRNA.sample.csv', 'time.cencer.csv'])
+            'miRNA.sample.csv', 'mRNA.sample.csv', 'time.cancer.csv'])
         # Test iGPSe with correct parameters
         params = {
             'taskkey': 'iGPSe',
@@ -321,7 +321,7 @@ class OsumoTasksTest(base.TestCase):
             'mrna_clusters': 4,
             'mirna_input_path': files['miRNA.sample.csv']['itemId'],
             'mirna_clusters': 3,
-            'clinical_input_path': files['time.cencer.csv']['itemId'],
+            'clinical_input_path': files['time.cancer.csv']['itemId'],
         }
         job = self._processTask(params)
         self.assertIn('processedFiles', job)

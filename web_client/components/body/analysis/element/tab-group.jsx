@@ -1,7 +1,6 @@
 import React from 'react';
 
 class TabGroup extends React.Component {
-
   render () {
     let { children, state, onStateChange } = this.props;
 

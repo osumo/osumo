@@ -1,4 +1,3 @@
-
 import { combineReducers } from 'redux';
 import ACTION_TYPES from './action-types';
 
@@ -32,4 +31,3 @@ const wrappedReducer = (state, action) => {
 };
 
 export default wrappedReducer;
-

@@ -16,6 +16,14 @@ inputs:
     target: filepath
     format: text
 
+  - name: single_mode
+    type: boolean
+    format: boolean
+
+  - name: extract_columns
+    type: boolean
+    format: boolean
+
 outputs:
   - name: extract_result
     target: memory

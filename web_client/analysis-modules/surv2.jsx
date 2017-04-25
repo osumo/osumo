@@ -1,4 +1,3 @@
-
 import actions from '../actions';
 import { store } from '../globals';
 
@@ -23,4 +22,3 @@ const main = (data) => {
 };
 
 export default main;
-

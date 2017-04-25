@@ -103,9 +103,6 @@ class ParallelSets extends React.Component {
       let gapWidth = x(0) - 3;
       let bandWidth = x.bandwidth() + gapWidth;
       let startx = x.bandwidth() - bandWidth;
-      if (!source) {
-        0;
-      }
       let sourcey = (
         y(source.offsetValue) +
         source.order * padding +

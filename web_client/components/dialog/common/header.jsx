@@ -26,7 +26,6 @@ class Header extends React.Component {
       children: React.PropTypes.string
     };
   }
-
 }
 
 export default Header;

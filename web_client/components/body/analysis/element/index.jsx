@@ -3,6 +3,7 @@ import { isUndefined } from 'lodash';
 
 import ButtonElement from './button';
 import TabGroup from './tab-group';
+import FeatureSelection from './feature-selection';
 import FieldElement from './field';
 import FileSelectionElement from './file-selection';
 import Group from './group';
@@ -84,6 +85,15 @@ class Element extends React.Component {
       case 'group':
         result = (<Group key='result' children={children} {...props} />);
         wrapResult = false;
+        break;
+
+      case 'featureSelection':
+        result = <FeatureSelection key='result'
+          onAction={onAction}
+          onStateChange={onStateChange}
+          state={state}
+          children={children}
+          {...props} />;
         break;
 
       case 'field':

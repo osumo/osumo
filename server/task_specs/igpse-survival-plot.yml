@@ -1,0 +1,22 @@
+---
+
+name: Survival Plot
+mode: r
+
+script: "#include<igpse-survival-plot.r>"
+
+inputs:
+  - name: transferData
+    target: memory
+    type: string
+    format: text
+
+  - name: groups
+    type: string
+    format: text
+
+outputs:
+  - name: dataplot
+    target: filepath
+    type: image
+    format: png
