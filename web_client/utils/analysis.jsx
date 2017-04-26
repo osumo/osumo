@@ -141,14 +141,15 @@ export const runTask = (taskName, params, options = {}) => {
       .reduce(objectReduce, {})
   );
 
-  return (
-    rest({ path, type: 'POST', data })
-      .then(({
-        response: {
-          job: { _id: id }
-        }
-      }) => pollJob(id, title, taskName, pollInterval, 0, maxPolls))
-  );
+  return rest({ path, type: 'POST', data })
+    .then((result) => result.response)
+    .then(({
+      job: { _id: id },
+      folder
+    }) => {
+      return pollJob(id, title, taskName, pollInterval, 0, maxPolls)
+        .then((data) => ({ ...data, folder }));
+    });
 };
 
 export const traverseAnalysisElements = (obj, visitor) => {
