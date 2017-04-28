@@ -3,6 +3,7 @@ import { isUndefined } from 'lodash';
 
 import ButtonElement from './button';
 import TabGroup from './tab-group';
+import FeatureMatchCorrector from './feature-match-corrector';
 import FeatureSelection from './feature-selection';
 import FieldElement from './field';
 import FileSelectionElement from './file-selection';
@@ -85,6 +86,15 @@ class Element extends React.Component {
       case 'group':
         result = (<Group key='result' children={children} {...props} />);
         wrapResult = false;
+        break;
+
+      case 'featureMatchCorrection':
+        result = <FeatureMatchCorrector key='result'
+          onAction={onAction}
+          onStateChange={onStateChange}
+          state={state}
+          children={children}
+          {...props} />;
         break;
 
       case 'featureSelection':
