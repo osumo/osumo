@@ -21,20 +21,18 @@
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "react-redux": "^4.4.5",
+    "react-sortable": "^1.2.0",
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
     "urijs": "^1.18.4"
   },
   "scripts": {
     "lint": "npm run -s lint:server && npm run -s lint:client",
-
     "lint:client": "npm run -s lint:client:eslint && npm run -s lint:client:semi",
     "lint:client:semi": "semistandard --verbose --color | snazzy --color",
     "lint:client:eslint": "eslint --color -c .eslintrc.json --ext js --ext jsx web_client",
-
     "lint:server": "npm run -s lint:server:flake8",
     "lint:server:flake8": "python -m flake8 --config=.flake8.cfg server",
-
     "test:frontend": "babel-tape-runner 'web_client/tests/**/*.js*' | tap-spec"
   },
   "devDependencies": {

@@ -40,22 +40,65 @@ def compute_assignments(list1, list2, metric=None):
     assign1, assign2 = (
         optimize.linear_sum_assignment(cost_matrix))
 
+    assign1 = assign1.astype(np.uint64)
+    assign2 = assign2.astype(np.uint64)
+
+    n1 = len(list1)
+    n2 = len(list2)
+    n_min = min(n1, n2)
+
+    # no more than *one* of these branches may be executed
+    left_over = None
+    if n1 != n_min:
+        left_over = np.empty((n1,), dtype=np.bool)
+        target = assign1
+
+    elif n2 != n_min:
+        left_over = np.empty((n2,), dtype=np.bool)
+        target = assign2
+
+    if left_over is not None:
+        left_over.fill(True)
+        left_over[target] = False
+        left_over = np.where(left_over)[0]
+
+        new_target = np.concatenate((target, left_over))
+        padding = np.empty_like(left_over, dtype=object)
+
+        if target is assign1:
+            assign1 = new_target
+            assign2 = np.concatenate((assign2, padding))
+
+        if target is assign2:
+            assign2 = new_target
+            assign1 = np.concatenate((assign1, padding))
+
+    assignments = []
+    for (i, j) in zip(assign1, assign2):
+        obj1 = None
+        obj2 = None
+        score = None
+
+        if i is not None:
+            i = int(i)
+            obj1 = {'index': i, 'value': list1[i]}
+
+        if j is not None:
+            j = int(j)
+            obj2 = {'index': j, 'value': list2[j]}
+
+        if i is not None and j is not None:
+            score = 1.0 - cost_matrix[i, j]
+
+        assignments.append({'pair': [obj1, obj2], 'score': score})
+
     result = AssignmentResult(
-        score=np.mean(1.0 - cost_matrix[assign1, assign2]),
+        score=np.mean(1.0 - cost_matrix[
+            assign1[:n_min].astype(np.uint64),
+            assign2[:n_min].astype(np.uint64)]),
         assignments=sorted(
-            [
-                {
-                    'pair': [
-                        {'index': i, 'value': list1[i]},
-                        {'index': j, 'value': list2[j]}
-                    ],
-
-                    'score': 1.0 - cost_matrix[i, j]
-                }
-                for (i, j) in zip(assign1, assign2)
-            ],
-
-            key=lambda x: -x['score']
+            assignments,
+            key=lambda x: -x['score'] if x['score'] is not None else None
         )
     )
 

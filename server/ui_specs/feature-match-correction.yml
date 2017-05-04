@@ -1,0 +1,13 @@
+---
+
+name: Correction
+description: Fuzzy String Feature Matching Correction
+
+elements:
+  - key: featureMatchCorrection
+    name: Feature Match Correction
+    type: featureMatchCorrection
+
+  - type: button
+    name: Apply
+    action: applyMatch
