@@ -2,6 +2,10 @@
 # of R was too difficult to update with everything we need compared to just
 # installing it in the python container.
 language: python
+python:
+  - "2.7_with_system_site_packages"
+  - "3.5_with_system_site_packages"
+
 cache:
   packages: true
   pip: true
@@ -12,6 +16,9 @@ cache:
 sudo: false
 
 before_install:
+  - sudo apt-get update
+  - sudo apt-get install python-numpy
+  - sudo apt-get install python-scipy
   - rm -rf ~/.nvm
   - git clone https://github.com/creationix/nvm.git ~/.nvm
   - source ~/.nvm/nvm.sh
