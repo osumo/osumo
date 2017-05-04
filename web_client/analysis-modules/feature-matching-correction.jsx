@@ -9,7 +9,7 @@ import loadModel from '../utils/load-model';
 import ItemModel from 'girder/models/ItemModel';
 import { formatSize } from 'girder/misc';
 
-const D = store.dispatch.bind(store);
+const dispatch = store.dispatch.bind(store);
 
 let priorData;
 let applyResultElements;
@@ -17,7 +17,7 @@ let applyResultElements;
 const applyMatch = (data, page) => {
   let removeResultElements = null;
   if (applyResultElements) {
-    removeResultElements = D(
+    removeResultElements = dispatch(
       actions.removeAnalysisElement(applyResultElements));
   }
 
@@ -40,10 +40,8 @@ const applyMatch = (data, page) => {
 
   const metaDataPromise = Promise.map(
     priorData.inputFiles,
-    (input) => (
-      loadModel(input, ItemModel)
-        .then((item) => Object.entries(item.attributes.meta || {}))
-    )
+    (input) => loadModel(input, ItemModel)
+      .then((item) => Object.entries(item.attributes.meta || {}))
   );
 
   const task = 'feature-apply';
@@ -65,8 +63,8 @@ const applyMatch = (data, page) => {
   const title = 'feature-apply';
   const maxPolls = 40;
 
-  const runPromise = analysisUtils.runTask(
-    task, { inputs, outputs }, { title, maxPolls })
+  const runPromise = analysisUtils.runTask(task, { inputs, outputs },
+      { title, maxPolls })
     .then(
       ({
         output_path_1: { itemId: outputId1 },
@@ -86,24 +84,21 @@ const applyMatch = (data, page) => {
       ])
         .then((items) => (
           Promise.map(
-            items,
-            (item, i) => (
-              Promise.mapSeries(
-                meta[i],
-                ([k, v]) => new Promise((resolve, reject) => {
-                  item.addMetadata(
-                    k,
-                    v,
-                    () => resolve(),
-                    ({ message }) => reject(new Error(message))
-                  );
-                })
-              )
+            items, (item, i) => Promise.mapSeries(
+              meta[i],
+              ([k, v]) => new Promise((resolve, reject) => {
+                item.addMetadata(
+                  k,
+                  v,
+                  () => resolve(),
+                  ({ message }) => reject(new Error(message))
+                );
+              })
             )
           )
           .then(() => Promise.mapSeries(
             items,
-            (item) => D(actions.addAnalysisElement(
+            (item) => dispatch(actions.addAnalysisElement(
               {
                 type: 'girderItem',
                 downloadUrl: item.downloadUrl(),
@@ -120,24 +115,21 @@ const applyMatch = (data, page) => {
 };
 
 const main = (payload) => Promise.resolve(priorData = payload)
-  .then(() => D(actions.registerAnalysisAction(
+  .then(() => dispatch(actions.registerAnalysisAction(
     'feature-match-correction', 'applyMatch', applyMatch
   )))
-
   .then(() => {
     let element = priorData.page2ElementObjects[0];
     element.baseMatching = priorData.matchResults.assignments;
   })
-
   .then(() => Promise.mapSeries(
     priorData.page2ElementObjects,
-    (e) => D(actions.addAnalysisElement(e, priorData.page2))
+    (e) => dispatch(actions.addAnalysisElement(e, priorData.page2))
   ))
   .then((elements) => {
     priorData.page2Elements = elements;
   })
-
-  .then(() => D(actions.enableAnalysisPage(priorData.page2)))
-  .then(() => D(actions.setCurrentAnalysisPage(priorData.page2)));
+  .then(() => dispatch(actions.enableAnalysisPage(priorData.page2)))
+  .then(() => dispatch(actions.setCurrentAnalysisPage(priorData.page2)));
 
 export default main;

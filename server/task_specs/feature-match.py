@@ -53,7 +53,7 @@ def compute_assignments(list1, list2, metric=None):
         left_over = np.empty((n1,), dtype=np.bool)
         target = assign1
 
-    if n2 != n_min:
+    elif n2 != n_min:
         left_over = np.empty((n2,), dtype=np.bool)
         target = assign2
 

@@ -85,7 +85,9 @@ const main = () => Promise.resolve()
     page2ElementObjects = elements || [];
     return D(actions.addAnalysisPage({ ...page, enabled: false }));
   })
-  .then((page) => (page2 = page))
+  .then((page) => {
+    page2 = page;
+  })
 
   .then(() => D(actions.enableAnalysisPage(page1)));
 
