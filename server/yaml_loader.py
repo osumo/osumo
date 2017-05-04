@@ -1,6 +1,7 @@
 """YAML loading and processing functions."""
 
 import yaml
+from six import string_types
 
 from .preprocessor import preprocess
 
@@ -13,7 +14,7 @@ def post_process(value, path):
         generator = value.iteritems()
     except AttributeError:
         is_dict = False
-        is_array = not isinstance(value, basestring)
+        is_array = not isinstance(value, string_types)
         if is_array:
             try:
                 generator = (post_process(x, path) for x in value)

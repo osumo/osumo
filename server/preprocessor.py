@@ -22,6 +22,7 @@ For now, only supports a very small subset of preprocessor operations:
 import os
 import os.path
 from re import compile
+from six import string_types
 
 try:
     from cStringIO import StringIO
@@ -132,7 +133,7 @@ def preprocess_helper(f_in, local_dir, defines, target):
 
 def preprocess(f_in, filepath=None, defines=None):
     """Preprocess a file-like object."""
-    if isinstance(f_in, basestring):
+    if isinstance(f_in, string_types):
         f_in = StringIO(f_in)
 
     if filepath is None:
