@@ -47,16 +47,14 @@ def main(
     index1 = list(index1)
     index2 = list(index2)
 
-    new_rows1 = rows1[index1]
     new_cols1 = columns1[index1]
     new_data1 = data1[:, index1]
 
-    new_rows2 = rows2[index2]
     new_cols2 = columns2[index2]
     new_data2 = data2[:, index2]
 
-    write_csv(new_data1, new_rows1, new_cols1, output_path_1, dialect_1)
-    write_csv(new_data2, new_rows2, new_cols2, output_path_2, dialect_2)
+    write_csv(new_data1, rows1, new_cols1, output_path_1, dialect_1)
+    write_csv(new_data2, rows2, new_cols2, output_path_2, dialect_2)
 
 output_path_1 = 'output_1.csv'
 output_path_2 = 'output_2.csv'
