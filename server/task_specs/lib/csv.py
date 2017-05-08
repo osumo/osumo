@@ -138,9 +138,10 @@ def make_float(x):
 def read_csv(input_path, dialect):
     """Perform a bulk read of the given csv file.
 
-    Performs a bulk read of the given csv file.  Returns a (data, rows, columns)
-    tuple where data is the 2D array matrix of the numeric data (list of rows),
-    rows is the list of row headers, and columns is the list of column headers.
+    Performs a bulk read of the given csv file.  Returns a (data, rows, columns,
+    corner) tuple where data is the 2D array matrix of the numeric data (list of
+    rows), rows is the list of row headers, columns is the list of column
+    headers, and corner is the column header value for the row headers.
     """
     from csv import reader
     from numpy import array, float64
@@ -148,7 +149,8 @@ def read_csv(input_path, dialect):
     row_headers, column_headers, data_block = None, None, None
     with open(input_path, 'rU') as f:
         reader = reader(f, dialect=dialect)
-        column_headers = list(next(reader))[1:]
+        column_headers = list(next(reader))
+        corner, column_headers = column_headers[0], column_headers[1:]
         row_headers, data_block = zip(
             *(
                 [row[0], row[1:]]
@@ -168,27 +170,29 @@ def read_csv(input_path, dialect):
             dtype=float64
         )
 
-    return data_block, row_headers, column_headers
+    return data_block, row_headers, column_headers, corner
 
 
-def write_csv_helper(data_block, row_headers, column_headers, f, dialect):
+def write_csv_helper(data_block, row_headers, column_headers,
+                     corner, f, dialect):
     """Internal csv writing helper."""
     from csv import writer
 
     writer = writer(f, dialect=dialect)
-    writer.writerow([''] + list(column_headers))
+    writer.writerow([corner] + list(column_headers))
     for row in zip(row_headers, data_block):
         writer.writerow([row[0]] + list(row[1]))
 
 
-def write_csv(data_block, row_headers, column_headers, output_path, dialect):
+def write_csv(data_block, row_headers, column_headers,
+              corner, output_path, dialect):
     """Perform a bulk write of the given data into a csv file."""
     from six import PY2
     if PY2:
         with open(output_path, 'wb') as f:
             write_csv_helper(
-                data_block, row_headers, column_headers, f, dialect)
+                data_block, row_headers, column_headers, corner, f, dialect)
     else:
         with open(output_path, 'w', newline='') as f:
             write_csv_helper(
-                data_block, row_headers, column_headers, f, dialect)
+                data_block, row_headers, column_headers, corner, f, dialect)

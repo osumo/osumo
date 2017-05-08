@@ -26,16 +26,13 @@ with open(input_path, 'rU') as input_f:
         output_f = open(sliced_output, 'w', newline='')
 
     with output_f:
-        writer = csv.writer(output_f, dialect=dialect)
+        writer = csv.writer(output_f, dialect=csv.excel)
 
         if slice_columns:
             indexes = []
             columns = next(reader)
 
             for (index, column) in enumerate(columns):
-                if index == 0:
-                    continue
-
                 if index == 0 or column in selections:
                     indexes.append(index)
 
