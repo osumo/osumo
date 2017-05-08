@@ -1,0 +1,28 @@
+---
+
+name: igpse-preprocess
+mode: python
+
+script: "#include<igpse-preprocess.py>"
+
+inputs:
+  - name: input_path_1
+    type: string
+    target: filepath
+    format: text
+
+  - name: input_path_2
+    type: string
+    target: filepath
+    format: text
+
+outputs:
+  - name: output_path_1
+    type: string
+    target: filepath
+    format: text
+
+  - name: output_path_2
+    type: string
+    target: filepath
+    format: text

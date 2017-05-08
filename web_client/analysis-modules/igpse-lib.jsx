@@ -152,7 +152,8 @@ export class IGPSEWorkflow {
       .then(() => (
         Promise.all([
           this.truncatePages(),
-          this.runFeatureExtractJobs(state)
+          this.runPreprocessJob(state).then(
+            () => this.runFeatureExtractJobs(state))
         ])
       ))
 
@@ -203,7 +204,8 @@ export class IGPSEWorkflow {
         let promises = [null, null, null];
 
         promises[0] = this.truncatePages();
-        promises[1] = this.runSubsetClusterJob(state);
+        promises[1] = this.runSubsetHeaderStripJobs(state)
+          .then(() => this.runSubsetClusterJob(state));
 
         if (this.elements.subsetSelectionB) {
           promises[2] = D(actions.removeAnalysisElement(
@@ -294,10 +296,44 @@ export class IGPSEWorkflow {
 
         return (
           Promise.all([
-            run(state.mrnaInputId, 'mrnaExtractResult'),
-            run(state.mirnaInputId, 'mirnaExtractResult')
+            run(this.mrnaPPFId, 'mrnaExtractResult'),
+            run(this.mirnaPPFId, 'mirnaExtractResult')
           ])
         );
+      })
+    );
+  }
+
+  runPreprocessJob (state) {
+    return (
+      this.constructPromise
+
+      .then(() => {
+        const task = 'igpse-preprocess';
+        const inputs = {
+          input_path_1: `FILE:${state.mrnaInputId}`,
+          input_path_2: `FILE:${state.mirnaInputId}`
+        };
+        const outputs = {
+          output_path_1: `FILE:x:out1.txt`,
+          output_path_2: `FILE:x:out2.txt`
+        };
+        const title = 'iGPSe Preprocess';
+        const maxPolls = 40;
+
+        return analysisUtils.runTask(
+          task,
+          { inputs, outputs },
+          { title, maxPolls }
+        ).then(({
+          output_path_1: { fileId: mrnaPPFId, itemId: mrnaPPId },
+          output_path_2: { fileId: mirnaPPFId, itemId: mirnaPPId }
+        }) => {
+          this.mrnaPPFId = mrnaPPFId;
+          this.mirnaPPFId = mirnaPPFId;
+          this.mrnaPPId = mrnaPPId;
+          this.mirnaPPId = mirnaPPId;
+        });
       })
     );
   }
@@ -365,12 +401,46 @@ export class IGPSEWorkflow {
         return (
           Promise.mapSeries(
             [
-              [this.mrnaInputId, this.mrnaFeatures, 'slicedMrnaInputId'],
-              [this.mirnaInputId, this.mirnaFeatures, 'slicedMirnaInputId']
+              [this.mrnaPPId, this.mrnaFeatures, 'slicedMrnaInputId'],
+              [this.mirnaPPId, this.mirnaFeatures, 'slicedMirnaInputId']
             ],
             (args) => run(...args)
           )
         );
+      })
+    );
+  }
+
+  runSubsetHeaderStripJobs (state) {
+    return (
+      this.constructPromise
+
+      .then(() => {
+        const task = 'strip-headers';
+        const title = 'iGPSe Header Strip';
+        const maxPolls = 40;
+
+        const run = (inputId, desc) => {
+          const inputs = { input_path: `ITEM:${inputId}` };
+          const outputs = { output_path: `FILE:x:${desc}.csv` };
+
+          return (
+            analysisUtils.runTask(
+              task,
+              { inputs, outputs },
+              { title, maxPolls }
+            )
+
+            .then(({ output_path: { itemId: id } }) => {
+              this[`${desc}InputId`] = id;
+            })
+          );
+        };
+
+        return Promise.all([
+          run(this.slicedMrnaInputId, 'strippedMrna'),
+          run(this.slicedMirnaInputId, 'strippedMirna')
+        ]);
       })
     );
   }
@@ -382,8 +452,8 @@ export class IGPSEWorkflow {
       .then(() => {
         const task = 'iGPSe';
         const inputs = {
-          mrna_input_path: `ITEM:${this.slicedMrnaInputId}`,
-          mirna_input_path: `ITEM:${this.slicedMirnaInputId}`,
+          mrna_input_path: `ITEM:${this.strippedMrnaInputId}`,
+          mirna_input_path: `ITEM:${this.strippedMirnaInputId}`,
           clinical_input_path: `ITEM:${this.clinicalInputId}`,
           mrna_clusters: `INTEGER:${this.mrnaClusters}`,
           mirna_clusters: `INTEGER:${this.mirnaClusters}`
