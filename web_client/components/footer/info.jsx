@@ -6,7 +6,7 @@ class Info extends React.Component {
   render () {
     return (
       <div className='g-footer-info'>
-        { COPYRIGHT } The Ohio State University 2016<br />
+        { COPYRIGHT } 2016 - 2017 The Ohio State University<br />
         All Rights Reserved
       </div>
     );
