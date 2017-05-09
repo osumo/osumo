@@ -49,7 +49,7 @@ $(() => {
   router(
     '?*query',
     routes.setGlobalNavTargetToIndex,
-    ...[routes.targetMiddleWare.slice(1)]
+    ...routes.targetMiddleWare.slice(1)
   );
 
   router(
