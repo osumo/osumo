@@ -3,28 +3,34 @@
 name: Heatmaps and Subset Selection
 
 elements:
-  - name: Tabbed Interface
+  - name: Heatmaps
     type: tabGroup
     elements:
       - key: mrnaMap
         name: mRNA Heatmap
-        notes: "The major groups show how the data was clustered.  The columns \
-                show different mRNA attributes, and the rows represent each \
-                subject."
+        notes: >
+          The major groups show how the data was clustered.  The columns show
+          different mRNA attributes, and the rows represent each subject.
         type: image
         fileId: 0 # TO BE FILLED IN
 
       - key: mirnaMap
         name: miRNA Heatmap
-        notes: "The major groups show how the data was clustered.  The columns \
-                show different miRNA attributes, and the rows represent each \
-                subject."
+        notes: >
+          The major groups show how the data was clustered.  The columns show
+          different miRNA attributes, and the rows represent each subject.
         type: image
         fileId: 0 # TO BE FILLED IN
 
   - key: pSets
-    name: parallel sets
-    notes: Parallel Sets
+    name: Guided Subset Selection
+    notes: >
+      Use the visualization below to select which patients to include in the
+      two groups for the final survivability analysis.  The boxes on the left
+      represent patients classified in the various clusters based on the mRNA
+      expression data; the boxes on the right are for the clusters based on the
+      miRNA data.  The ribbons in the middle represent where patients overlap
+      between the two sets of clusters.
     type: parallelSets
     inputData: 0 # TO BE FILLED IN
 

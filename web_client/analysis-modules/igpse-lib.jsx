@@ -135,12 +135,17 @@ export class IGPSEWorkflow {
       .then(() => D(actions.setCurrentAnalysisPage(this.pages[key])));
   }
 
+  setBusy (busy=true) {
+    return this.constructPromise
+      .then(() => D(actions.setAnalysisBusy(busy)));
+  }
+
   __actionInputProcess (data, page) {
     let state;
     this.index = 0;
     return (
       this.constructPromise
-
+      .then(() => this.setBusy())
       .then(() => {
         state = analysisUtils.aggregateStateData(data, page);
 
@@ -168,7 +173,7 @@ export class IGPSEWorkflow {
     this.index = 1;
     return (
       this.constructPromise
-
+      .then(() => this.setBusy())
       .then(() => {
         state = analysisUtils.aggregateStateData(data, page);
 
@@ -192,6 +197,7 @@ export class IGPSEWorkflow {
     this.index = 2;
     return (
       this.constructPromise
+      .then(() => this.setBusy())
 
       .then(() => {
         state = analysisUtils.aggregateStateData(data, page);
@@ -231,6 +237,7 @@ export class IGPSEWorkflow {
     this.index = 2;
     return (
       this.constructPromise
+      .then(() => this.setBusy())
 
       .then(() => {
         state = analysisUtils.aggregateStateData(data, page);

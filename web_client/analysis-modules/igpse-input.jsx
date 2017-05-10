@@ -6,6 +6,7 @@ const main = (igpse) => (
   .then(() => igpse.renderElements('input'))
   .then(() => igpse.enablePage('input'))
   .then(() => igpse.switchPage('input'))
+  .then(() => igpse.setBusy(false))
 );
 
 export default main;

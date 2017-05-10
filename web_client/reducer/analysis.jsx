@@ -429,6 +429,21 @@ const removeAnalysisPageByKey = (analysis, key) => {
   return analysis;
 };
 
+const setAnalysisBusy = (analysis, busy=true) => {
+  let { busy: alreadyBusy=false } = analysis;
+
+  if (alreadyBusy !== busy) {
+    analysis = { ...analysis, busy };
+  }
+
+  return analysis;
+};
+
+const toggleAnalysisBusy = (analysis) => {
+  let { busy=false } = analysis;
+  return setAnalysisBusy(analysis, !busy);
+};
+
 const truncateAnalysisPages = (analysis, numPages, options = {}) => {
   let { pages, objects } = analysis;
   pages = ensure(pages, []);
@@ -620,7 +635,16 @@ const setCurrentAnalysisPageByKey = (analysis, key) => {
   return setCurrentAnalysisPage(analysis, page);
 };
 
-const analysis = (state = {}, action) => {
+const DEFAULT_STATE = {
+  busy: false,
+  idAllocator: {},
+  lastPageId: null,
+  objects: {},
+  parents: {},
+  states: {}
+};
+
+const analysis = (state=DEFAULT_STATE, action) => {
   const { type } = action;
   if (type === ACTION_TYPES.ADD_ANALYSIS_ELEMENT) {
     const { element, parent } = action;
@@ -647,6 +671,9 @@ const analysis = (state = {}, action) => {
     } else {
       state = removeAnalysisPage(state, page);
     }
+  } else if (type === ACTION_TYPES.SET_ANALYSIS_BUSY) {
+    const { busy } = action;
+    state = setAnalysisBusy(state, busy);
   } else if (type === ACTION_TYPES.SET_CURRENT_ANALYSIS_PAGE) {
     const { key, page } = action;
     if (!isUndefined(key)) {
@@ -654,6 +681,8 @@ const analysis = (state = {}, action) => {
     } else {
       state = setCurrentAnalysisPage(state, page);
     }
+  } else if (type === ACTION_TYPES.TOGGLE_ANALYSIS_BUSY) {
+    state = toggleAnalysisBusy(state);
   } else if (type === ACTION_TYPES.TOGGLE_ANALYSIS_PAGE) {
     const { page } = action;
     state = toggleAnalysisPage(state, page);

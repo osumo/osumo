@@ -6,6 +6,7 @@ const main = (igpse) => (
   .then(() => igpse.renderElements('subsetSelection'))
   .then(() => igpse.enablePage('subsetSelection'))
   .then(() => igpse.switchPage('subsetSelection'))
+  .then(() => igpse.setBusy(false))
 );
 
 export default main;

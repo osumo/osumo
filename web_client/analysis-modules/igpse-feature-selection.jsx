@@ -12,6 +12,7 @@ const main = (igpse) => (
   .then(() => igpse.renderElements('featureSelection'))
   .then(() => igpse.enablePage('featureSelection'))
   .then(() => igpse.switchPage('featureSelection'))
+  .then(() => igpse.setBusy(false))
 );
 
 export default main;

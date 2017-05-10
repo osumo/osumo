@@ -22,6 +22,7 @@
     "react-dom": "^15.3.2",
     "react-redux": "^4.4.5",
     "react-sortable": "^1.2.0",
+    "react-spinkit": "^2.1.2",
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
     "urijs": "^1.18.4"

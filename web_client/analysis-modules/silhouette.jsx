@@ -46,11 +46,10 @@ const actionProcess = (data, page) => {
     }))
   );
 
-  return (
-    Promise.all([truncatePromise, runPromise])
+  return D(actions.setAnalysisBusy(true))
+    .then(() => Promise.all([truncatePromise, runPromise]))
     .then(([, result]) => result)
-    .then(silhouette2)
-  );
+    .then(silhouette2);
 };
 
 const main = () => (
@@ -67,6 +66,7 @@ const main = () => (
   .then((page) => (page2 = page))
 
   .then(() => D(actions.enableAnalysisPage(page1)))
+  .then(() => D(actions.setAnalysisBusy(false)))
 );
 
 export default main;

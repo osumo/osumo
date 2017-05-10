@@ -557,6 +557,13 @@ export const resetUploadState = () => promiseAction(
   }
 );
 
+export const setAnalysisBusy = (busy=true) => promiseAction(
+  (dispatch, getState) => {
+    dispatch({ type: ACTION_TYPES.SET_ANALYSIS_BUSY, busy });
+    return getState().analysis.busy;
+  }
+);
+
 export const setUploadModeToDefault = () => promiseAction(
   (dispatch, getState) => {
     dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DEFAULT });
@@ -799,6 +806,13 @@ export const submitRegistrationForm = (form) => promiseAction(
         return dispatch(setDialogError(field, message));
       })
     );
+  }
+);
+
+export const toggleAnalysisBusy = () => promiseAction(
+  (dispatch, getState) => {
+    dispatch({ type: ACTION_TYPES.TOGGLE_ANALYSIS_BUSY });
+    return getState().analysis.busy;
   }
 );
 
@@ -1087,6 +1101,7 @@ export default {
   removeAnalysisPage,
   removeUploadFileEntry,
   resetUploadState,
+  setAnalysisBusy,
   setCurrentUser,
   setDialogError,
   setFileNavigationRoot,
@@ -1103,6 +1118,7 @@ export default {
   submitLogoutForm,
   submitResetPasswordForm,
   submitRegistrationForm,
+  toggleAnalysisBusy,
   toggleAnalysisPage,
   toggleHeaderDropdown,
   triggerAnalysisAction,

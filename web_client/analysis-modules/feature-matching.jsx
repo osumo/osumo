@@ -46,7 +46,8 @@ const computeMatch = (data, page) => {
       return result;
     });
 
-  return Promise.all([truncatePromise, runPromise])
+  return D(actions.setAnalysisBusy(true))
+    .then(() => Promise.all([truncatePromise, runPromise]))
     .then(([, matchResults]) => ({
       matchResults,
       inputFiles,
@@ -89,6 +90,7 @@ const main = () => Promise.resolve()
     page2 = page;
   })
 
-  .then(() => D(actions.enableAnalysisPage(page1)));
+  .then(() => D(actions.enableAnalysisPage(page1)))
+  .then(() => D(actions.setAnalysisBusy(false)));
 
 export default main;

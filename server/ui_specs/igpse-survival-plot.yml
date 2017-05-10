@@ -1,9 +1,11 @@
 ---
 
 name: Survival Plot
+notes: >
+  Below is a visualization representing the aggregate survivability of the two
+  patient groups selected in the prior step.
 
 elements:
   - key: survPlot
-    name: Survival Plot
     type: image
     fileId: 0 # TO BE FILLED IN
