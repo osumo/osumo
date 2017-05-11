@@ -114,7 +114,8 @@ const applyMatch = (data, page) => {
           ))
         ))
         .then((elements) => { applyResultElements = elements; });
-    });
+    })
+    .then(() => dispatch(actions.setAnalysisBusy(false)));
 };
 
 const main = (payload) => Promise.resolve(priorData = payload)

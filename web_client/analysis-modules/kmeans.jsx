@@ -41,7 +41,8 @@ const actionProcess = (data, page) => {
 
   return D(actions.setAnalysisBusy(true))
     .then(() => Promise.all([truncatePromise, runPromise]))
-    .then(([, result]) => result);
+    .then(([, result]) => result)
+    .then(() => dispatch(actions.setAnalysisBusy(false)));
 };
 
 const main = () => (
