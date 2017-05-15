@@ -55,7 +55,6 @@ class Page extends React.Component {
       };
     }
 
-
     if (busy) {
       return (
         <div className='.g-analysis-page'>

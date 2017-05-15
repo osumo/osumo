@@ -557,7 +557,7 @@ export const resetUploadState = () => promiseAction(
   }
 );
 
-export const setAnalysisBusy = (busy=true) => promiseAction(
+export const setAnalysisBusy = (busy = true) => promiseAction(
   (dispatch, getState) => {
     dispatch({ type: ACTION_TYPES.SET_ANALYSIS_BUSY, busy });
     return getState().analysis.busy;

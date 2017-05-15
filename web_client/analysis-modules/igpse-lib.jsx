@@ -135,7 +135,7 @@ export class IGPSEWorkflow {
       .then(() => D(actions.setCurrentAnalysisPage(this.pages[key])));
   }
 
-  setBusy (busy=true) {
+  setBusy (busy = true) {
     return this.constructPromise
       .then(() => D(actions.setAnalysisBusy(busy)));
   }

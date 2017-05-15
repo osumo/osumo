@@ -429,8 +429,8 @@ const removeAnalysisPageByKey = (analysis, key) => {
   return analysis;
 };
 
-const setAnalysisBusy = (analysis, busy=true) => {
-  let { busy: alreadyBusy=false } = analysis;
+const setAnalysisBusy = (analysis, busy = true) => {
+  let { busy: alreadyBusy = false } = analysis;
 
   if (alreadyBusy !== busy) {
     analysis = { ...analysis, busy };
@@ -440,7 +440,7 @@ const setAnalysisBusy = (analysis, busy=true) => {
 };
 
 const toggleAnalysisBusy = (analysis) => {
-  let { busy=false } = analysis;
+  let { busy = false } = analysis;
   return setAnalysisBusy(analysis, !busy);
 };
 
@@ -644,7 +644,7 @@ const DEFAULT_STATE = {
   states: {}
 };
 
-const analysis = (state=DEFAULT_STATE, action) => {
+const analysis = (state = DEFAULT_STATE, action) => {
   const { type } = action;
   if (type === ACTION_TYPES.ADD_ANALYSIS_ELEMENT) {
     const { element, parent } = action;
