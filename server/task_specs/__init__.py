@@ -24,17 +24,25 @@ import os.path
 from glob import iglob
 from .. import yaml_loader
 
-task_specs = {  # dictionary
 
-    # key
-    os.path.splitext(os.path.basename(spec_path))[0]:
-        # value
-        yaml_loader.load(spec_path)
+def get_task_spec(key):
+    """Return the task spec for the given key."""
+    task_spec_path = '.'.join((key, 'yml'))
+    task_spec_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), task_spec_path)
+    task_spec = yaml_loader.load(task_spec_path)
+    task_spec['key'] = key.lower()
 
-    # current_file_location/*.yml
-    for spec_path in iglob(os.path.join(
+    return task_spec
+
+
+def get_task_specs():
+    """Return the set of task specs available."""
+    file_list = iglob(os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '*.yml'))
-}
-
-for key in task_specs:
-    task_specs[key]['key'] = key.lower()
+    key_list = (
+        os.path.basename(os.path.splitext(file)[0])
+        for file in file_list)
+    return {
+        key: get_task_spec(key)
+        for key in key_list}

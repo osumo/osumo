@@ -20,7 +20,7 @@ from girder.utility.model_importer import ModelImporter
 from girder.utility.plugin_utilities import registerPluginWebroot
 from girder.plugins.worker import utils as workerUtils
 
-from .task_specs import task_specs
+from .task_specs import get_task_spec, get_task_specs
 from .ui_specs import ui_specs
 
 RE_ARG_SPEC = re.compile(r'''([^\(]+)(\((.+)\))?''')
@@ -149,7 +149,7 @@ class Osumo(Resource):
                     task.get('key', k),
                     task
                 )
-                for k, task in task_specs.items()
+                for k, task in get_task_specs().items()
             )
             if a == key
         ]
@@ -205,7 +205,7 @@ class Osumo(Resource):
                     task,
                     task.get('mode', '').lower()
                 )
-                for key, task in task_specs.items()
+                for key, task in get_task_specs().items()
             )
             if (not name or a == name) and (not mode or d == mode)
         ]
@@ -259,7 +259,7 @@ class Osumo(Resource):
     )
     def runTaskSpec(self, key, params, **kwargs):
         """Create a job from the given task spec."""
-        task_spec = task_specs.get(key)
+        task_spec = get_task_spec(key)
         if task_spec is None:
             raise RestException('No task named %s.' % key)
 
