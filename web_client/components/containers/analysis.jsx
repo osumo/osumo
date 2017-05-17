@@ -120,6 +120,10 @@ const AnalysisContainer = connect(
               ) {
                 result = false;
               }
+            } else if (item._modelType === 'folder') {
+              if (item.name === '__osumo_tmp') {
+                result = false;
+              }
             }
 
             return result;
