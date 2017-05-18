@@ -39,16 +39,17 @@ const actionProcess = (data, page) => {
     }))
   );
 
-  return (
-    Promise.all([truncatePromise, runPromise])
+  return D(actions.setAnalysisBusy(true))
+    .then(() => Promise.all([truncatePromise, runPromise]))
     .then(([, result]) => result)
-  );
+    .then(() => D(actions.setAnalysisBusy(false)));
 };
 
 const main = () => (
   D(actions.registerAnalysisAction('kmeans', 'process', actionProcess))
   .then(() => analysisUtils.fetchAnalysisPage('kmeans'))
   .then((page) => D(actions.addAnalysisPage(page)))
+  .then(() => D(actions.setAnalysisBusy(false)))
 );
 
 export default main;

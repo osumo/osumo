@@ -5,7 +5,7 @@ import { store } from '../globals';
 
 import featureMatchingCorrection from './feature-matching-correction';
 
-const D = store.dispatch.bind(store);
+const dispatch = store.dispatch.bind(store);
 
 let page1;
 let page1Elements;
@@ -15,7 +15,7 @@ let page2ElementObjects;
 let inputFiles = [null, null];
 
 const computeMatch = (data, page) => {
-  const truncatePromise = D(actions.truncateAnalysisPages(
+  const truncatePromise = dispatch(actions.truncateAnalysisPages(
     1,
     {
       clear: true,
@@ -46,7 +46,8 @@ const computeMatch = (data, page) => {
       return result;
     });
 
-  return Promise.all([truncatePromise, runPromise])
+  return dispatch(actions.setAnalysisBusy(true))
+    .then(() => Promise.all([truncatePromise, runPromise]))
     .then(([, matchResults]) => ({
       matchResults,
       inputFiles,
@@ -60,21 +61,21 @@ const computeMatch = (data, page) => {
 };
 
 const main = () => Promise.resolve()
-  .then(() => D(actions.registerAnalysisAction(
+  .then(() => dispatch(actions.registerAnalysisAction(
     'feature-match', 'computeMatch', computeMatch)
   ))
 
   .then(() => analysisUtils.fetchAnalysisPage('feature-match'))
   .then(({ elements, ...page }) => {
     page1ElementObjects = elements || [];
-    return D(actions.addAnalysisPage({ ...page, enabled: false }));
+    return dispatch(actions.addAnalysisPage({ ...page, enabled: false }));
   })
   .then((page) => {
     page1 = page;
   })
   .then(() => Promise.mapSeries(
     page1ElementObjects,
-    (e) => D(actions.addAnalysisElement(e, page1))
+    (e) => dispatch(actions.addAnalysisElement(e, page1))
   ))
   .then((elements) => {
     page1Elements = elements;
@@ -83,12 +84,13 @@ const main = () => Promise.resolve()
   .then(() => analysisUtils.fetchAnalysisPage('feature-match-correction'))
   .then(({ elements, ...page }) => {
     page2ElementObjects = elements || [];
-    return D(actions.addAnalysisPage({ ...page, enabled: false }));
+    return dispatch(actions.addAnalysisPage({ ...page, enabled: false }));
   })
   .then((page) => {
     page2 = page;
   })
 
-  .then(() => D(actions.enableAnalysisPage(page1)));
+  .then(() => dispatch(actions.enableAnalysisPage(page1)))
+  .then(() => dispatch(actions.setAnalysisBusy(false)));
 
 export default main;

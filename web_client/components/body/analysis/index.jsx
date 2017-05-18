@@ -8,6 +8,7 @@ class Analysis extends React.Component {
   render () {
     let {
       baseAnalysisModules,
+      busy,
       currentPage,
       onBaseAnalysis,
       onAction,
@@ -44,6 +45,7 @@ class Analysis extends React.Component {
           .map((page) => (
             <AnalysisPage
               {...page}
+              busy={busy}
               states={states}
               objects={objects}
               onAction={
@@ -62,10 +64,15 @@ class Analysis extends React.Component {
     return (
       <div className='analysis'>
         <div className='analysis-selector'>
-          <h4>Select analysis</h4>
+          <h4>{busy ? 'Running...' : 'Select analysis'}</h4>
           {NBSP}
-          <select onChange={({ target: { value } }) => onBaseAnalysis(value)}>
-            <option key={null} value={''}>- none -</option>
+          <select
+            style={{ visibility: busy ? 'hidden' : 'visible' }}
+            onChange={
+              busy ? null : ({ target: { value } }) => onBaseAnalysis(value)
+            }
+          >
+            <option key={null} value={''}>- none -</option>,
             {
               baseAnalysisModules.map(({ name, key, module }) => (
                 <option key={key} value={key}>{name}</option>

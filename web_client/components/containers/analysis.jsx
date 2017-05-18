@@ -37,12 +37,13 @@ const modules = (
 );
 
 const AnalysisContainer = connect(
-  ({ analysis: { currentPage, objects, pages, states } }) => {
+  ({ analysis: { busy, currentPage, objects, pages, states } }) => {
     objects = objects || {};
     pages = pages || [];
     states = states || {};
 
     return {
+      busy,
       currentPage,
       objects,
       pages,

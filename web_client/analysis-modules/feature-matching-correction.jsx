@@ -75,7 +75,10 @@ const applyMatch = (data, page) => {
       })
     );
 
-  return Promise.all([removeResultElements, metaDataPromise, runPromise])
+  return dispatch(actions.setAnalysisBusy(true))
+    .then(() => Promise.all([
+      removeResultElements, metaDataPromise, runPromise
+    ]))
     .then(([, meta, result]) => {
       let { outputId1, outputId2 } = result;
       return Promise.all([
@@ -111,7 +114,8 @@ const applyMatch = (data, page) => {
           ))
         ))
         .then((elements) => { applyResultElements = elements; });
-    });
+    })
+    .then(() => dispatch(actions.setAnalysisBusy(false)));
 };
 
 const main = (payload) => Promise.resolve(priorData = payload)
@@ -130,6 +134,7 @@ const main = (payload) => Promise.resolve(priorData = payload)
     priorData.page2Elements = elements;
   })
   .then(() => dispatch(actions.enableAnalysisPage(priorData.page2)))
-  .then(() => dispatch(actions.setCurrentAnalysisPage(priorData.page2)));
+  .then(() => dispatch(actions.setCurrentAnalysisPage(priorData.page2)))
+  .then(() => dispatch(actions.setAnalysisBusy(false)));
 
 export default main;

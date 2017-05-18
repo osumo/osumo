@@ -1,6 +1,13 @@
 ---
 
 name: Feature Selection
+notes: >
+  Select a subset of features from each data set.  For each data set, use the
+  search field (left) to search for features to add to your chosen selections
+  (right).  To enter a prepared list of features, click on the the "Search"
+  button to toggle multi-feature entry mode.  Multiple features can be entered
+  one per line.  To continue with all features in a data set, simply proceed
+  without entering any features.
 
 elements:
   - key: mrnaFeatures

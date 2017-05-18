@@ -18,6 +18,7 @@ const main = (data) => {
     promise
     .then(() => D(actions.enableAnalysisPage(data.page2)))
     .then(() => D(actions.setCurrentAnalysisPage(data.page2)))
+    .then(() => D(actions.setAnalysisBusy(false)))
   );
 };
 
