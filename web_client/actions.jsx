@@ -565,6 +565,13 @@ export const setAnalysisBusy = (busy = true) => promiseAction(
   }
 );
 
+export const setMiscTabKey = (key) => promiseAction(
+  (dispatch, getState) => {
+    dispatch({ type: ACTION_TYPES.SET_MISC_TAB_KEY, key });
+    return getState().misc.tabKey;
+  }
+);
+
 export const setUploadModeToDefault = () => promiseAction(
   (dispatch, getState) => {
     dispatch({ type: ACTION_TYPES.SET_UPLOAD_MODE_DEFAULT });
@@ -1111,6 +1118,7 @@ export default {
   setGlobalNavTarget,
   setItemSelectedCallback,
   setItemFilter,
+  setMiscTabKey,
   setUploadModeToDefault,
   setUploadModeToDragging,
   setUploadModeToDone,

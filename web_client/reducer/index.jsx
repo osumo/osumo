@@ -7,6 +7,7 @@ import globalNavTarget from './global-nav-target';
 import header from './header';
 import loginInfo from './login-info';
 import upload from './upload';
+import misc from './misc';
 
 const rootReducer = combineReducers({
   analysis,
@@ -14,7 +15,8 @@ const rootReducer = combineReducers({
   globalNavTarget,
   header,
   loginInfo,
-  upload
+  upload,
+  misc
 });
 
 const wrappedReducer = (state, action) => {

@@ -4,6 +4,7 @@ import Body from '../body';
 import FrontPage from '../body/front-page';
 import Analysis from './analysis';
 import Upload from './upload';
+import Misc from './misc';
 
 const BodyContainer = connect(
   ({ globalNavTarget: filterKey }) => ({ backupKey: '', filterKey }),
@@ -12,7 +13,8 @@ const BodyContainer = connect(
     children: [
       <FrontPage groupKey='' key='' />,
       <Upload groupKey='upload' key='upload' />,
-      <Analysis groupKey='analysis' key='analysis' />
+      <Analysis groupKey='analysis' key='analysis' />,
+      <Misc groupKey='misc' key='misc' />
     ]
   })
 )(Body);
