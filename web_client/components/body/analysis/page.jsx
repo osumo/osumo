@@ -18,6 +18,7 @@ class Page extends React.Component {
       objects,
       onAction,
       onFileSelect,
+      onItemSave,
       onStateChange,
       states
     } = this.props;
@@ -92,6 +93,9 @@ class Page extends React.Component {
                       states={states}
                       onAction={onAction}
                       onFileSelect={() => onFileSelect(element)}
+                      onItemSave={
+                        (item, name) => onItemSave(item, name, element)
+                      }
                       onStateChange={(state) => onStateChange(element, state)}
                       onChildFileSelect={onFileSelect}
                       onChildStateChange={onStateChange}

@@ -24,6 +24,7 @@ class Element extends React.Component {
       onAction,
       onChildFileSelect,
       onChildStateChange,
+      onItemSave,
       onFileSelect,
       onStateChange,
       ...props
@@ -153,7 +154,7 @@ class Element extends React.Component {
           <GirderItemElement
             key='result'
             onStateChange={onStateChange}
-            onFileSelect={onFileSelect}
+            onItemSave={onItemSave}
             state={state}
             children={children}
             {...props}

@@ -7,7 +7,6 @@ import { store } from '../globals';
 import loadModel from '../utils/load-model';
 
 import ItemModel from 'girder/models/ItemModel';
-import { formatSize } from 'girder/misc';
 
 const dispatch = store.dispatch.bind(store);
 
@@ -102,13 +101,7 @@ const applyMatch = (data, page) => {
           .then(() => Promise.mapSeries(
             items,
             (item) => dispatch(actions.addAnalysisElement(
-              {
-                type: 'girderItem',
-                downloadUrl: item.downloadUrl(),
-                inlineUrl: item.downloadUrl({ contentDisposition: 'inline' }),
-                name: item.name(),
-                size: formatSize(item.get('size'))
-              },
+              { type: 'girderItem', item },
               priorData.page2
             ))
           ))
