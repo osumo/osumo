@@ -3,8 +3,11 @@ import { connect } from 'react-redux';
 import Analysis from '../body/analysis';
 import actions from '../../actions';
 import { rest } from '../../globals';
+import { OSUMO_TMP_DIR_NAME } from '../../constants';
 import objectReduce from '../../utils/object-reduce';
 import { Promise } from '../../utils/promise';
+import loadModel from '../../utils/load-model';
+import ItemModel from 'girder/models/ItemModel';
 
 import baseAnalysisModules from '../../analysis-modules/base-listing';
 
@@ -120,6 +123,10 @@ const AnalysisContainer = connect(
               ) {
                 result = false;
               }
+            } else if (item._modelType === 'folder') {
+              if (item.name === OSUMO_TMP_DIR_NAME) {
+                result = false;
+              }
             }
 
             return result;
@@ -144,6 +151,28 @@ const AnalysisContainer = connect(
 
       .then(() => dispatch(actions.openFileSelectorDialog()))
     ),
+
+    onItemSave: (item, name, itemWidget) => {
+      dispatch(actions.ensurePrivateDirectory({ returnModel: true }))
+        .then((parent) => {
+          let data = {
+            folderId: parent.id,
+            name
+          };
+
+          data = Object.entries(data)
+            .map(([k, v]) => `${k}=${v}`)
+            .join('&');
+
+          rest({
+            path: `item/${item.id}/copy?${data}`,
+            type: 'POST'
+          })
+            .then(({ response: { _id } }) => loadModel(_id, ItemModel))
+            .then((newItem) => dispatch(actions.updateAnalysisElementState(
+              itemWidget, { savedItem: newItem })));
+        });
+    },
 
     onPageClick: (page) => dispatch(actions.setCurrentAnalysisPage(page)),
 

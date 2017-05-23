@@ -13,6 +13,7 @@ class Analysis extends React.Component {
       onBaseAnalysis,
       onAction,
       onFileSelect,
+      onItemSave,
       onPageClick,
       onStateChange,
       objects,
@@ -54,6 +55,7 @@ class Analysis extends React.Component {
                 )
               }
               onFileSelect={onFileSelect}
+              onItemSave={onItemSave}
               onStateChange={onStateChange}
               key={page.id}
             />
