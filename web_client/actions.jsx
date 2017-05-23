@@ -2,6 +2,7 @@ import { isNil, isString, isUndefined } from 'lodash';
 import URI from 'urijs';
 
 import globals from './globals';
+import { OSUMO_TMP_DIR_NAME } from './constants';
 import { Promise } from './utils/promise';
 import ACTION_TYPES from './reducer/action-types';
 
@@ -258,7 +259,7 @@ export const ensureScratchDirectory = (() => {
   return (args) => {
     if (!singleton) {
       singleton = ensureUserDirectory({
-        name: '__osumo_tmp',
+        name: OSUMO_TMP_DIR_NAME,
         description: 'Temporary Staging Space',
         ...args
       });

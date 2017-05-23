@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Analysis from '../body/analysis';
 import actions from '../../actions';
 import { rest } from '../../globals';
+import { OSUMO_TMP_DIR_NAME } from '../../constants';
 import objectReduce from '../../utils/object-reduce';
 import { Promise } from '../../utils/promise';
 import loadModel from '../../utils/load-model';
@@ -123,7 +124,7 @@ const AnalysisContainer = connect(
                 result = false;
               }
             } else if (item._modelType === 'folder') {
-              if (item.name === '__osumo_tmp') {
+              if (item.name === OSUMO_TMP_DIR_NAME) {
                 result = false;
               }
             }
