@@ -55,7 +55,9 @@ class RowExtractor(object):
     def next(self):
         """Return the next row in a csv file."""
         read_until(self.file, '\n')
-        field = read_until(self.file, self.dialect.delimiter)
+
+        field = read_until(self.file, self.dialect.delimiter)[:-1]
+
         if not field:
             raise StopIteration
 
