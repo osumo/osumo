@@ -45,4 +45,5 @@ def get_task_specs():
         for file in file_list)
     return {
         key: get_task_spec(key)
-        for key in key_list}
+        for key in key_list
+    }
