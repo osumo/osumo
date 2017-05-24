@@ -19,7 +19,20 @@ class Header extends React.Component {
     return (
       <div id='g-app-header-container'>
         <div className='g-header-wrapper'>
-          <div className='g-app-title' onClick={onTitle}>
+          <div
+            style={{
+              cursor: 'pointer',
+              float: 'left',
+              fontSize: '1.8em',
+              fontFamily: 'Droid Sans,sans-serif',
+              fontWeight: 'bold'
+            }}
+            onClick={onTitle}
+          >
+            <img
+              style={{ height: '2em' }}
+              src='img/logos/osumo-inv.png'
+            />
             SUMO
           </div>
           <User
