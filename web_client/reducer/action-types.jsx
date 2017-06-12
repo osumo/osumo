@@ -32,6 +32,7 @@ export default ([
   'SET_GLOBAL_NAV_TARGET',
   /* user and token */
   'SET_LOGIN_INFO',
+  'SET_MISC_TAB_KEY',
   'SET_UPLOAD_MODE_DRAGGING',
   'SET_UPLOAD_MODE_DEFAULT',
   'SET_UPLOAD_MODE_UPLOADING',

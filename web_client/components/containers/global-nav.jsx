@@ -22,6 +22,13 @@ const GlobalNavContainer = connect(
         name='Analysis'
         groupKey='analysis'
         key='analysis'
+      />,
+
+      <GlobalNavEntry
+        icon='icon-sliders'
+        name='Miscellaneous'
+        groupKey='misc'
+        key='misc'
       />
     ]
   })
